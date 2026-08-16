@@ -4,6 +4,7 @@ import { EVIDENCE_LABEL } from "../data/protocols.js";
 import { Dial } from "./Dial.jsx";
 import { Stat } from "./ui.jsx";
 import { useNarrate } from "./Speak.jsx";
+import { protocolLineId } from "../data/voices.js";
 import { formatDuration } from "../lib/util.js";
 
 /**
@@ -27,7 +28,11 @@ export function Runner({ protocol, onClose }) {
 
   // The guide reads each step aloud as it arrives — this is the room where a
   // spoken voice earns its place.
-  useNarrate(phase === "run" && step ? `${step.label}. ${step.detail}` : "", phase === "run");
+  useNarrate(
+    protocolLineId(protocol.id, i),
+    phase === "run" && step ? `${step.label}. ${step.detail}` : "",
+    phase === "run"
+  );
 
   useEffect(() => {
     const prev = document.body.style.overflow;

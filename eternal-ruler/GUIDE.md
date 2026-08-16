@@ -50,10 +50,25 @@ it's your own data, so you already know what else was going on.
 
 ## The voice
 
-A woman's voice reads each protocol step aloud as it arrives, marks completed steps, and reads
-anything with a ▶ Listen button. `◉))` in the header mutes her. Settings picks the voice, pace and pitch.
+Six to choose from in the **Voice Library** — pick by ear, not by name.
 
-It's your device's own speech synthesis — nothing is sent anywhere, and quality depends on what's installed.
+| | Tone | For |
+| --- | --- | --- |
+| **Solace** | Soothing | The nights |
+| **Stillness** | Peaceful | Sitting |
+| **Dawn** | Calm | The morning |
+| **Aurora** | Warm | The hard days |
+| **Deep Water** | Grounded | Coming back down |
+| **Your Own Voice** | Yours | 77 lines you record |
+
+She reads each protocol step as it arrives, marks completed steps, and reads anything with ▶ Listen.
+`◉))` in the header mutes her.
+
+**Your own voice** replaces any line you record; anything unrecorded falls back to Solace, so you're
+never forced to finish all 77 before it works.
+
+It's your device's own speech synthesis — nothing is sent anywhere, works offline, and the timbre
+depends on what your OS has installed. The pace and pitch are ours and travel.
 
 ---
 

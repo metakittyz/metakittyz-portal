@@ -13,6 +13,7 @@ import { Council } from "./views/Council.jsx";
 import { Profile } from "./views/Profile.jsx";
 import { Settings } from "./views/Settings.jsx";
 import { Calendar } from "./views/Calendar.jsx";
+import { VoiceLibrary } from "./views/VoiceLibrary.jsx";
 import { VoiceToggle } from "./components/Speak.jsx";
 import { NeedNow } from "./components/NeedNow.jsx";
 import { Runner } from "./components/Runner.jsx";
@@ -29,6 +30,7 @@ const ROUTES = [
   { key: "council", label: "Council", View: Council },
   { key: "profile", label: "Profile", View: Profile, more: true },
   { key: "calendar", label: "Calendar", View: Calendar, more: true },
+  { key: "voicelib", label: "Guide Voice", View: VoiceLibrary, more: true },
   { key: "library", label: "Library", View: Library, more: true },
   { key: "settings", label: "Settings", View: Settings, more: true },
 ];

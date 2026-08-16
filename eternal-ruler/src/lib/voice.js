@@ -5,6 +5,9 @@
 // installed on the device, and a few systems ship no female voice at all. The
 // picker in Settings lets you choose any voice the device has.
 
+import { clips } from "./audio.js";
+import { DEFAULT_PRESET, presetById } from "../data/voices.js";
+
 let cachedVoices = null;
 const listeners = new Set();
 
@@ -140,4 +143,90 @@ export function speak(text, settings = {}, { onEnd } = {}) {
 export function speakLines(lines, settings = {}) {
   const text = lines.filter(Boolean).join(". … ");
   return speak(text, settings);
+}
+
+// ---------------------------------------------------------------------------
+// Presets and own-voice playback
+// ---------------------------------------------------------------------------
+
+/** Resolve a preset to an actual device voice, honouring a manual override. */
+export function resolvePreset(presetId, overrideURI) {
+  const preset = presetById[presetId] || presetById[DEFAULT_PRESET];
+  const voices = getVoices();
+  if (overrideURI) {
+    const exact = voices.find((v) => v.voiceURI === overrideURI);
+    if (exact) return { preset, voice: exact };
+  }
+  // First device voice matching one of the preset's preferred names…
+  for (const want of preset.prefer || []) {
+    const hit = voices.find((v) => hasWord((v.name || "").toLowerCase(), want));
+    if (hit) return { preset, voice: hit };
+  }
+  // …otherwise the best female-sounding voice available.
+  return { preset, voice: pickGuideVoice() };
+}
+
+/** Turn the stored voice settings into the shape `speak` wants. */
+export function settingsFor(voiceState) {
+  const { preset, voice } = resolvePreset(voiceState.presetId, voiceState.voiceURI);
+  return {
+    voiceURI: voice?.voiceURI || "",
+    rate: voiceState.rateOffset ? preset.rate + voiceState.rateOffset : preset.rate,
+    pitch: voiceState.pitchOffset ? preset.pitch + voiceState.pitchOffset : preset.pitch,
+    preset,
+    voice,
+  };
+}
+
+let currentAudio = null;
+
+export function stopClip() {
+  if (currentAudio) {
+    currentAudio.pause();
+    if (currentAudio.src.startsWith("blob:")) URL.revokeObjectURL(currentAudio.src);
+    currentAudio = null;
+  }
+}
+
+export function stopAll() {
+  stopSpeaking();
+  stopClip();
+}
+
+/**
+ * Speak one addressable line. When "Your Own Voice" is selected and a recording
+ * exists for this line, your recording plays. Anything unrecorded falls back to
+ * the preset's synthesized voice, so the guide is never silent.
+ */
+export async function speakLine(lineId, text, voiceState, { onEnd } = {}) {
+  if (!voiceState.enabled) return false;
+  stopAll();
+
+  if (voiceState.presetId === "own" && lineId) {
+    try {
+      const blob = await clips.get(`guide:${lineId}`);
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        currentAudio = audio;
+        audio.onended = () => {
+          stopClip();
+          onEnd?.();
+        };
+        audio.onerror = () => {
+          stopClip();
+          onEnd?.();
+        };
+        await audio.play().catch(() => {
+          stopClip();
+          speak(text, settingsFor(voiceState), { onEnd });
+        });
+        return true;
+      }
+    } catch {
+      /* fall through to synthesis */
+    }
+  }
+
+  return speak(text, settingsFor(voiceState), { onEnd });
 }

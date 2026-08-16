@@ -1,42 +1,50 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useStore } from "../lib/store.jsx";
-import { onVoicesReady, pickGuideVoice, speak, speechSupported, stopSpeaking } from "../lib/voice.js";
+import {
+  onVoicesReady,
+  resolvePreset,
+  speakLine,
+  speechSupported,
+  stopAll,
+} from "../lib/voice.js";
 
-/** Speak on demand, honouring the global mute. */
+/**
+ * Speak on demand. Every call carries a line id so that "Your Own Voice" can
+ * substitute your recording for that exact line.
+ */
 export function useGuide() {
   const { state } = useStore();
   const v = state.voice;
 
   const say = useCallback(
-    (text, opts) => {
+    (lineId, text, opts) => {
       if (!v.enabled || !text) return false;
-      return speak(text, v, opts);
+      return speakLine(lineId, text, v, opts);
     },
     [v]
   );
 
-  // Never leave the guide talking into an empty room.
-  useEffect(() => stopSpeaking, []);
+  useEffect(() => stopAll, []);
 
-  return { say, stop: stopSpeaking, enabled: v.enabled, supported: speechSupported() };
+  return { say, stop: stopAll, enabled: v.enabled, supported: speechSupported() };
 }
 
-/** Auto-speak `text` whenever it changes. Used for guided protocol steps. */
-export function useNarrate(text, active = true) {
+/** Auto-speak whenever the line changes. Used for guided protocol steps. */
+export function useNarrate(lineId, text, active = true) {
   const { say } = useGuide();
   useEffect(() => {
     if (!active || !text) return undefined;
-    say(text);
-    return stopSpeaking;
-  }, [text, active, say]);
+    say(lineId, text);
+    return stopAll;
+  }, [lineId, text, active, say]);
 }
 
 /** A small "read this aloud" button. */
-export function SpeakButton({ text, label = "Listen", className = "btn ghost sm" }) {
+export function SpeakButton({ lineId = null, text, label = "Listen", className = "btn ghost sm" }) {
   const { say, stop, enabled, supported } = useGuide();
   const [talking, setTalking] = useState(false);
 
-  useEffect(() => stopSpeaking, []);
+  useEffect(() => stopAll, []);
   if (!supported || !enabled) return null;
 
   return (
@@ -49,7 +57,7 @@ export function SpeakButton({ text, label = "Listen", className = "btn ghost sm"
           return;
         }
         setTalking(true);
-        say(text, { onEnd: () => setTalking(false) });
+        say(lineId, text, { onEnd: () => setTalking(false) });
       }}
     >
       {talking ? "◼ Stop" : `▶ ${label}`}
@@ -66,7 +74,7 @@ export function VoiceToggle() {
     <button
       className={`voice-toggle ${on ? "on" : ""}`}
       onClick={() => {
-        if (on) stopSpeaking();
+        if (on) stopAll();
         store.setVoice({ enabled: !on });
       }}
       title={on ? "Guide voice on — tap to mute" : "Guide voice muted — tap to unmute"}
@@ -78,11 +86,11 @@ export function VoiceToggle() {
   );
 }
 
-/** Live list of device voices, for the Settings picker. */
+/** Live list of device voices, for the manual override picker. */
 export function useDeviceVoices() {
   const [voices, setVoices] = useState([]);
   useEffect(() => onVoicesReady(() => setVoices([...(window.speechSynthesis.getVoices() || [])])), []);
   return voices;
 }
 
-export { pickGuideVoice };
+export { resolvePreset };

@@ -4,11 +4,10 @@ import { Check, DangerButton, Field, Panel } from "../components/ui.jsx";
 import { remarkById } from "../data/remarks.js";
 import { codexById } from "../data/codex.js";
 import { TOTAL_DAYS } from "../data/path.js";
-import { useDeviceVoices } from "../components/Speak.jsx";
-import { isLikelyFemale, pickGuideVoice, speak, speechSupported, stopSpeaking } from "../lib/voice.js";
+import { resolvePreset, speechSupported, stopAll } from "../lib/voice.js";
 import { dayKey, download, prettyDate } from "../lib/util.js";
 
-export function Settings() {
+export function Settings({ go }) {
   const store = useStore();
   const { state } = store;
   const fileRef = useRef(null);
@@ -104,7 +103,7 @@ export function Settings() {
         <div className="field-hint">Restarting clears your position only. Your journal and data are untouched.</div>
       </Panel>
 
-      <VoicePanel store={store} />
+      <VoiceSummary store={store} go={go} />
 
       <Panel title="Intensity">
         <Check
@@ -256,66 +255,48 @@ export function Settings() {
 }
 
 // ---------------------------------------------------------------- voice ----
-function VoicePanel({ store }) {
+function VoiceSummary({ store, go }) {
   const v = store.state.voice;
-  const voices = useDeviceVoices();
-  const current = pickGuideVoice(v.voiceURI);
-
-  if (!speechSupported()) {
-    return (
-      <Panel title="The guide voice">
-        <p className="small soft" style={{ marginBottom: 0 }}>
-          This browser has no speech synthesis, so the guide can&apos;t speak here. Everything else works.
-        </p>
-      </Panel>
-    );
-  }
+  const recorded = Object.keys(store.state.ownVoice).length;
+  const { preset, voice } = resolvePreset(v.presetId, v.voiceURI);
 
   return (
     <Panel title="The guide voice">
-      <Check checked={v.enabled} onChange={(on) => { if (!on) stopSpeaking(); store.setVoice({ enabled: on }); }} title="Speak to me">
-        The guide reads each protocol step aloud as it arrives, marks completed steps, and reads anything
-        with a ▶ Listen button. Mute any time from the ◉ in the header.
-      </Check>
-
-      <Field label="Voice" hint={
-        current
-          ? isLikelyFemale(current)
-            ? `Using ${current.name}.`
-            : `Using ${current.name} — this device may not have a female voice installed. Try another below.`
-          : "No voices found on this device yet."
-      }>
-        <select value={v.voiceURI} onChange={(e) => store.setVoice({ voiceURI: e.target.value })}>
-          <option value="">Best female voice on this device</option>
-          {voices.map((o) => (
-            <option key={o.voiceURI} value={o.voiceURI}>
-              {o.name} ({o.lang}){isLikelyFemale(o) ? " ♀" : ""}
-            </option>
-          ))}
-        </select>
-      </Field>
-
-      <div className="grid two">
-        <Field label={`Pace · ${v.rate.toFixed(2)}×`}>
-          <input type="range" min="0.6" max="1.3" step="0.02" value={v.rate}
-            onChange={(e) => store.setVoice({ rate: Number(e.target.value) })} />
-        </Field>
-        <Field label={`Pitch · ${v.pitch.toFixed(2)}`}>
-          <input type="range" min="0.7" max="1.5" step="0.02" value={v.pitch}
-            onChange={(e) => store.setVoice({ pitch: Number(e.target.value) })} />
-        </Field>
-      </div>
-
-      <button className="btn sm" onClick={() => speak(
-        "I'm here. Settle your body, and let the exhale get longer than the inhale. You are exactly where you need to be.", v
-      )}>
-        ▶ Hear her
-      </button>
-
-      <div className="field-hint">
-        The voice comes from your device, not from a server — nothing you do here is sent anywhere. Quality
-        varies by device, and a few systems ship no female voice at all; the picker lists everything yours has.
-      </div>
+      {speechSupported() ? (
+        <>
+          <div className="reading-row">
+            <span className="small">Voice</span>
+            <span className="chip static">
+              {preset.glyph} {preset.name} · {preset.tone}
+            </span>
+          </div>
+          <div className="reading-row">
+            <span className="small">Speaking as</span>
+            <span className="small soft">
+              {v.presetId === "own"
+                ? `${recorded} line${recorded === 1 ? "" : "s"} in your voice`
+                : voice?.name || "no device voice found"}
+            </span>
+          </div>
+          <Check
+            checked={v.enabled}
+            onChange={(on) => {
+              if (!on) stopAll();
+              store.setVoice({ enabled: on });
+            }}
+            title="Speak to me"
+          >
+            Mute any time from the ◉ in the header.
+          </Check>
+          <button className="btn" onClick={() => go("voicelib")}>
+            Open the Voice Library
+          </button>
+        </>
+      ) : (
+        <p className="small soft" style={{ marginBottom: 0 }}>
+          This browser has no speech synthesis, so the guide can&apos;t speak here.
+        </p>
+      )}
     </Panel>
   );
 }

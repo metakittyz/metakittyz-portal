@@ -18,7 +18,10 @@ import { REMARKS } from "../data/remarks.js";
 import { Runner } from "../components/Runner.jsx";
 import { Modal, Panel } from "../components/ui.jsx";
 import { SpeakButton, useGuide } from "../components/Speak.jsx";
+import { APP_LINES } from "../data/voices.js";
 import { dayKey, pickForDay, streakFrom } from "../lib/util.js";
+
+const APP_LINE = Object.fromEntries(APP_LINES.map((l) => [l.id, l.text]));
 
 export function Path({ go }) {
   const store = useStore();
@@ -209,13 +212,13 @@ function Done({ justDid, onContinue, go, graduated, completedCount }) {
 
   // The guide marks the moment — once, on arrival.
   React.useEffect(() => {
-    say(
-      justDid.milestone
-        ? "Milestone. One of five markers on this road."
-        : graduated
-          ? "Done. Another turn of your own rhythm."
-          : `Step ${justDid.day} complete. The path moved.`
-    );
+    // Fixed text per line id, so a recording of your own voice can stand in.
+    const id = justDid.milestone
+      ? "app:milestone"
+      : graduated
+        ? "app:practice-complete"
+        : "app:step-complete";
+    say(id, APP_LINE[id]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (

@@ -42,9 +42,10 @@ export const EMPTY_STATE = {
     reduceMotion: false,
     anchorHour: 7,
   },
-  // The guide voice. `voiceURI` empty means "pick the best female voice on
-  // this device automatically".
-  voice: { enabled: true, voiceURI: "", rate: 0.92, pitch: 1.02 },
+  // The guide voice. `presetId` names a character from the Voice Library;
+  // `voiceURI` empty means "let the preset choose the device voice".
+  voice: { enabled: true, presetId: "solace", voiceURI: "", rateOffset: 0, pitchOffset: 0 },
+  ownVoice: {}, // lineId -> { at, duration }; the audio lives in IndexedDB
 };
 
 function load() {
@@ -132,6 +133,16 @@ export function StoreProvider({ children }) {
       },
       setVoice(patch) {
         update((prev) => ({ voice: { ...prev.voice, ...patch } }));
+      },
+      setOwnLine(lineId, meta) {
+        update((prev) => ({ ownVoice: { ...prev.ownVoice, [lineId]: meta } }));
+      },
+      clearOwnLine(lineId) {
+        update((prev) => {
+          const next = { ...prev.ownVoice };
+          delete next[lineId];
+          return { ownVoice: next };
+        });
       },
       markSealsSeen(ids) {
         update((prev) => ({ sealsSeen: [...new Set([...prev.sealsSeen, ...ids])] }));

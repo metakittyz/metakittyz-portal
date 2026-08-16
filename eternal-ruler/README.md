@@ -113,25 +113,41 @@ ones actually work **for you** rather than which ones sound good.
 
 ---
 
-## The guide voice
+## The Voice Library
 
-A woman's voice reads the app to you. It uses the browser's built-in speech
-synthesis — no API key, no server, works offline.
+Six choices for who reads the app to you.
 
-She speaks in three places, chosen so she guides rather than nags:
+| | Tone | For |
+| --- | --- | --- |
+| **Solace** | Soothing | Low and unhurried. For the nights. |
+| **Stillness** | Peaceful | Very slow, plenty of air. For sitting. |
+| **Dawn** | Calm | Even and clear. For the morning. |
+| **Aurora** | Warm | Bright and close. For the hard days. |
+| **Deep Water** | Grounded | Low, slow, weighted. For coming back down. |
+| **Your Own Voice** | Yours | You record the lines. |
 
-- **Every protocol step, automatically** — this is the room a spoken voice earns. The timer runs, she
-  reads the step, you keep your eyes closed.
-- **Anything with a ▶ Listen button** — today's step, the daily remark.
-- **A short line when you complete a step.**
+Solace is the default. Every preset has a ▶ Hear button so you pick by ear, not by name.
 
-Everywhere else she stays quiet. The `◉))` in the header mutes her instantly.
+**What a preset actually is.** Browsers only expose whatever voices the operating system has, so a
+preset is a *character*, not a file: a tuned pace and pitch, plus an ordered list of device voices to
+reach for, falling back to the best female voice available. That means Solace resolves to Samantha on
+a Mac and something else on Android — the pace and pitch are ours and travel intact, the timbre is
+whatever the device has. Fine tuning lets you override the device voice outright and nudge pace and
+pitch.
 
-**The honest limits.** Voice quality is entirely down to what's installed on the device, and a few
-systems ship no female voice at all. The app scores available voices by name (whole-word matching, so
-"Sa*man*tha" isn't read as male) and picks the best female one it finds; Settings lists every voice
-the device has, marks the female ones ♀, and lets you set pace and pitch. If the auto-pick lands on a
-male voice, Settings says so rather than pretending.
+### Your own voice
+
+Every line the guide speaks is addressable, and you can record any of them yourself — **77 lines** in
+15 areas: four app moments (step complete, milestone, practice complete, greeting) and every step of
+all fourteen protocols.
+
+Record as many or as few as you like. Recorded lines play in your voice; anything unrecorded falls
+back to Solace, so the guide is never silent and you're never forced to finish all 77 before it's
+useful. Audio lives in IndexedDB alongside your Voice Room recordings.
+
+The guide speaks in three places, chosen so she guides rather than nags: every protocol step
+automatically, anything with a ▶ Listen button, and a short line when you complete a step. Everywhere
+else she stays quiet. The `◉))` in the header mutes her instantly.
 
 ---
 
@@ -187,6 +203,7 @@ Implemented in [`src/lib/temperature.js`](src/lib/temperature.js).
 | **Forge** | Manifestation as engineering, plus your life goals. |
 | **Council** | Mentor directory, session requests, mentor profiles, field notes. |
 | **Calendar** | Every day you showed up, your runs, and eighteen seals earned by consistency. |
+| **Guide Voice** | Pick from six voices, or record all 77 guide lines in your own. |
 | **Library** | Every practice and all 29 long-form entries, if you want to go looking. |
 
 ---
@@ -284,6 +301,7 @@ src/
     domains.js            the twelve rated domains
     intake.js             the five intake channels + the charge scale
     seals.js              the eighteen consistency rewards
+    voices.js             the six voice presets + every addressable guide line
     mentors.js            sample Council profiles + terms
   components/
     Speak.jsx             the guide voice: hook, Listen button, mute toggle
@@ -293,7 +311,7 @@ src/
     ui.jsx                Panel, Modal, Stat, Bar, Spark, DangerButton, Field, Check
   views/                  Onboarding, Threshold, Path, Journal, Attunement,
                           Intake, VoiceRoom, Manifest, Goals, Library, Council,
-                          Calendar, Profile, Settings
+                          Calendar, VoiceLibrary, Profile, Settings
 ```
 
 ---
