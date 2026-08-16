@@ -1,0 +1,309 @@
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { dayKey, uid } from "./util.js";
+
+// ---------------------------------------------------------------------------
+// Everything lives in this one JSON blob in localStorage. That is a deliberate
+// choice for the beta: your journal, your ratings, and your deeply personal
+// answers never leave the device. It is also the main limitation — see
+// README "Where your data lives".
+// ---------------------------------------------------------------------------
+
+const KEY = "eternal_ruler:state:v1";
+const VERSION = 1;
+
+export const EMPTY_STATE = {
+  version: VERSION,
+  consent: null,
+  profile: { name: "", higherSelfName: "", intention: "" },
+  checkins: {}, // dayKey -> { at, readings: { domainId: {self, higher} }, note }
+  journal: [],
+  goals: [],
+  manifestations: [],
+  recordings: [], // metadata only; audio blobs live in IndexedDB
+  practiceLog: {}, // dayKey -> [protocolId]
+  ascentLog: [], // { id, at, protocolId, secondsHeld, stateBefore, stateAfter }
+  savedRemarks: [],
+  remarkNotes: {},
+  codexSaved: [],
+  council: { mentorProfile: null, requests: [], threads: [] },
+  settings: {
+    showDeepPrompts: true,
+    reduceMotion: false,
+    anchorHour: 7,
+  },
+};
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return { ...EMPTY_STATE };
+    const parsed = JSON.parse(raw);
+    // Shallow-merge so a state file written by an older build still boots.
+    return {
+      ...EMPTY_STATE,
+      ...parsed,
+      profile: { ...EMPTY_STATE.profile, ...(parsed.profile || {}) },
+      settings: { ...EMPTY_STATE.settings, ...(parsed.settings || {}) },
+      council: { ...EMPTY_STATE.council, ...(parsed.council || {}) },
+    };
+  } catch (err) {
+    console.warn("Eternal Ruler: could not read saved state, starting fresh.", err);
+    return { ...EMPTY_STATE };
+  }
+}
+
+const StoreContext = createContext(null);
+
+export function StoreProvider({ children }) {
+  const [state, setState] = useState(load);
+  const writeTimer = useRef(null);
+
+  useEffect(() => {
+    clearTimeout(writeTimer.current);
+    writeTimer.current = setTimeout(() => {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(state));
+      } catch (err) {
+        console.error("Eternal Ruler: save failed (storage may be full).", err);
+      }
+    }, 250);
+    return () => clearTimeout(writeTimer.current);
+  }, [state]);
+
+  const update = useCallback((fn) => setState((prev) => ({ ...prev, ...fn(prev) })), []);
+
+  const api = useMemo(() => {
+    const patchList = (listName, id, patch) => (prev) => ({
+      [listName]: prev[listName].map((item) => (item.id === id ? { ...item, ...patch } : item)),
+    });
+
+    return {
+      // ---- consent + profile -------------------------------------------------
+      acceptThreshold(record) {
+        const { name, higherSelfName, intention, ...gates } = record;
+        update((prev) => ({
+          consent: { ...gates, acceptedAt: new Date().toISOString() },
+          // What you typed at the gate becomes your profile — re-reading the
+          // threshold later shouldn't make you introduce yourself again.
+          profile: {
+            name: name || prev.profile.name,
+            higherSelfName: higherSelfName || prev.profile.higherSelfName,
+            intention: intention || prev.profile.intention,
+          },
+        }));
+      },
+      revokeThreshold() {
+        update(() => ({ consent: null }));
+      },
+      setProfile(patch) {
+        update((prev) => ({ profile: { ...prev.profile, ...patch } }));
+      },
+      setSettings(patch) {
+        update((prev) => ({ settings: { ...prev.settings, ...patch } }));
+      },
+
+      // ---- hot & cold check-ins ---------------------------------------------
+      saveCheckin(readings, note = "") {
+        const key = dayKey();
+        update((prev) => ({
+          checkins: {
+            ...prev.checkins,
+            [key]: { at: new Date().toISOString(), readings, note },
+          },
+        }));
+        return key;
+      },
+      deleteCheckin(key) {
+        update((prev) => {
+          const next = { ...prev.checkins };
+          delete next[key];
+          return { checkins: next };
+        });
+      },
+
+      // ---- journal -----------------------------------------------------------
+      addEntry(entry) {
+        const record = {
+          id: uid("jrnl"),
+          at: new Date().toISOString(),
+          dayKey: dayKey(),
+          title: "",
+          body: "",
+          promptId: null,
+          tags: [],
+          flagged: false,
+          recordingId: null,
+          ...entry,
+        };
+        update((prev) => ({ journal: [record, ...prev.journal] }));
+        return record;
+      },
+      updateEntry(id, patch) {
+        update(patchList("journal", id, patch));
+      },
+      deleteEntry(id) {
+        update((prev) => ({ journal: prev.journal.filter((e) => e.id !== id) }));
+      },
+
+      // ---- goals -------------------------------------------------------------
+      addGoal(goal) {
+        const record = {
+          id: uid("goal"),
+          createdAt: new Date().toISOString(),
+          title: "",
+          why: "",
+          domain: "purpose",
+          nextAction: "",
+          horizon: "",
+          done: false,
+          doneAt: null,
+          ...goal,
+        };
+        update((prev) => ({ goals: [record, ...prev.goals] }));
+        return record;
+      },
+      updateGoal(id, patch) {
+        update(patchList("goals", id, patch));
+      },
+      toggleGoal(id) {
+        update((prev) => ({
+          goals: prev.goals.map((g) =>
+            g.id === id ? { ...g, done: !g.done, doneAt: g.done ? null : new Date().toISOString() } : g
+          ),
+        }));
+      },
+      deleteGoal(id) {
+        update((prev) => ({ goals: prev.goals.filter((g) => g.id !== id) }));
+      },
+
+      // ---- manifestations ----------------------------------------------------
+      addManifestation(m) {
+        const record = {
+          id: uid("mnfs"),
+          createdAt: new Date().toISOString(),
+          title: "",
+          desire: "",
+          whyItMatters: "",
+          currentPosition: "",
+          identityShift: "",
+          alreadyTrue: "",
+          dailyMinimum: "",
+          obstacles: [],
+          milestones: [],
+          evidence: [],
+          archived: false,
+          ...m,
+        };
+        update((prev) => ({ manifestations: [record, ...prev.manifestations] }));
+        return record;
+      },
+      updateManifestation(id, patch) {
+        update(patchList("manifestations", id, patch));
+      },
+      deleteManifestation(id) {
+        update((prev) => ({ manifestations: prev.manifestations.filter((m) => m.id !== id) }));
+      },
+
+      // ---- voice -------------------------------------------------------------
+      addRecording(meta) {
+        const record = {
+          id: meta.id || uid("voc"),
+          at: new Date().toISOString(),
+          title: "Untitled",
+          kind: "affirmation",
+          text: "",
+          duration: 0,
+          ...meta,
+        };
+        update((prev) => ({ recordings: [record, ...prev.recordings] }));
+        return record;
+      },
+      updateRecording(id, patch) {
+        update(patchList("recordings", id, patch));
+      },
+      removeRecording(id) {
+        update((prev) => ({ recordings: prev.recordings.filter((r) => r.id !== id) }));
+      },
+
+      // ---- practices + ascents ----------------------------------------------
+      logPractice(protocolId) {
+        const key = dayKey();
+        update((prev) => {
+          const today = prev.practiceLog[key] || [];
+          if (today.includes(protocolId)) return {};
+          return { practiceLog: { ...prev.practiceLog, [key]: [...today, protocolId] } };
+        });
+      },
+      unlogPractice(protocolId) {
+        const key = dayKey();
+        update((prev) => ({
+          practiceLog: { ...prev.practiceLog, [key]: (prev.practiceLog[key] || []).filter((p) => p !== protocolId) },
+        }));
+      },
+      logAscent(record) {
+        update((prev) => ({
+          ascentLog: [{ id: uid("asc"), at: new Date().toISOString(), ...record }, ...prev.ascentLog].slice(0, 500),
+        }));
+      },
+
+      // ---- remarks + codex ---------------------------------------------------
+      toggleSavedRemark(id) {
+        update((prev) => ({
+          savedRemarks: prev.savedRemarks.includes(id)
+            ? prev.savedRemarks.filter((r) => r !== id)
+            : [id, ...prev.savedRemarks],
+        }));
+      },
+      setRemarkNote(id, text) {
+        update((prev) => ({ remarkNotes: { ...prev.remarkNotes, [id]: text } }));
+      },
+      toggleCodexSaved(id) {
+        update((prev) => ({
+          codexSaved: prev.codexSaved.includes(id)
+            ? prev.codexSaved.filter((c) => c !== id)
+            : [id, ...prev.codexSaved],
+        }));
+      },
+
+      // ---- council -----------------------------------------------------------
+      setMentorProfile(profile) {
+        update((prev) => ({ council: { ...prev.council, mentorProfile: profile } }));
+      },
+      addMentorRequest(request) {
+        const record = { id: uid("req"), at: new Date().toISOString(), status: "pending", ...request };
+        update((prev) => ({ council: { ...prev.council, requests: [record, ...prev.council.requests] } }));
+        return record;
+      },
+      updateMentorRequest(id, patch) {
+        update((prev) => ({
+          council: {
+            ...prev.council,
+            requests: prev.council.requests.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+          },
+        }));
+      },
+
+      // ---- data control ------------------------------------------------------
+      replaceAll(next) {
+        setState({ ...EMPTY_STATE, ...next });
+      },
+      wipe() {
+        setState({ ...EMPTY_STATE });
+        try {
+          localStorage.removeItem(KEY);
+        } catch {
+          /* nothing else to do */
+        }
+      },
+    };
+  }, [update]);
+
+  const value = useMemo(() => ({ state, ...api }), [state, api]);
+  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
+}
+
+export function useStore() {
+  const ctx = useContext(StoreContext);
+  if (!ctx) throw new Error("useStore must be used inside <StoreProvider>");
+  return ctx;
+}
