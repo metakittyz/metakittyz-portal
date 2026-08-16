@@ -20,17 +20,13 @@ export function Council() {
         <div className="eyebrow">Community</div>
         <h1>The Council</h1>
         <p className="lede">
-          People who have worked with their guides for years, offering what they actually learned. Not gurus,
-          not clinicians — practitioners further down the same road, who can be paid for their time. Plus a
-          place to write up what has worked for you, so the next person doesn&apos;t have to find it alone.
+          Not gurus, not clinicians — practitioners further down the same road, who can be paid for their time.
         </p>
       </div>
 
       <div className="note warn">
-        <strong>This beta runs entirely on your device.</strong> There is no server, so nothing here reaches
-        another human yet: the mentors below are sample profiles, session requests are saved as private drafts,
-        no payment is taken or possible, and your field notes stay in this browser until you export them
-        yourself. The interface is real; the network behind it is the next build.
+        <strong>Runs entirely on your device.</strong> No server yet, so nothing here reaches another human:
+        sample profiles, private drafts, no payments. The interface is real; the network is the next build.
       </div>
 
       <div className="row tight" style={{ marginBottom: "1.3rem" }}>
@@ -379,16 +375,13 @@ function Terms() {
         ))}
       </ul>
       <div className="note grave">
-        <strong>The oldest warning in this field.</strong> Communities built around inner experience are
-        unusually good at producing people who are certain about other people&apos;s lives. Be wary of anyone
-        who tells you what your guidance means, who positions themselves between you and your own discernment,
-        who discourages you from talking to friends or professionals, or whose fees rise as your dependence
-        does. Your connection is yours. Nobody here has privileged access to it.
+        <strong>The oldest warning in this field.</strong> Walk away from anyone who tells you what your
+        guidance means, puts themselves between you and your own discernment, discourages you from talking to
+        friends or professionals, or whose fees rise with your dependence. Your connection is yours.
       </div>
       <div className="note calm">
-        <strong>Peer support is not crisis care.</strong> If you or someone you&apos;re mentoring is in
-        danger, that is a call for emergency services or a crisis line, not a session. In the US and Canada,
-        988. In the UK and Ireland, 116 123. Elsewhere, your local emergency number or findahelpline.com.
+        <strong>Peer support is not crisis care.</strong> US &amp; Canada 988 · UK &amp; Ireland 116 123 ·
+        elsewhere, your local emergency number or findahelpline.com.
       </div>
     </Panel>
   );

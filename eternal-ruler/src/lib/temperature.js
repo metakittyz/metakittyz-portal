@@ -10,11 +10,11 @@
 // something may be gripping you that isn't actually yours.
 
 export const BANDS = [
-  { max: 19, name: "Frozen", note: "Shut down. No signal getting through." },
-  { max: 39, name: "Cold", note: "Distant. Going through the motions." },
-  { max: 59, name: "Cool", note: "Present but unlit. Neutral ground." },
-  { max: 79, name: "Warm", note: "Alive. Something is moving here." },
-  { max: 100, name: "Blazing", note: "Fully on. This is where you burn clean." },
+  { max: 19, name: "Frozen", note: "Shut down." },
+  { max: 39, name: "Cold", note: "Going through the motions." },
+  { max: 59, name: "Cool", note: "Present but unlit." },
+  { max: 79, name: "Warm", note: "Something's moving." },
+  { max: 100, name: "Blazing", note: "Fully on." },
 ];
 
 export function band(value) {
@@ -42,35 +42,31 @@ export const VERDICTS = {
     key: "calling",
     label: "A Calling",
     tone: "ember",
-    blurb:
-      "Your higher self holds more heat here than you do. This is not a scolding — it's an invitation. Something in this part of your life is waiting for you to walk toward it.",
+    blurb: "Your higher self runs hotter here. Not a scolding — an invitation.",
   },
   overreach: {
     key: "overreach",
     label: "Overreach",
     tone: "ember-cool",
-    blurb:
-      "You are running hotter here than your higher self is. That usually means want, not purpose — an attachment, a proving, an old wound wearing the costume of a goal. Worth asking whose fire this is.",
+    blurb: "You run hotter than your higher self. Usually want, not purpose. Whose fire is this?",
   },
   strength: {
     key: "strength",
     label: "Strength",
     tone: "gold",
-    blurb:
-      "You and your higher self are lit here together. This is a pillar. Protect it, and use it as the anchor when other domains go cold.",
+    blurb: "Both lit. A pillar. Anchor here when other domains go cold.",
   },
   numb: {
     key: "numb",
     label: "The Numb Zone",
     tone: "frost",
-    blurb:
-      "You agree — and you agree on cold. Either this genuinely isn't yours to carry, or it's frozen so deep that neither of you can feel it yet. Both answers are worth sitting with.",
+    blurb: "You agree, and you agree on cold. Either it isn't yours, or it's frozen deep.",
   },
   steady: {
     key: "steady",
     label: "Steady",
     tone: "neutral",
-    blurb: "Aligned, unremarkable, fine. Not everything has to be a threshold. Let this one just be.",
+    blurb: "Fine. Not everything has to be a threshold.",
   },
 };
 

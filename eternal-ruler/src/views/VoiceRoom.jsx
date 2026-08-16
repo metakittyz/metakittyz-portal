@@ -148,10 +148,8 @@ export function VoiceRoom() {
         <div className="eyebrow">Your Own Voice</div>
         <h1>The Voice Room</h1>
         <p className="lede">
-          Record yourself saying the thing you have been waiting to hear from someone else. Hearing your own
-          voice on your own side lands differently than reading it silently — you become both the one who
-          reassures and the one reassured. Record on the days you can generate it. Play it on the days you
-          can&apos;t.
+          Say the thing you&apos;ve been waiting to hear from someone else. Record it on the days you can
+          generate it. Play it on the days you can&apos;t.
         </p>
       </div>
 
@@ -248,9 +246,7 @@ export function VoiceRoom() {
       {!pending && (
         <Panel title="Scripts to start from" right={<span className="label">Or write your own</span>}>
           <p className="small soft">
-            The first read will feel absurd. That cringe is an old rule that says you&apos;re not allowed to be
-            on your own side. Read it anyway, then read it again at half speed. The second pass is the one that
-            works.
+            The first read feels absurd. Read it again at half speed — that pass is the one that works.
           </p>
           <div className="stack">
             {SCRIPTS.map((s) => (
@@ -289,10 +285,7 @@ export function VoiceRoom() {
           )
         }
       >
-        <p className="small soft">
-          The litany plays every reassurance back to back. Some people run it in the morning before touching
-          their phone. Others save it for the bad nights.
-        </p>
+        <p className="small soft">Every reassurance, back to back. Mornings, or the bad nights.</p>
         {litany && <Litany recordings={affirmations} onEnd={() => setLitany(false)} />}
         {state.recordings.length === 0 ? (
           <Empty glyph="◉">
@@ -304,15 +297,11 @@ export function VoiceRoom() {
       </Panel>
 
       <Panel title="Why this works" tone="violet">
-        <p className="small soft">
-          Two mechanisms, both reasonably supported. Addressing yourself in the second person — by name, as
-          &quot;you&quot; — creates psychological distance that measurably improves how people regulate under
-          stress. And vocalized practice across nearly every tradition on earth enforces a long, slow exhale,
-          which is the most reliable voluntary brake on your own arousal.
-        </p>
         <p className="small soft" style={{ marginBottom: 0 }}>
-          Whether you take the voice you record as your higher self, your future self, or just yourself on a
-          good day is a question you don&apos;t have to answer to get the benefit.
+          Addressing yourself as &quot;you&quot; creates distance that measurably improves regulation under
+          stress. Speaking aloud enforces a long exhale — the most reliable brake on your own arousal.
+          Whether the voice is your higher self, your future self, or you on a good day doesn&apos;t change
+          the effect.
         </p>
       </Panel>
     </>

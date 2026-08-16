@@ -132,14 +132,13 @@ export function Path({ go }) {
 
         {step.intense && (
           <div className="note warn" style={{ marginTop: "1.1rem" }}>
-            <strong>This one goes deep.</strong> You can skip it. Mark it done and move on — nothing later in
-            the path depends on it. Knowing when not to open something is a skill this work needs.
+            <strong>Goes deep.</strong> Skippable. Nothing later depends on it.
           </div>
         )}
 
         {step.codex && codexById[step.codex] && (
           <button className="codex-link" onClick={() => go("library", { openId: step.codex })}>
-            <span className="tiny label">Read alongside it</span>
+            <span className="tiny label">Read alongside</span>
             <strong>{codexById[step.codex].title}</strong>
             <span className="tiny muted">{codexById[step.codex].subtitle}</span>
           </button>
@@ -149,7 +148,7 @@ export function Path({ go }) {
           I did this
         </button>
         <p className="tiny muted center" style={{ marginTop: ".7rem", marginBottom: 0 }}>
-          The path moves when you do, not when the calendar does. Miss a month and you resume right here.
+          Moves when you do. Not the calendar.
         </p>
       </div>
 
@@ -172,10 +171,10 @@ export function Path({ go }) {
       {/* ---- quiet stats ---- */}
       <div className="mini-stats">
         <span>
-          <strong>{completed.length}</strong> steps taken
+          <strong>{completed.length}</strong> steps
         </span>
         <span>
-          <strong>{streak}</strong> day journal streak
+          <strong>{streak}</strong> day streak
         </span>
         <span>
           <strong>{state.journal.length}</strong> entries
@@ -209,14 +208,9 @@ function Done({ justDid, onContinue, go, graduated, completedCount }) {
       </h1>
 
       {graduated ? (
-        <p className="center soft">
-          That&apos;s {completedCount ? "another" : "one"} turn of your own rhythm. Come back tomorrow and the
-          next one will be waiting.
-        </p>
+        <p className="center soft">Another turn of your own rhythm.</p>
       ) : justDid.milestone ? (
-        <p className="center soft">
-          That was one of the five markers on this road. Most people never get to one of them. You just did.
-        </p>
+        <p className="center soft">One of five markers on this road.</p>
       ) : (
         <p className="center soft">Logged. The path moved.</p>
       )}
@@ -233,7 +227,7 @@ function Done({ justDid, onContinue, go, graduated, completedCount }) {
 
       {justDid.next && (
         <div className="next-card">
-          <div className="label">Next, when you&apos;re ready</div>
+          <div className="label">Next</div>
           <strong>
             Day {justDid.next.day} · {justDid.next.title}
           </strong>
@@ -249,7 +243,7 @@ function Done({ justDid, onContinue, go, graduated, completedCount }) {
         </button>
       </div>
       <p className="center tiny muted" style={{ marginTop: "1rem" }}>
-        Coming back tomorrow beats doing three today. That&apos;s not a rule, it&apos;s just what works.
+        Tomorrow beats three today.
       </p>
     </div>
   );
@@ -263,8 +257,7 @@ function MapModal({ completed, onClose, store }) {
   return (
     <Modal title="The map" onClose={onClose} wide>
       <p className="small soft">
-        Forty-two steps in five stages. You&apos;re on day {Math.min(day, TOTAL_DAYS)}. Nothing here expires
-        and nothing is timed — the path advances when you do.
+        Forty-two steps, five stages. You&apos;re on day {Math.min(day, TOTAL_DAYS)}. Nothing expires.
       </p>
 
       {STAGES.map((s) => {
@@ -298,9 +291,7 @@ function MapModal({ completed, onClose, store }) {
 
       <hr className="rule" />
       <div className="note calm" style={{ marginBottom: ".8rem" }}>
-        <strong>Rooms open as you go.</strong> That isn&apos;t a gimmick — showing you ten tools on day one is
-        how people bounce off this kind of work. If you&apos;d rather have everything at once, that&apos;s
-        your call to make.
+        <strong>Rooms open as you go.</strong> Ten tools on day one is how people bounce off this.
       </div>
       <label className={`check ${store.state.path.freeRoam ? "on" : ""}`}>
         <input
@@ -310,9 +301,7 @@ function MapModal({ completed, onClose, store }) {
         />
         <span>
           <strong style={{ display: "block", fontWeight: 600, fontSize: ".9rem" }}>Open every room now</strong>
-          <span className="small soft">
-            The path stays exactly as it is. This only unlocks the navigation.
-          </span>
+          <span className="small soft">Navigation only. The path is unchanged.</span>
         </span>
       </label>
 

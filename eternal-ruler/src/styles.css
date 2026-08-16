@@ -1233,6 +1233,13 @@ audio {
   border-color: var(--line);
 }
 
+.key-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.4rem 1rem;
+  align-items: baseline;
+}
+
 hr.rule {
   border: 0;
   border-top: 1px solid var(--line-soft);

@@ -17,8 +17,7 @@ export function Library({ params, go }) {
         <div className="eyebrow">Everything else</div>
         <h1>The Library</h1>
         <p className="lede">
-          The Path hands you what you need when you need it. This is where all of it lives if you want to go
-          looking — every practice, and the reasoning underneath them.
+          The Path hands you what you need when you need it. This is everything, if you want to go looking.
         </p>
       </div>
 
@@ -149,11 +148,9 @@ function Reading({ params, go }) {
       </div>
 
       <div className="note">
-        Three evidence classes, used everywhere in this app.{" "}
-        <span className="chip static moss">Research-backed</span> — the core mechanism has reasonable
-        published support. <span className="chip static">Mixed evidence</span> — plausible, partly supported,
-        routinely oversold elsewhere. <span className="chip static violet">Traditional practice</span> — from
-        a contemplative lineage, not a lab, judged by its fruit.
+        <span className="chip static moss">Research-backed</span> reasonable published support ·{" "}
+        <span className="chip static">Mixed evidence</span> plausible, oversold elsewhere ·{" "}
+        <span className="chip static violet">Traditional practice</span> a lineage, not a lab
       </div>
 
       {list.map((c) => {

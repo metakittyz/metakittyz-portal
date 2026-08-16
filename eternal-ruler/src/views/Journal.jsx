@@ -86,9 +86,7 @@ export function Journal({ params, go }) {
         <div className="eyebrow">The Log</div>
         <h1>Journal</h1>
         <p className="lede">
-          This is the beta test. Everything you notice, everything that shifts, everything that felt like
-          nothing at the time. Record it plainly and date it — the pattern is only visible in hindsight, and
-          hindsight needs raw material.
+          Record it plainly. The pattern only shows in hindsight, and hindsight needs raw material.
         </p>
       </div>
 
@@ -143,7 +141,7 @@ export function Journal({ params, go }) {
             className="tall"
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Write without editing. You can be incoherent here — it's the only place you don't have to make sense."
+            placeholder="Write without editing. The only place you don't have to make sense."
           />
         </Field>
 
@@ -317,8 +315,7 @@ function PromptPicker({ onClose, onPick, showDeep }) {
           </p>
           <p className="small">{confirming.care}</p>
           <p className="small muted">
-            You can stop halfway. You can write two words. You can close this and come back in a month. None of
-            those is a failure — knowing when not to open something is a skill this work depends on.
+            Stop halfway. Write two words. Come back in a month. None of those is a failure.
           </p>
           <div className="row">
             <button className="btn solid sm" onClick={() => onPick(confirming)}>

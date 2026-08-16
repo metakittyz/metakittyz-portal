@@ -117,13 +117,9 @@ function Inner() {
       </main>
 
       <footer className="foot">
-        <p>
-          Eternal Ruler is a self-experiment, not therapy, medical advice, or crisis support. 18+. Everything
-          you write stays in this browser. Your life, your choices, your responsibility.
-        </p>
+        <p>A self-experiment. Not therapy, medical advice, or crisis support. 18+.</p>
         <p style={{ marginBottom: 0 }}>
-          In crisis: US &amp; Canada 988 · UK &amp; Ireland 116 123 · elsewhere, your local emergency number or
-          findahelpline.com.
+          In crisis: US &amp; Canada 988 · UK &amp; Ireland 116 123 · elsewhere findahelpline.com
         </p>
       </footer>
 

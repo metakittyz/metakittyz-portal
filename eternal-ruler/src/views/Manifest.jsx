@@ -60,9 +60,7 @@ export function Manifest({ go }) {
         <div className="eyebrow">Manifestation</div>
         <h1>The Forge</h1>
         <p className="lede">
-          Wanting is not a plan. Here you take the thing you want, place it next to where you honestly are, and
-          build the bridge — the identity, the daily minimum, the milestones, and a specific answer for every
-          obstacle you can already see coming. Then you log the evidence as it arrives.
+          Wanting is not a plan. Put what you want next to where you honestly are, then build the bridge.
         </p>
       </div>
 
@@ -80,10 +78,9 @@ export function Manifest({ go }) {
       {tab === "plans" && (
       <>
       <div className="note">
-        <strong>The stance this app takes on manifestation:</strong> stating clearly what you want, deciding who
-        you must become, and taking daily action toward it is one of the most reliable things a person can do.
-        Whether something more than that is at work is yours to decide from your own evidence. What the Forge
-        will not do is let you substitute a feeling for a Tuesday.
+        <strong>The stance here:</strong> naming what you want, deciding who you must become, and acting daily
+        is one of the most reliable things a person can do. Whether more than that is at work is yours to
+        decide from your own evidence. The Forge just won&apos;t let you substitute a feeling for a Tuesday.
       </div>
 
       {!building && (
@@ -257,8 +254,7 @@ function Card({ m, store, open, onToggle, go }) {
           {/* ---- milestones ---- */}
           <h3 style={{ marginBottom: ".7rem" }}>The bridge</h3>
           <p className="small muted">
-            Concrete, dated, and ordered. If a milestone doesn&apos;t have a date it isn&apos;t a milestone,
-            it&apos;s a wish with better grammar.
+            Undated isn&apos;t a milestone. It&apos;s a wish with better grammar.
           </p>
           {m.milestones.map((x) => (
             <div key={x.id} className="spread" style={{ padding: ".45rem 0", borderBottom: "1px solid var(--line-soft)" }}>
@@ -319,10 +315,7 @@ function Card({ m, store, open, onToggle, go }) {
 
           {/* ---- obstacles ---- */}
           <h3 style={{ marginBottom: ".7rem" }}>What will go wrong, and what you&apos;ll do</h3>
-          <p className="small muted">
-            Deciding your response in advance is one of the most reliably effective planning techniques there
-            is. Write it as &quot;if X, then I will Y&quot; and mean it.
-          </p>
+          <p className="small muted">Decide the response now, while it&apos;s cheap. &quot;If X, then I will Y.&quot;</p>
           {m.obstacles.map((o) => (
             <div key={o.id} className="entry" style={{ marginBottom: ".5rem" }}>
               <div className="spread">
@@ -373,8 +366,7 @@ function Card({ m, store, open, onToggle, go }) {
           {/* ---- evidence ---- */}
           <h3 style={{ marginBottom: ".7rem" }}>Evidence log</h3>
           <p className="small muted">
-            Every sign that it&apos;s moving. Small counts. This is the file you read on the day you&apos;re
-            certain nothing is happening.
+            Every sign it&apos;s moving. Read this on the days you&apos;re certain nothing is.
           </p>
           <div className="row" style={{ marginBottom: ".8rem" }}>
             <input

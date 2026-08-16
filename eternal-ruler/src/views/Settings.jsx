@@ -83,18 +83,12 @@ export function Settings() {
 
       <Panel title="The Path">
         <p className="small soft">
-          You&apos;ve taken <strong style={{ color: "var(--gold)" }}>{state.path.completed.length}</strong> of{" "}
-          {TOTAL_DAYS} steps. Position is held by steps completed, never by dates — there is no such thing as
-          falling behind here.
+          <strong style={{ color: "var(--gold)" }}>{state.path.completed.length}</strong> of {TOTAL_DAYS} steps.
+          Held by steps completed, never by dates. You cannot fall behind.
         </p>
-        <Check
-          checked={state.path.freeRoam}
-          onChange={(v) => store.setFreeRoam(v)}
-          title="Open every room now"
-        >
-          By default the rooms open one at a time as the path reaches them, because showing ten tools on day
-          one is how people bounce off this work. Turn this on to have all of them immediately. The path
-          itself is unchanged either way.
+        <Check checked={state.path.freeRoam} onChange={(v) => store.setFreeRoam(v)} title="Open every room now">
+          Rooms open one at a time as the path reaches them. Turn this on for all of them immediately. The
+          path is unchanged either way.
         </Check>
         {state.path.completed.length > 0 && (
           <DangerButton
@@ -114,24 +108,22 @@ export function Settings() {
           onChange={(v) => store.setSettings({ showDeepPrompts: v })}
           title="Show the prompts that go deep"
         >
-          Turning this off removes every prompt marked as intense from the picker and from &quot;surprise
-          me&quot;. Turn it off during a hard month and back on when you have more room. There is nothing
-          virtuous about running at full depth all the time.
+          Off removes every intense prompt from the picker. Nothing virtuous about running at full depth all
+          the time.
         </Check>
         <Check
           checked={state.settings.reduceMotion}
           onChange={(v) => store.setSettings({ reduceMotion: v })}
           title="Still background"
         >
-          Stops the slow drift behind the app. Useful if movement is distracting or you get motion-sensitive.
+          Stops the slow drift behind the app.
         </Check>
       </Panel>
 
       <Panel title="Your data" tone="gold">
         <p className="soft small">
-          Everything lives in this browser&apos;s local storage. Nothing is uploaded, because there is nowhere
-          to upload it to. That means it is private by construction — and fragile. Clearing your browser data
-          for this site erases all of it, permanently, with no recovery. Export regularly.
+          Everything is in this browser. Private by construction, and fragile — clearing site data erases it
+          permanently, with no recovery. Export regularly.
         </p>
         <div className="row">
           <button className="btn" onClick={exportJson}>
@@ -246,15 +238,13 @@ export function Settings() {
 
       <Panel title="If things get difficult" tone="violet">
         <p className="small soft">
-          Practice like this can open more than you expected. Signs it&apos;s time to reduce intensity and talk
-          to a professional: sleep going, a persistent sense that things are unreal, fear that doesn&apos;t
-          settle, isolating from people who know you, certainty that can&apos;t be questioned, or making large
-          irreversible decisions on the strength of guidance.
+          Reduce intensity and talk to a professional if you notice: sleep going, a persistent sense that
+          things are unreal, fear that won&apos;t settle, isolating from people who know you, certainty that
+          can&apos;t be questioned, or big irreversible decisions made on guidance.
         </p>
         <div className="note grave" style={{ marginBottom: 0 }}>
-          <strong>If you are in danger right now, reach a person tonight.</strong> US and Canada: call or text
-          988. UK and Ireland: 116 123. Elsewhere: your local emergency number, or findahelpline.com. This app
-          cannot help with that and would never pretend otherwise.
+          <strong>In danger right now? Reach a person tonight.</strong> US &amp; Canada 988 · UK &amp; Ireland
+          116 123 · elsewhere your local emergency number or findahelpline.com.
         </div>
       </Panel>
     </>

@@ -60,10 +60,8 @@ export function Attunement({ go }) {
         <div className="eyebrow">Hot &amp; Cold</div>
         <h1>The Reading</h1>
         <p className="lede">
-          Two numbers for every part of your life: how <em>you</em> feel, and how you believe {hsName} feels.
-          The gap between them is the whole instrument. A wide gap is not a failing grade — it&apos;s a
-          direction. Answer fast and honestly; considered answers are usually the ones you&apos;d prefer to be
-          true.
+          How <em>you</em> feel, and how you believe {hsName} feels. The gap is the instrument. Answer fast —
+          considered answers are the ones you&apos;d prefer were true.
         </p>
       </div>
 
@@ -246,30 +244,20 @@ export function Attunement({ go }) {
         </>
       )}
 
-      <Panel title="How to read the gaps" tone="gold">
-        <div className="stack small soft">
-          <div>
-            <strong style={{ color: "var(--ember)" }}>A Calling (+25 or more)</strong> — your higher self is
-            warmer here than you are. Something is waiting. Not a reprimand; an invitation.
-          </div>
-          <div>
-            <strong style={{ color: "#ffa07a" }}>Overreach (−25 or more)</strong> — you&apos;re burning hotter
-            than your higher self. Often means want rather than purpose. Worth asking whose fire it is.
-          </div>
-          <div>
-            <strong style={{ color: "var(--gold)" }}>Strength</strong> — both hot, closely matched. A pillar.
-            Anchor to it when other domains go cold.
-          </div>
-          <div>
-            <strong style={{ color: "var(--frost)" }}>The Numb Zone</strong> — both cold. Either it isn&apos;t
-            yours to carry, or it&apos;s frozen deep. Both answers are worth sitting with.
-          </div>
+      <Panel title="The key" tone="gold">
+        <div className="key-grid small">
+          <span style={{ color: "var(--ember)" }}>Calling</span>
+          <span className="soft">Gap +25 or more. Something&apos;s waiting.</span>
+          <span style={{ color: "#ffa07a" }}>Overreach</span>
+          <span className="soft">Gap −25 or more. Want, not purpose.</span>
+          <span style={{ color: "var(--gold)" }}>Strength</span>
+          <span className="soft">Both hot. A pillar.</span>
+          <span style={{ color: "var(--frost)" }}>Numb</span>
+          <span className="soft">Both cold. Not yours, or frozen deep.</span>
         </div>
         <div className="note" style={{ marginTop: "1rem", marginBottom: 0 }}>
-          Remember what you&apos;re actually measuring: your <em>belief</em> about how your higher self feels.
-          That belief is itself data — about your relationship to yourself, your inner critic, and what you
-          think you&apos;re allowed. If every &quot;higher self&quot; number comes out harsh, that is worth a
-          journal entry of its own. Guidance builds. Shame shrinks.
+          You&apos;re measuring your <em>belief</em> about your higher self. If every number comes out harsh,
+          that&apos;s a journal entry of its own. Guidance builds. Shame shrinks.
         </div>
       </Panel>
     </>
