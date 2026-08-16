@@ -1,0 +1,33 @@
+# Netlify deployment for Eternal Ruler.
+#
+# Set the OpenAI key in the Netlify UI, never in this file:
+#   Site configuration → Environment variables → OpenAI_EternalRuler
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# The function declares `config.path = "/api/tts"` and is mounted there
+# directly. This redirect is a fallback for older build images that don't
+# honour v2 path config; it never fires when the function claims the route.
+[[redirects]]
+  from = "/api/tts"
+  to = "/.netlify/functions/tts"
+  status = 200
+  force = false
+
+# Client routing is hash-based, so this only matters if someone deep-links a
+# path. Keeps a refresh from 404ing.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

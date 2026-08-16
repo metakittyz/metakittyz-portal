@@ -24,18 +24,77 @@ No API keys, no accounts, no server required. `dist/` drops onto Vercel, Netlify
 any static host.
 
 **Optional — the natural voice.** For a soft, human guide voice instead of the browser's synthetic
-one, add an OpenAI key and deploy the included `api/tts.js` function:
+one, add an OpenAI key. Locally:
 
 ```bash
 cp .env.example .env      # then paste your key into OpenAI_EternalRuler
 npm run dev               # the dev server serves /api/tts for you
 ```
 
-On Vercel, `api/tts.js` deploys automatically — set `OpenAI_EternalRuler` in the project's
-environment variables (`OPENAI_API_KEY` also works if you prefer the conventional name). Without any of this the app works exactly as before, on device voices.
+Deploying with the voice working is covered in **Hosting** below. Without a key the app works
+exactly as it does now, on device voices.
 
 **Deployment note:** microphone capture needs a secure context — it works on `localhost` and on any
 `https://` host. Over plain `http://` the Voice Room correctly reports that recording is unavailable.
+
+---
+
+## Hosting
+
+The app is a static bundle plus **one serverless function** (`/api/tts`, the OpenAI proxy). That
+function is what makes the natural voice work — a plain static host serves the app fine, but the
+guide falls back to the browser's synthetic voice, and the Voice Library says so.
+
+The logic lives once in [`server/tts-core.js`](server/tts-core.js); each platform gets a thin adapter.
+
+### Netlify
+
+Everything needed is committed: `netlify.toml`, and a v2 function at
+[`netlify/functions/tts.mjs`](netlify/functions/tts.mjs) that mounts itself at `/api/tts`.
+
+**Option A — connect the repo (recommended).** In Netlify: *Add new site → Import an existing
+project*, pick this repo. `netlify.toml` supplies the build command (`npm run build`), publish
+directory (`dist`) and functions directory, so accept the defaults. Then set the key under
+*Site configuration → Environment variables*:
+
+```
+OpenAI_EternalRuler = sk-...
+```
+
+Redeploy after adding it — Netlify reads environment variables at build time.
+
+**Option B — from your machine:**
+
+```bash
+npm install -g netlify-cli
+netlify login
+netlify init                                   # create or link a site
+netlify env:set OpenAI_EternalRuler sk-...     # never commit the key
+netlify deploy --build --prod
+```
+
+**Verify it worked.** Open `https://your-site.netlify.app/api/tts`. You should see:
+
+```json
+{"service":"eternal-ruler-tts","keyPresent":true}
+```
+
+- `keyPresent: false` → the function is live but the environment variable is missing, or the site
+  wasn't redeployed after adding it.
+- HTML instead of JSON → the function isn't deployed; check the build log's functions step.
+
+Then in the app: **More → Guide Voice**. The banner turns green and reads *Natural voice active*.
+
+### Vercel
+
+`api/tts.js` deploys automatically as a serverless function. Set `OpenAI_EternalRuler` in
+*Project → Settings → Environment Variables* and redeploy.
+
+### Anywhere else
+
+Any static host works for the app itself. For the natural voice, port the eight-line adapter —
+`handleTts()` in `server/tts-core.js` takes `{method, body, headerKey, env}` and returns
+`{status, headers, json | audio}`.
 
 ---
 
