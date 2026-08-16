@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { StoreProvider, useStore } from "./lib/store.jsx";
+import { Onboarding } from "./views/Onboarding.jsx";
 import { Threshold } from "./views/Threshold.jsx";
 import { Path } from "./views/Path.jsx";
 import { Attunement } from "./views/Attunement.jsx";
@@ -9,13 +10,13 @@ import { VoiceRoom } from "./views/VoiceRoom.jsx";
 import { Manifest } from "./views/Manifest.jsx";
 import { Library } from "./views/Library.jsx";
 import { Council } from "./views/Council.jsx";
+import { Profile } from "./views/Profile.jsx";
 import { Settings } from "./views/Settings.jsx";
 import { NeedNow } from "./components/NeedNow.jsx";
 import { Runner } from "./components/Runner.jsx";
-import { ROOM_UNLOCKS, nextUnlock, unlockedRooms } from "./data/path.js";
+import { TOTAL_DAYS, currentDay, nextUnlock, stageOf, unlockedRooms } from "./data/path.js";
 
-// Six rooms, and five of them are earned. On day one there is exactly one place
-// to be, which is the entire point.
+// Six rooms, five of them earned. On day one there is exactly one place to be.
 const ROUTES = [
   { key: "path", label: "Path", View: Path, always: true },
   { key: "journal", label: "Journal", View: Journal },
@@ -24,6 +25,7 @@ const ROUTES = [
   { key: "intake", label: "Intake", View: Intake },
   { key: "forge", label: "Forge", View: Manifest },
   { key: "council", label: "Council", View: Council },
+  { key: "profile", label: "Profile", View: Profile, more: true },
   { key: "library", label: "Library", View: Library, more: true },
   { key: "settings", label: "Settings", View: Settings, more: true },
 ];
@@ -35,9 +37,6 @@ function Inner() {
   const [needNow, setNeedNow] = useState(false);
   const [running, setRunning] = useState(null);
   const [moreOpen, setMoreOpen] = useState(false);
-
-  const open = unlockedRooms(state.path.completed, state.path.freeRoam);
-  const coming = nextUnlock(state.path.completed);
 
   const go = useCallback((next, p = null) => {
     setRoute(next);
@@ -60,7 +59,17 @@ function Inner() {
     window.location.hash = route;
   }, [route]);
 
+  // Welcome → account → name → who, then the consent gate, then the app.
+  if (!state.account || !state.profile.onboarded) return <Onboarding />;
   if (!state.consent) return <Threshold />;
+
+  const open = unlockedRooms(state.path.completed, state.path.freeRoam);
+  const coming = nextUnlock(state.path.completed);
+  const day = currentDay(state.path.completed);
+  const graduated = day > TOTAL_DAYS;
+  const stage = graduated ? null : stageOf(day);
+  const pct = (state.path.completed.length / TOTAL_DAYS) * 100;
+  const initial = (state.profile.name || "?").trim().charAt(0).toUpperCase();
 
   // A locked room reached by an old hash quietly returns you to the path.
   const entry = ROUTES.find((r) => r.key === route && (r.always || r.more || open.has(r.key))) || ROUTES[0];
@@ -69,6 +78,9 @@ function Inner() {
 
   return (
     <div className="shell">
+      {/* One sticky block: topbar, nav, and journey strip pin together, so no
+          hand-tuned offsets can drift out of alignment. */}
+      <div className="chrome">
       <header className="topbar">
         <div className="topbar-inner">
           <div className="brand">
@@ -78,6 +90,14 @@ function Inner() {
           <div className="topbar-spacer" />
           <button className="btn need-btn" onClick={() => setNeedNow(true)}>
             ◈ I need something now
+          </button>
+          <button
+            className="avatar"
+            onClick={() => go("profile")}
+            title={`${state.profile.name || "Profile"} — your profile`}
+            aria-label="Your profile"
+          >
+            {initial}
           </button>
         </div>
       </header>
@@ -113,6 +133,19 @@ function Inner() {
           </div>
         )}
       </nav>
+
+      {/* The through-line, on every screen: where you are and what it's for. */}
+      <button className="journey" onClick={() => go("path")} aria-label="Your position on the path">
+        <span className="journey-where">
+          <span className="journey-glyph">{graduated ? "✧" : stage.glyph}</span>
+          {graduated ? "The Practice" : `${stage.name} · Day ${day}/${TOTAL_DAYS}`}
+        </span>
+        <span className="journey-line" aria-hidden="true">
+          <i style={{ width: `${pct}%` }} />
+        </span>
+        <span className="journey-creed">Becoming your own eternal ruler</span>
+      </button>
+      </div>
 
       <main>
         <View key={route} params={params} go={go} />
@@ -152,5 +185,3 @@ export default function App() {
     </StoreProvider>
   );
 }
-
-export { ROOM_UNLOCKS };

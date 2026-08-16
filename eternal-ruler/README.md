@@ -28,6 +28,33 @@ static host.
 
 ---
 
+## Getting in
+
+Welcome → **Start** → *Continue with Google / Apple / email* → **what is your name?** → who you're
+reaching for → the consent Threshold → day one. One question per screen.
+
+> **Sign-in is not connected.** There is no server and no OAuth credentials, so those buttons create
+> a **local account on this device**. Nothing is sent to Google or Apple, there is no password, and
+> the app says so on the account screen and again on your Profile. Wiring up real providers is in
+> "What still needs a server" below — and note that Google and Apple both require their own official
+> branded buttons, which is why the current ones are deliberately unbranded.
+
+---
+
+## Always know where you are
+
+A strip sits under the nav on **every screen**:
+
+```
+◉ THE LISTENING · DAY 11/42  ─────────────────  Becoming your own eternal ruler
+```
+
+Stage, day, a progress line, and the point of the whole thing. Tap it to jump back to the Path. Your
+initial sits in the top-right — tap for **Profile**, which shows your standing across all five
+stages, everything you've built, and your account.
+
+---
+
 ## The design principle: one thing at a time
 
 **Day one shows a single nav item: `Path`.** That's not a limitation, it's the product. The rooms
@@ -115,6 +142,7 @@ Implemented in [`src/lib/temperature.js`](src/lib/temperature.js).
 | Room | What it's for |
 | --- | --- |
 | **Path** | Today's one step, the remark to carry, and the map. |
+| **Profile** | Who you are here, your position across the five stages, your totals, and your account. |
 | **Journal** | 70+ prompts graded surface → deep → abyss, with attached voice notes. |
 | **Reading** | Hot & Cold, with history and per-domain trends. |
 | **Intake** | What you feed the machine — content, food, movement, substances, people, sleep — each charged from drained to lit up, with a Patterns view that lines it up against your Readings. |
@@ -180,7 +208,10 @@ aren't included in exports and stay in the browser that recorded them.
 The Council is a complete interface over a local data layer. Everything in it works; nothing in it
 reaches another person. Making the marketplace real needs:
 
-1. **Accounts and identity** — auth, plus real verification for anyone taking money
+1. **Accounts and identity** — the onboarding flow is built and stores a local account; making
+   it real means an OAuth client for Google, Sign in with Apple (which needs a paid Apple Developer
+   account), a magic-link or password path for email, session tokens, and their official branded
+   buttons. Plus identity verification for anyone taking money.
 2. **A database** — profiles, requests, threads, reviews
 3. **Payments** — Stripe Connect or equivalent, platform fee, refunds, disputes
 4. **Trust and safety** — reporting, blocking, moderation, and a written policy on what gets a
@@ -218,8 +249,9 @@ src/
     NeedNow.jsx           the plain-language emergency drawer
     Dial.jsx              hot/cold sliders + gap readout
     ui.jsx                Panel, Modal, Stat, Bar, Spark, DangerButton, Field, Check
-  views/                  Threshold, Path, Journal, Attunement, Intake,
-                          VoiceRoom, Manifest, Goals, Library, Council, Settings
+  views/                  Onboarding, Threshold, Path, Journal, Attunement,
+                          Intake, VoiceRoom, Manifest, Goals, Library, Council,
+                          Profile, Settings
 ```
 
 ---

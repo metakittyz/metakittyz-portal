@@ -2,6 +2,9 @@
 
 How to build a practice with this app. Five layers, one loop, one step a day.
 
+**The whole point:** connect with your higher self, and become the eternal ruler of your own reality.
+That line sits under the nav on every screen, next to your stage and day, so you never lose the thread.
+
 ---
 
 ## The loop

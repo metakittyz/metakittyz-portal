@@ -13,8 +13,12 @@ const VERSION = 1;
 
 export const EMPTY_STATE = {
   version: VERSION,
+  // Local-only account record. `method` is what the person chose at the gate;
+  // `connected` stays false until a real provider is wired up (see README,
+  // "What still needs a server"). Nothing here authenticates anything.
+  account: null, // { method: 'google'|'apple'|'email', email, createdAt, connected: false }
   consent: null,
-  profile: { name: "", higherSelfName: "", intention: "" },
+  profile: { name: "", higherSelfName: "", intention: "", onboarded: false },
   // The Path: which steps you've finished, and whether you've opted out of the
   // progressive unlock. Position is derived from `completed`, never from dates —
   // miss a month and you resume exactly where you stopped.
@@ -85,14 +89,27 @@ export function StoreProvider({ children }) {
     });
 
     return {
+      // ---- account -----------------------------------------------------------
+      createAccount({ method, email = "" }) {
+        update(() => ({
+          account: { method, email, createdAt: new Date().toISOString(), connected: false },
+        }));
+      },
+      signOut() {
+        // Clears the account only. Your journal, path, and readings stay on this
+        // device — there is no server to sync them from if we dropped them.
+        update(() => ({ account: null }));
+      },
+
       // ---- consent + profile -------------------------------------------------
       acceptThreshold(record) {
         const { name, higherSelfName, intention, ...gates } = record;
         update((prev) => ({
           consent: { ...gates, acceptedAt: new Date().toISOString() },
-          // What you typed at the gate becomes your profile — re-reading the
-          // threshold later shouldn't make you introduce yourself again.
+          // Onboarding normally sets these; the spread keeps every other
+          // profile field (notably `onboarded`) intact.
           profile: {
+            ...prev.profile,
             name: name || prev.profile.name,
             higherSelfName: higherSelfName || prev.profile.higherSelfName,
             intention: intention || prev.profile.intention,

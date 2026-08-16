@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useStore } from "../lib/store.jsx";
-import { Check, Field } from "../components/ui.jsx";
+import { Check } from "../components/ui.jsx";
 
 const GATES = [
   {
@@ -36,18 +36,14 @@ const GATES = [
 ];
 
 export function Threshold() {
-  const { state, acceptThreshold } = useStore();
+  const { acceptThreshold } = useStore();
   const [gates, setGates] = useState({});
-  // Pre-filled if you've been here before and asked to re-read the threshold.
-  const [name, setName] = useState(state.profile.name);
-  const [higherSelfName, setHigherSelfName] = useState(state.profile.higherSelfName);
-  const [intention, setIntention] = useState(state.profile.intention);
 
   const allChecked = GATES.every((g) => gates[g.key]);
 
   return (
-    <div className="threshold">
-      <div className="threshold-inner">
+    <div className="gate">
+      <div className="gate-inner">
         <div className="sigil">◉</div>
         <h1 className="center" style={{ marginBottom: ".4rem" }}>
           Eternal Ruler
@@ -88,41 +84,11 @@ export function Threshold() {
           emergency number or findahelpline.com. This will still be here.
         </div>
 
-        <hr className="rule" />
-
-        <h2 style={{ marginBottom: ".8rem" }}>Before you enter</h2>
-        <Field label="Your name" hint="Used when you speak to yourself by name. That turns out to matter.">
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
-        </Field>
-        <Field
-          label="What do you call the one you're reaching for?"
-          hint="Higher self, soul, guide, future self — or nothing. Optional."
-        >
-          <input
-            type="text"
-            value={higherSelfName}
-            onChange={(e) => setHigherSelfName(e.target.value)}
-            placeholder="Higher self"
-          />
-        </Field>
-        <Field label="Why are you here?" hint="You'll be shown this on the days you forget.">
-          <textarea
-            value={intention}
-            onChange={(e) => setIntention(e.target.value)}
-            placeholder="The true reason, not the impressive one."
-          />
-        </Field>
-
         <button
           className="btn solid block"
           disabled={!allChecked}
           onClick={() => {
-            acceptThreshold({
-              ...gates,
-              name: name.trim(),
-              higherSelfName: higherSelfName.trim(),
-              intention: intention.trim(),
-            });
+            acceptThreshold(gates);
             // The gate is a long page; land on day one at the top of it.
             window.scrollTo(0, 0);
           }}
