@@ -48,6 +48,29 @@ it's your own data, so you already know what else was going on.
 
 ---
 
+## The voice
+
+A woman's voice reads each protocol step aloud as it arrives, marks completed steps, and reads
+anything with a ▶ Listen button. `◉))` in the header mutes her. Settings picks the voice, pace and pitch.
+
+It's your device's own speech synthesis — nothing is sent anywhere, and quality depends on what's installed.
+
+---
+
+## Rewards
+
+The **Calendar** shows every day you showed up and what it earned.
+
+| Rule | |
+| --- | --- |
+| A seal is permanent | Nothing is taken away by a bad week |
+| Nothing punishes a gap | The run counter is information, not a debt |
+| **The Return** | Earned by coming back after 3+ days away — the hardest seal, and the one worth having |
+
+Eighteen seals across showing up, runs, the five stages, and craft in each room.
+
+---
+
 ## Daily build
 
 Pick a size. Any size counts.

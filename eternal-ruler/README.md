@@ -113,6 +113,43 @@ ones actually work **for you** rather than which ones sound good.
 
 ---
 
+## The guide voice
+
+A woman's voice reads the app to you. It uses the browser's built-in speech
+synthesis — no API key, no server, works offline.
+
+She speaks in three places, chosen so she guides rather than nags:
+
+- **Every protocol step, automatically** — this is the room a spoken voice earns. The timer runs, she
+  reads the step, you keep your eyes closed.
+- **Anything with a ▶ Listen button** — today's step, the daily remark.
+- **A short line when you complete a step.**
+
+Everywhere else she stays quiet. The `◉))` in the header mutes her instantly.
+
+**The honest limits.** Voice quality is entirely down to what's installed on the device, and a few
+systems ship no female voice at all. The app scores available voices by name (whole-word matching, so
+"Sa*man*tha" isn't read as male) and picks the best female one it finds; Settings lists every voice
+the device has, marks the female ones ♀, and lets you set pace and pitch. If the auto-pick lands on a
+male voice, Settings says so rather than pretending.
+
+---
+
+## The Calendar
+
+Every day you showed up, coloured by what you did — step, journal, reading, intake, practice, voice —
+with current run, longest run, and days shown up.
+
+**Eighteen seals** reward consistency, and two rules keep them from becoming a guilt mechanic:
+
+1. **A seal is permanent.** Nothing here is taken away by a bad week.
+2. **Nothing punishes a gap.** The run counter is information, not a debt.
+
+The seal that matters most is **The Return** — earned by coming back after three or more days away.
+That's the hardest thing to do and every other app treats it as failure.
+
+---
+
 ## The Hot & Cold reading
 
 The signature mechanic. Two numbers per domain:
@@ -149,6 +186,7 @@ Implemented in [`src/lib/temperature.js`](src/lib/temperature.js).
 | **Voice** | Record your own voice saying what you need to hear. Six starter scripts, litany playback. |
 | **Forge** | Manifestation as engineering, plus your life goals. |
 | **Council** | Mentor directory, session requests, mentor profiles, field notes. |
+| **Calendar** | Every day you showed up, your runs, and eighteen seals earned by consistency. |
 | **Library** | Every practice and all 29 long-form entries, if you want to go looking. |
 
 ---
@@ -233,6 +271,8 @@ src/
   lib/
     store.jsx             all app state, localStorage persistence, every mutation
     temperature.js        the Hot & Cold model
+    voice.js              speech synthesis + female-voice scoring
+    consistency.js        activity by day, runs, returns
     audio.js              IndexedDB clip store + recorder hook
     util.js               dates, ids, streaks, export
   data/
@@ -243,15 +283,17 @@ src/
     remarks.js            70 daily remarks
     domains.js            the twelve rated domains
     intake.js             the five intake channels + the charge scale
+    seals.js              the eighteen consistency rewards
     mentors.js            sample Council profiles + terms
   components/
+    Speak.jsx             the guide voice: hook, Listen button, mute toggle
     Runner.jsx            the guided protocol timer (launchable from anywhere)
     NeedNow.jsx           the plain-language emergency drawer
     Dial.jsx              hot/cold sliders + gap readout
     ui.jsx                Panel, Modal, Stat, Bar, Spark, DangerButton, Field, Check
   views/                  Onboarding, Threshold, Path, Journal, Attunement,
                           Intake, VoiceRoom, Manifest, Goals, Library, Council,
-                          Profile, Settings
+                          Calendar, Profile, Settings
 ```
 
 ---

@@ -12,6 +12,8 @@ import { Library } from "./views/Library.jsx";
 import { Council } from "./views/Council.jsx";
 import { Profile } from "./views/Profile.jsx";
 import { Settings } from "./views/Settings.jsx";
+import { Calendar } from "./views/Calendar.jsx";
+import { VoiceToggle } from "./components/Speak.jsx";
 import { NeedNow } from "./components/NeedNow.jsx";
 import { Runner } from "./components/Runner.jsx";
 import { TOTAL_DAYS, currentDay, nextUnlock, stageOf, unlockedRooms } from "./data/path.js";
@@ -26,6 +28,7 @@ const ROUTES = [
   { key: "forge", label: "Forge", View: Manifest },
   { key: "council", label: "Council", View: Council },
   { key: "profile", label: "Profile", View: Profile, more: true },
+  { key: "calendar", label: "Calendar", View: Calendar, more: true },
   { key: "library", label: "Library", View: Library, more: true },
   { key: "settings", label: "Settings", View: Settings, more: true },
 ];
@@ -88,8 +91,9 @@ function Inner() {
             <small>Beta · a self-experiment</small>
           </div>
           <div className="topbar-spacer" />
+          <VoiceToggle />
           <button className="btn need-btn" onClick={() => setNeedNow(true)}>
-            ◈ I need something now
+            ◈<span className="need-label"> I need something now</span>
           </button>
           <button
             className="avatar"

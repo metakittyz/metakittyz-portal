@@ -17,6 +17,7 @@ import { promptById } from "../data/prompts.js";
 import { REMARKS } from "../data/remarks.js";
 import { Runner } from "../components/Runner.jsx";
 import { Modal, Panel } from "../components/ui.jsx";
+import { SpeakButton, useGuide } from "../components/Speak.jsx";
 import { dayKey, pickForDay, streakFrom } from "../lib/util.js";
 
 export function Path({ go }) {
@@ -110,6 +111,11 @@ export function Path({ go }) {
         </ol>
 
         <div className="row" style={{ marginTop: "1.2rem" }}>
+          <SpeakButton
+            className="btn"
+            label="Read it to me"
+            text={`${step.title}. ${step.why} ${step.steps.join(". ")}`}
+          />
           {step.protocol && protocolById[step.protocol] && (
             <button className="btn" onClick={() => setRunning(protocolById[step.protocol])}>
               ▶ Guide me through it
@@ -163,9 +169,12 @@ export function Path({ go }) {
         <p className="small soft" style={{ marginBottom: ".8rem" }}>
           <strong>The turn:</strong> {remark.turn}
         </p>
-        <button className="btn ghost sm" onClick={() => store.toggleSavedRemark(remark.id)}>
-          {state.savedRemarks.includes(remark.id) ? "◆ Kept" : "◇ Keep this"}
-        </button>
+        <div className="row tight">
+          <button className="btn ghost sm" onClick={() => store.toggleSavedRemark(remark.id)}>
+            {state.savedRemarks.includes(remark.id) ? "◆ Kept" : "◇ Keep this"}
+          </button>
+          <SpeakButton text={`${remark.text} The turn. ${remark.turn}`} />
+        </div>
       </Panel>
 
       {/* ---- quiet stats ---- */}
@@ -196,6 +205,19 @@ export function Path({ go }) {
 // ---------------------------------------------------------------- done ------
 function Done({ justDid, onContinue, go, graduated, completedCount }) {
   const unlocked = justDid.unlocks;
+  const { say } = useGuide();
+
+  // The guide marks the moment — once, on arrival.
+  React.useEffect(() => {
+    say(
+      justDid.milestone
+        ? "Milestone. One of five markers on this road."
+        : graduated
+          ? "Done. Another turn of your own rhythm."
+          : `Step ${justDid.day} complete. The path moved.`
+    );
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="done-stage">
       <div className="done-mark">{justDid.milestone ? "✦" : "◉"}</div>

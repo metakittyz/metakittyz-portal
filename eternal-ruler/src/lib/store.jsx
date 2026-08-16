@@ -22,7 +22,8 @@ export const EMPTY_STATE = {
   // The Path: which steps you've finished, and whether you've opted out of the
   // progressive unlock. Position is derived from `completed`, never from dates —
   // miss a month and you resume exactly where you stopped.
-  path: { completed: [], startedAt: null, freeRoam: false, practiceCount: 0 },
+  path: { completed: [], completedAt: {}, startedAt: null, freeRoam: false, practiceCount: 0 },
+  sealsSeen: [], // so a newly earned seal can be announced exactly once
   checkins: {}, // dayKey -> { at, readings: { domainId: {self, higher} }, note }
   intake: [], // { id, at, dayKey, channel, what, charge }
   intakeDays: {}, // dayKey -> { sleep, note }
@@ -41,6 +42,9 @@ export const EMPTY_STATE = {
     reduceMotion: false,
     anchorHour: 7,
   },
+  // The guide voice. `voiceURI` empty means "pick the best female voice on
+  // this device automatically".
+  voice: { enabled: true, voiceURI: "", rate: 0.92, pitch: 1.02 },
 };
 
 function load() {
@@ -56,6 +60,7 @@ function load() {
       settings: { ...EMPTY_STATE.settings, ...(parsed.settings || {}) },
       council: { ...EMPTY_STATE.council, ...(parsed.council || {}) },
       path: { ...EMPTY_STATE.path, ...(parsed.path || {}) },
+      voice: { ...EMPTY_STATE.voice, ...(parsed.voice || {}) },
     };
   } catch (err) {
     console.warn("Eternal Ruler: could not read saved state, starting fresh.", err);
@@ -125,6 +130,12 @@ export function StoreProvider({ children }) {
       setSettings(patch) {
         update((prev) => ({ settings: { ...prev.settings, ...patch } }));
       },
+      setVoice(patch) {
+        update((prev) => ({ voice: { ...prev.voice, ...patch } }));
+      },
+      markSealsSeen(ids) {
+        update((prev) => ({ sealsSeen: [...new Set([...prev.sealsSeen, ...ids])] }));
+      },
 
       // ---- the path ----------------------------------------------------------
       completeDay(day) {
@@ -135,6 +146,8 @@ export function StoreProvider({ children }) {
               ...prev.path,
               startedAt: prev.path.startedAt || new Date().toISOString(),
               completed: [...prev.path.completed, day].sort((a, b) => a - b),
+              // When each step was taken, so the Calendar can place it.
+              completedAt: { ...(prev.path.completedAt || {}), [day]: dayKey() },
             },
           };
         });
