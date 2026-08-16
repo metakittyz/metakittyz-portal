@@ -14,8 +14,8 @@ Run it in order. Each layer fails without the one before it.
 
 | Layer | Do | Room | Skip it and |
 | --- | --- | --- | --- |
-| **1 · Ground** | Sleep, light, movement, food | Path · Move | You hear nothing and blame yourself |
-| **2 · Reach** | Address it. Ask once. Wait. | Reach · Reconnect | Nothing to work with |
+| **1 · Ground** | Sleep, light, movement, food | Intake | You hear nothing and blame yourself |
+| **2 · Reach** | Address it. Ask once. Wait. | Reconnect | Nothing to work with |
 | **3 · Discern** | Guidance, or fear in its coat? | Discernment Test | You follow the loudest voice |
 | **4 · Build** | Identity, minimum, dates | Forge | Insight that never becomes Tuesday |
 | **5 · Return** | Ground, eat, tell a person | Grounding | You come apart beautifully |
@@ -23,6 +23,25 @@ Run it in order. Each layer fails without the one before it.
 **Ground is not the warm-up.** It's a third of the work. Most people who hear nothing are just tired.
 
 **Return is not optional.** Traditions that open people without teaching the way down produce casualties.
+
+---
+
+## Intake
+
+What you feed the machine, in five channels: **content · food & drink · movement · substances · people**, plus sleep.
+
+Log the thing, then tap what it did:
+
+| | | |
+| --- | --- | --- |
+| `−−` Drained | `−` Cost me | `0` Neutral |
+| `+` Fed me | `++` Lit me up | |
+
+That charge is the whole point — a food diary tells you what you ate, this tells you what it did.
+
+**Patterns** ranks what repeatedly feeds you and what repeatedly costs you, then lines your net daily
+charge up against your Readings: *your heat on fed days vs drained days*. Association, not proof — but
+it's your own data, so you already know what else was going on.
 
 ---
 
@@ -50,10 +69,10 @@ The minimum on a bad day beats the deep version abandoned in week two.
 | **IV · The Forging** | 26–35 | A dated plan |
 | **V · Sovereignty** | 36–42 | Your own practice |
 
-Then **The Practice** — seven steps that rotate forever: Reach · Read · Move · Look · Build · Speak · Rest.
+Then **The Practice** — eight steps that rotate forever: Reach · Read · Move · Feed · Look · Build · Speak · Rest.
 
-**Rooms open as you reach them:** Journal day 2 · Reading day 4 · Voice day 7 · Forge day 12 · Council day 18.
-Want them all now? Map → *Open every room*.
+**Rooms open as you reach them:** Journal day 2 · Reading day 4 · Voice day 7 · Intake day 10 · Forge day 12 ·
+Council day 18. Want them all now? Map → *Open every room*.
 
 ---
 
@@ -88,6 +107,8 @@ You're rating your *belief* about your higher self. If every number comes out ha
 | Like you want something | Forge |
 | Like nothing's happening | Forge → Evidence log |
 | Like you can't hear yourself | Voice → Litany |
+| Foggy and you don't know why | Intake → Patterns |
+| Like something's draining you | Intake → Costs you |
 
 **I need something now** is in the header on every screen. Two taps to a timer.
 

@@ -20,6 +20,8 @@ export const EMPTY_STATE = {
   // miss a month and you resume exactly where you stopped.
   path: { completed: [], startedAt: null, freeRoam: false, practiceCount: 0 },
   checkins: {}, // dayKey -> { at, readings: { domainId: {self, higher} }, note }
+  intake: [], // { id, at, dayKey, channel, what, charge }
+  intakeDays: {}, // dayKey -> { sleep, note }
   journal: [],
   goals: [],
   manifestations: [],
@@ -149,6 +151,32 @@ export function StoreProvider({ children }) {
           delete next[key];
           return { checkins: next };
         });
+      },
+
+      // ---- intake ------------------------------------------------------------
+      addIntake(entry) {
+        const record = {
+          id: uid("in"),
+          at: new Date().toISOString(),
+          dayKey: dayKey(),
+          channel: "content",
+          what: "",
+          charge: 0,
+          ...entry,
+        };
+        update((prev) => ({ intake: [record, ...prev.intake] }));
+        return record;
+      },
+      updateIntake(id, patch) {
+        update((prev) => ({ intake: prev.intake.map((i) => (i.id === id ? { ...i, ...patch } : i)) }));
+      },
+      deleteIntake(id) {
+        update((prev) => ({ intake: prev.intake.filter((i) => i.id !== id) }));
+      },
+      setIntakeDay(patch, key = dayKey()) {
+        update((prev) => ({
+          intakeDays: { ...prev.intakeDays, [key]: { ...(prev.intakeDays[key] || {}), ...patch } },
+        }));
       },
 
       // ---- journal -----------------------------------------------------------

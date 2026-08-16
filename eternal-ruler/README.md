@@ -38,6 +38,7 @@ open as the path reaches them:
 | Day 2 | The Journal |
 | Day 4 | The Reading |
 | Day 7 | The Voice Room |
+| Day 10 | Intake |
 | Day 12 | The Forge |
 | Day 18 | The Council |
 
@@ -67,8 +68,8 @@ Each step is a single card: why it matters, three to four numbered instructions,
 one applies, a journal prompt if one applies, and one button — **I did this**. Finishing a step
 shows what it unlocked and what's next, then gets out of your way.
 
-After day 42 the path becomes **The Practice** — a seven-step rotating rhythm (Reach, Read, Move,
-Look, Build, Speak, Rest) that repeats indefinitely. The unglamorous maintenance version is the one
+After day 42 the path becomes **The Practice** — an eight-step rotating rhythm (Reach, Read, Move,
+Feed, Look, Build, Speak, Rest) that repeats indefinitely. The unglamorous maintenance version is the one
 that lasts.
 
 ---
@@ -116,6 +117,7 @@ Implemented in [`src/lib/temperature.js`](src/lib/temperature.js).
 | **Path** | Today's one step, the remark to carry, and the map. |
 | **Journal** | 70+ prompts graded surface → deep → abyss, with attached voice notes. |
 | **Reading** | Hot & Cold, with history and per-domain trends. |
+| **Intake** | What you feed the machine — content, food, movement, substances, people, sleep — each charged from drained to lit up, with a Patterns view that lines it up against your Readings. |
 | **Voice** | Record your own voice saying what you need to hear. Six starter scripts, litany playback. |
 | **Forge** | Manifestation as engineering, plus your life goals. |
 | **Council** | Mentor directory, session requests, mentor profiles, field notes. |
@@ -209,14 +211,15 @@ src/
     prompts.js            70+ graded journal prompts
     remarks.js            70 daily remarks
     domains.js            the twelve rated domains
+    intake.js             the five intake channels + the charge scale
     mentors.js            sample Council profiles + terms
   components/
     Runner.jsx            the guided protocol timer (launchable from anywhere)
     NeedNow.jsx           the plain-language emergency drawer
     Dial.jsx              hot/cold sliders + gap readout
     ui.jsx                Panel, Modal, Stat, Bar, Spark, DangerButton, Field, Check
-  views/                  Threshold, Path, Journal, Attunement, VoiceRoom,
-                          Manifest, Goals, Library, Council, Settings
+  views/                  Threshold, Path, Journal, Attunement, Intake,
+                          VoiceRoom, Manifest, Goals, Library, Council, Settings
 ```
 
 ---

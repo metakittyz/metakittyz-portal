@@ -13,7 +13,7 @@ export const STAGES = [
   { id: "sovereignty", n: "V", name: "Sovereignty", days: [36, 42], glyph: "▲", promise: "Make it yours." },
 ];
 
-export const ROOM_UNLOCKS = { journal: 2, reading: 4, voice: 7, forge: 12, council: 18 };
+export const ROOM_UNLOCKS = { journal: 2, reading: 4, voice: 7, intake: 10, forge: 12, council: 18 };
 
 export const PATH = [
   // ---------------------------------------------------- I · THE OPENING ----
@@ -112,12 +112,19 @@ export const PATH = [
   },
   {
     day: 10,
-    title: "The quiet hour",
+    title: "What you feed it",
     why: "The first thing you consume becomes the frame you carry all day.",
     minutes: 20,
-    steps: ["Tomorrow: no phone for twenty minutes.", "Water, light, movement, then sit five.", "Notice what your mind does unfed."],
+    steps: [
+      "Tomorrow: no phone for twenty minutes.",
+      "Water, light, movement, then sit five.",
+      "Log today's intake — content, food, movement, substances, people.",
+      "Mark what fed you and what cost you.",
+    ],
     protocol: "morning-anchor",
     codex: "c-mind-04",
+    unlocks: "intake",
+    closing: "You've been rating how you feel. Now track what you put in.",
   },
   {
     day: 11,
@@ -437,20 +444,27 @@ export const PRACTICE = [
   },
   {
     id: "pr-4",
+    title: "Feed",
+    minutes: 8,
+    why: "What goes in decides what comes out.",
+    steps: ["Log the day's intake.", "Mark what fed you and what cost you.", "Check Patterns. Cut one drain this week."],
+  },
+  {
+    id: "pr-5",
     title: "Look",
     minutes: 15,
     why: "The Reckoning never finishes.",
     steps: ["Pull a deep prompt.", "Set a timer. Answer properly.", "Ground after."],
   },
   {
-    id: "pr-5",
+    id: "pr-6",
     title: "Build",
     minutes: 15,
     why: "The bridge needs maintenance.",
     steps: ["Do the daily minimum.", "Log the week's evidence.", "Move a milestone, or re-date it honestly."],
   },
   {
-    id: "pr-6",
+    id: "pr-7",
     title: "Speak",
     minutes: 10,
     why: "You're not who made the first recordings.",
@@ -458,7 +472,7 @@ export const PRACTICE = [
     protocol: "own-voice",
   },
   {
-    id: "pr-7",
+    id: "pr-8",
     title: "Rest",
     minutes: 10,
     why: "Integration happens in the descent.",
@@ -510,6 +524,7 @@ export const ROOM_NAMES = {
   journal: "Journal",
   reading: "Reading",
   voice: "Voice",
+  intake: "Intake",
   forge: "Forge",
   council: "Council",
 };
