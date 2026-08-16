@@ -15,6 +15,10 @@ export const EMPTY_STATE = {
   version: VERSION,
   consent: null,
   profile: { name: "", higherSelfName: "", intention: "" },
+  // The Path: which steps you've finished, and whether you've opted out of the
+  // progressive unlock. Position is derived from `completed`, never from dates —
+  // miss a month and you resume exactly where you stopped.
+  path: { completed: [], startedAt: null, freeRoam: false, practiceCount: 0 },
   checkins: {}, // dayKey -> { at, readings: { domainId: {self, higher} }, note }
   journal: [],
   goals: [],
@@ -45,6 +49,7 @@ function load() {
       profile: { ...EMPTY_STATE.profile, ...(parsed.profile || {}) },
       settings: { ...EMPTY_STATE.settings, ...(parsed.settings || {}) },
       council: { ...EMPTY_STATE.council, ...(parsed.council || {}) },
+      path: { ...EMPTY_STATE.path, ...(parsed.path || {}) },
     };
   } catch (err) {
     console.warn("Eternal Ruler: could not read saved state, starting fresh.", err);
@@ -100,6 +105,31 @@ export function StoreProvider({ children }) {
       },
       setSettings(patch) {
         update((prev) => ({ settings: { ...prev.settings, ...patch } }));
+      },
+
+      // ---- the path ----------------------------------------------------------
+      completeDay(day) {
+        update((prev) => {
+          if (prev.path.completed.includes(day)) return {};
+          return {
+            path: {
+              ...prev.path,
+              startedAt: prev.path.startedAt || new Date().toISOString(),
+              completed: [...prev.path.completed, day].sort((a, b) => a - b),
+            },
+          };
+        });
+      },
+      undoDay(day) {
+        update((prev) => ({
+          path: { ...prev.path, completed: prev.path.completed.filter((d) => d !== day) },
+        }));
+      },
+      completePractice() {
+        update((prev) => ({ path: { ...prev.path, practiceCount: (prev.path.practiceCount || 0) + 1 } }));
+      },
+      setFreeRoam(on) {
+        update((prev) => ({ path: { ...prev.path, freeRoam: on } }));
       },
 
       // ---- hot & cold check-ins ---------------------------------------------

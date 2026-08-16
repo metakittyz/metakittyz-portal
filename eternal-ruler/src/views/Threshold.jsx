@@ -124,14 +124,16 @@ export function Threshold() {
         <button
           className="btn solid block"
           disabled={!allChecked}
-          onClick={() =>
+          onClick={() => {
             acceptThreshold({
               ...gates,
               name: name.trim(),
               higherSelfName: higherSelfName.trim(),
               intention: intention.trim(),
-            })
-          }
+            });
+            // The gate is a long page; land on day one at the top of it.
+            window.scrollTo(0, 0);
+          }}
           style={{ marginTop: ".6rem" }}
         >
           {allChecked ? "Cross the threshold" : "Every line must be true"}

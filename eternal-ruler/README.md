@@ -1,63 +1,98 @@
 # Eternal Ruler
 
-> A gateway app for opening and strengthening the connection between you and your higher self.
-> 18+. A self-experiment, not therapy. Your life, your choices, your responsibility.
+> A guided path for opening and strengthening the connection with your higher self.
+> One step a day, forty-two days. 18+. A self-experiment, not therapy.
 
-A private, local-first React app covering mind, body, and spirit: a Hot & Cold rating system that
-measures you against your higher self, a journal built for logging an awakening as it happens, a
-voice room where you record reassurance in your own voice, a manifestation forge that turns wanting
-into a dated plan, a library of protocols for reaching your maximum working state, and a mentor
-marketplace for people further down the road.
+Most apps in this space hand you twelve tools and a blank screen and wish you luck. This one gives
+you exactly one thing to do, every single day, and it never leaves you wondering what comes next.
 
 ---
 
 ## Run it
 
 ```bash
-cd eternal-ruler
 npm install
 npm run dev          # http://localhost:5174
 ```
 
 ```bash
-npm run build        # production bundle in dist/
-npm run preview      # serve the built bundle
+npm run build        # static bundle in dist/
+npm run preview
 ```
 
-No API keys, no accounts, no backend. It's a static site — `dist/` can be dropped on Vercel,
-Netlify, GitHub Pages, or any static host.
+No API keys, no accounts, no server. `dist/` drops onto Vercel, Netlify, GitHub Pages, or any
+static host.
 
-**One deployment note:** microphone capture requires a secure context. It works on `localhost`
-during development and on any `https://` host in production. Over plain `http://` to a remote
-machine the Voice Room will correctly report that recording isn't available.
+**Deployment note:** microphone capture needs a secure context — it works on `localhost` and on any
+`https://` host. Over plain `http://` the Voice Room correctly reports that recording is unavailable.
 
 ---
 
-## The ten rooms
+## The design principle: one thing at a time
 
-| Room | What it's for |
+**Day one shows a single nav item: `Path`.** That's not a limitation, it's the product. The rooms
+open as the path reaches them:
+
+| Step | Opens |
 | --- | --- |
-| **Today** | The daily remark, the four movements of the day, your last reading, what you're building. |
-| **Hot & Cold** | The signature mechanic. Rate how *you* feel and how you believe your *higher self* feels, across twelve domains. |
-| **Ascend** | Fourteen State Stacks — guided, timed protocols for peak state, panic, courage, focus, energy, reconnection, grounding, sleep. |
-| **Journal** | 70+ prompts graded surface → deep → abyss, plus attached voice notes. The beta-test log. |
-| **Voice** | Record your own voice saying what you need to hear. Six starter scripts. Play the whole library back as a litany. |
-| **Forge** | Manifestation as engineering: desire, honest current position, identity shift, daily minimum, dated milestones, if-then obstacle plans, evidence log. |
-| **Goals** | Life goals with the real why and the single next physical action. |
-| **Codex** | 29 long-form entries on neuroscience, health & fitness, and spiritual practice — each labelled with its evidence class. |
-| **Council** | Mentor directory, session requests, become-a-mentor profile, and field notes on what actually worked. |
-| **Settings** | Profile, intensity controls, export/import, and the erase button. |
+| Day 2 | The Journal |
+| Day 4 | The Reading |
+| Day 7 | The Voice Room |
+| Day 12 | The Forge |
+| Day 18 | The Council |
+
+By day 18 you have everything, and you know what each room is *for*, because you were taught it on
+the day you needed it. Anyone who'd rather have it all immediately can flip one switch — in the map
+or in Settings — and the path itself is unchanged.
+
+**The path moves when you do, not when the calendar does.** Position is held by steps completed,
+never by dates. Miss a month and you resume on exactly the step you stopped on. There is no such
+thing as falling behind, no broken streak, no guilt mechanic.
 
 ---
 
-## The Hot & Cold system
+## The path
 
-Every check-in logs two numbers per domain:
+Forty-two steps in five stages, then a self-directed weekly rhythm forever after.
+
+| Stage | Days | What it does |
+| --- | --- | --- |
+| **I · The Opening** | 1–6 | Make contact. Build the habit. Prove something is on the other end. |
+| **II · The Listening** | 7–15 | Learn to tell guidance from noise — the skill everything else depends on. |
+| **III · The Reckoning** | 16–25 | Look at what you've been avoiding. The hardest stage, and the one that changes people. |
+| **IV · The Forging** | 26–35 | Turn what you want into something with a date on it. |
+| **V · Sovereignty** | 36–42 | Make it yours. You stop following the path and start setting it. |
+
+Each step is a single card: why it matters, three to four numbered instructions, a guided timer if
+one applies, a journal prompt if one applies, and one button — **I did this**. Finishing a step
+shows what it unlocked and what's next, then gets out of your way.
+
+After day 42 the path becomes **The Practice** — a seven-step rotating rhythm (Reach, Read, Move,
+Look, Build, Speak, Rest) that repeats indefinitely. The unglamorous maintenance version is the one
+that lasts.
+
+---
+
+## "I need something now"
+
+A button in the header on every screen. Tap it, say what's wrong in plain language — *I'm
+spiralling · I'm afraid of the next thing · I can't focus · I'm flat · I feel disconnected · Is this
+real guidance? · I'm too open · I can't come down* — and you're inside the guided timer in one more
+tap. No browsing, no filtering, no reading first.
+
+Fourteen protocols back it, each with before/after state ratings so that over weeks you learn which
+ones actually work **for you** rather than which ones sound good.
+
+---
+
+## The Hot & Cold reading
+
+The signature mechanic. Two numbers per domain:
 
 - **self** (0–100) — how you feel about it right now
 - **higher** (0–100) — how you believe your higher self feels about it
 
-The number that matters is the **gap**:
+The gap is the instrument:
 
 | Gap | Verdict | Meaning |
 | --- | --- | --- |
@@ -67,44 +102,59 @@ The number that matters is the **gap**:
 | Both ≤ 40, close | **The Numb Zone** | Either it isn't yours, or it's frozen deep. |
 | Otherwise | **Steady** | Not everything has to be a threshold. |
 
-Implemented in [`src/lib/temperature.js`](src/lib/temperature.js). The app is explicit with users
-that what's being measured is their *belief* about their higher self — and that a consistently
-harsh "higher self" score is itself a finding worth journaling.
+The quick reading is four domains and takes ninety seconds — a reading you'll actually take daily
+beats a thorough one you take twice. Twelve domains are there when you want the deep version.
+
+Implemented in [`src/lib/temperature.js`](src/lib/temperature.js).
+
+---
+
+## The rooms
+
+| Room | What it's for |
+| --- | --- |
+| **Path** | Today's one step, the remark to carry, and the map. |
+| **Journal** | 70+ prompts graded surface → deep → abyss, with attached voice notes. |
+| **Reading** | Hot & Cold, with history and per-domain trends. |
+| **Voice** | Record your own voice saying what you need to hear. Six starter scripts, litany playback. |
+| **Forge** | Manifestation as engineering, plus your life goals. |
+| **Council** | Mentor directory, session requests, mentor profiles, field notes. |
+| **Library** | Every practice and all 29 long-form entries, if you want to go looking. |
 
 ---
 
 ## Evidence honesty
 
-Every protocol and Codex entry declares one of three classes, and the app explains all three:
+Every protocol and Library entry declares one of three classes, and the app explains all three:
 
 - **Research-backed** — the core mechanism has reasonable published support
 - **Mixed evidence** — plausible, partially supported, routinely over-claimed elsewhere
 - **Traditional practice** — a contemplative practice, not a lab result, judged by its fruit
 
-This is deliberate. The app is about spiritual practice *and* about not lying to the user about
-which lever they're pulling. Where an entry carries a caution (breath-holding near water, cold
-immersion with cardiac conditions, trauma work without a professional, meditation-related adverse
-effects), the caution is treated as the most important part of the entry.
+Cold exposure says the alertness effect is real and the fat-loss claims aren't. Power posing says
+the feelings replicate and the hormones don't. The spirituality entries say plainly that Jung,
+Vedanta, and the Western esoteric tradition fundamentally disagree about what a higher self *is*.
+Where an entry carries a caution, the caution is the most important part of the entry.
 
 ---
 
 ## Safety design
 
-The subject matter demanded that this be built in, not bolted on:
+The subject matter demanded this be built in, not bolted on:
 
-- **The Threshold** — six explicit consent gates before the app opens at all: 18+, not therapy, may
-  alter your perception of reality, some prompts go deep, the community is unvetted peers, your
-  life and your responsibility. Re-readable any time from Settings.
-- **Graded prompts** — anything marked `intense` is flagged before you open it, sits behind a
-  confirmation screen, carries a `care` line showing the way back out, and can be switched off
-  entirely in Settings.
-- **The Discernment Test** — a first-class protocol for telling genuine guidance from fear, ego,
-  wishful thinking, and inherited voices.
-- **Grounding** — treated as the second half of practice, not optional aftercare.
-- **Difficult territory** — a Codex entry on the dark night, ego inflation, and concrete triage for
-  when to stop and get help.
-- **Crisis resources** — on the Threshold, in the footer of every page, in Settings, and in the
-  Council terms.
+- **The Threshold** — six explicit consent gates before the app opens: 18+, not therapy, may alter
+  your perception of reality, some prompts go deep, the community is unvetted peers, your life and
+  your responsibility. Re-readable any time from Settings.
+- **Graded prompts** — anything intense is flagged before you open it, sits behind a confirmation,
+  carries a line showing the way back out, and can be switched off entirely.
+- **Skippable depth** — every intense step on the path says so on the card, and says outright that
+  nothing later depends on it.
+- **Day 9 is the Discernment Test**, before the Reckoning ever starts.
+- **Day 14 is a maintenance audit** — if your sleep went down, you reduce the practice, not increase it.
+- **Day 25 is grounding**, treated as the second half of the Reckoning rather than optional aftercare.
+- **Day 38 appoints a witness** — someone with standing to tell you if you start seeming different.
+- **Crisis resources** on the Threshold, in the "I need something now" drawer, in the footer of every
+  page, in Settings, and in the Council terms.
 
 ---
 
@@ -112,14 +162,14 @@ The subject matter demanded that this be built in, not bolted on:
 
 Everything is in the browser. There is no server, so there is nowhere for it to go.
 
-- App state (journal, readings, goals, plans, settings) → `localStorage`, one JSON blob under
-  `eternal_ruler:state:v1`
+- App state (path position, journal, readings, goals, plans, settings) → `localStorage`, one JSON
+  blob under `eternal_ruler:state:v1`
 - Voice recordings → IndexedDB (`eternal_ruler_voice`), because audio blobs are far too large for
   localStorage
 
 That makes it private by construction and **fragile**. Clearing site data erases it permanently.
 Settings has JSON export (everything), Markdown export (the journal), and JSON restore. Voice clips
-are not included in exports and stay in the browser that recorded them.
+aren't included in exports and stay in the browser that recorded them.
 
 ---
 
@@ -128,14 +178,13 @@ are not included in exports and stay in the browser that recorded them.
 The Council is a complete interface over a local data layer. Everything in it works; nothing in it
 reaches another person. Making the marketplace real needs:
 
-1. **Accounts and identity** — auth, plus real identity verification for anyone taking money
-2. **A database** — profiles, requests, threads, reviews (Postgres/Supabase or similar)
-3. **Payments** — Stripe Connect or equivalent for mentor payouts, platform fee, refunds, disputes
+1. **Accounts and identity** — auth, plus real verification for anyone taking money
+2. **A database** — profiles, requests, threads, reviews
+3. **Payments** — Stripe Connect or equivalent, platform fee, refunds, disputes
 4. **Trust and safety** — reporting, blocking, moderation, and a written policy on what gets a
    mentor removed. Given the subject matter this is the hard part, not the payments.
-5. **Sync** — the same seam would let journal and readings follow a user across devices, which
-   trades the current privacy-by-construction for convenience. That's a real trade-off, not an
-   obvious upgrade.
+5. **Sync** — the same seam would let your journal follow you across devices, trading today's
+   privacy-by-construction for convenience. A real trade-off, not an obvious upgrade.
 
 The seam is `src/lib/store.jsx` — every mutation goes through one place.
 
@@ -144,39 +193,41 @@ The seam is `src/lib/store.jsx` — every mutation goes through one place.
 ## Layout
 
 ```
-eternal-ruler/
-  src/
-    App.jsx                 shell, hash routing, footer
-    main.jsx                entry point
-    styles.css              design tokens + all styling
-    lib/
-      store.jsx             all app state, localStorage persistence, every mutation
-      temperature.js        the Hot & Cold model
-      audio.js              IndexedDB clip store + recorder hook
-      util.js               dates, ids, streaks, export
-    data/
-      domains.js            the twelve rated domains
-      protocols.js          14 State Stacks
-      codex.js              29 library entries
-      prompts.js            70+ graded journal prompts
-      remarks.js            70 daily remarks
-      mentors.js            sample Council profiles + terms
-    components/
-      ui.jsx                Panel, Modal, Stat, Bar, Spark, DangerButton, Field, Check
-      Dial.jsx              hot/cold sliders + gap readout
-    views/                  Threshold, Today, Attunement, Ascend, Journal,
-                            VoiceRoom, Manifest, Goals, Codex, Council, Settings
+src/
+  App.jsx                 shell, progressive nav, "I need something now"
+  main.jsx                entry point
+  styles.css              design tokens + all styling
+  lib/
+    store.jsx             all app state, localStorage persistence, every mutation
+    temperature.js        the Hot & Cold model
+    audio.js              IndexedDB clip store + recorder hook
+    util.js               dates, ids, streaks, export
+  data/
+    path.js               the 42 steps, 5 stages, unlocks, the Practice rotation
+    protocols.js          14 guided State Stacks
+    codex.js              29 library entries
+    prompts.js            70+ graded journal prompts
+    remarks.js            70 daily remarks
+    domains.js            the twelve rated domains
+    mentors.js            sample Council profiles + terms
+  components/
+    Runner.jsx            the guided protocol timer (launchable from anywhere)
+    NeedNow.jsx           the plain-language emergency drawer
+    Dial.jsx              hot/cold sliders + gap readout
+    ui.jsx                Panel, Modal, Stat, Bar, Spark, DangerButton, Field, Check
+  views/                  Threshold, Path, Journal, Attunement, VoiceRoom,
+                          Manifest, Goals, Library, Council, Settings
 ```
 
 ---
 
 ## A note on the content
 
-The 70 daily remarks, the journal prompts, and the Codex entries were written for this app rather
-than quoted, so nothing here is misattributed to a teacher who never said it. Where the Codex
-describes a tradition's position — Jung's Self, Vedanta's atman, the Holy Guardian Angel, Internal
-Family Systems — it says which tradition, and it says plainly that the maps disagree with each
-other about what the thing fundamentally is.
+The 42 path steps, the 70 daily remarks, the journal prompts, and the Library entries were written
+for this app rather than quoted, so nothing is misattributed to a teacher who never said it. Where
+the Library describes a tradition's position — Jung's Self, Vedanta's atman, the Holy Guardian
+Angel, Internal Family Systems — it names the tradition and says plainly that the maps disagree
+with each other.
 
 The stance throughout: hold the map loosely, take the practice seriously, and judge it by whether
 it makes you more honest, kinder, clearer, and more capable. That's a question you can actually

@@ -23,15 +23,11 @@ export function Goals({ go }) {
 
   return (
     <>
-      <div className="page-head">
-        <div className="eyebrow">The Work</div>
-        <h1>Goals</h1>
-        <p className="lede">
-          What you&apos;re actually building, with the honest reason underneath it and the single next physical
-          action. A goal without a next action is a mood. A goal without a why gets abandoned the first week
-          it costs something.
-        </p>
-      </div>
+      <p className="soft">
+        What you&apos;re actually building, with the honest reason underneath it and the single next physical
+        action. A goal without a next action is a mood. A goal without a why gets abandoned the first week it
+        costs something.
+      </p>
 
       <div className="grid three" style={{ marginBottom: "1.4rem" }}>
         <Stat n={open.length} k="In motion" />

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useStore } from "../lib/store.jsx";
 import { Bar, DangerButton, Empty, Field, Panel } from "../components/ui.jsx";
+import { Goals } from "./Goals.jsx";
 import { prettyDate, uid } from "../lib/util.js";
 
 const STEPS = [
@@ -47,9 +48,11 @@ export function Manifest({ go }) {
   const { state } = store;
   const [building, setBuilding] = useState(false);
   const [openId, setOpenId] = useState(null);
+  const [tab, setTab] = useState("plans");
 
   const active = state.manifestations.filter((m) => !m.archived);
   const archived = state.manifestations.filter((m) => m.archived);
+  const openGoals = state.goals.filter((g) => !g.done).length;
 
   return (
     <>
@@ -63,6 +66,19 @@ export function Manifest({ go }) {
         </p>
       </div>
 
+      <div className="row tight" style={{ marginBottom: "1.3rem" }}>
+        <button className={`chip ${tab === "plans" ? "on" : ""}`} onClick={() => setTab("plans")}>
+          Plans ({active.length})
+        </button>
+        <button className={`chip ${tab === "goals" ? "on" : ""}`} onClick={() => setTab("goals")}>
+          Goals ({openGoals})
+        </button>
+      </div>
+
+      {tab === "goals" && <Goals go={go} />}
+
+      {tab === "plans" && (
+      <>
       <div className="note">
         <strong>The stance this app takes on manifestation:</strong> stating clearly what you want, deciding who
         you must become, and taking daily action toward it is one of the most reliable things a person can do.
@@ -109,6 +125,8 @@ export function Manifest({ go }) {
             </div>
           ))}
         </Panel>
+      )}
+      </>
       )}
     </>
   );

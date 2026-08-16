@@ -6,7 +6,9 @@ import { Empty, Panel, Spark, Stat, DangerButton } from "../components/ui.jsx";
 import { summarize, tempColor, readGap } from "../lib/temperature.js";
 import { dayKey, prettyDate, shortDate } from "../lib/util.js";
 
-const CORE_IDS = ["body", "mind", "emotion", "confidence", "connection", "purpose"];
+// The quick reading is four domains, not twelve. A reading you'll actually take
+// every day beats a thorough one you take twice and abandon.
+const CORE_IDS = ["body", "emotion", "connection", "purpose"];
 
 function blankReadings(ids, seed) {
   return Object.fromEntries(ids.map((id) => [id, seed?.[id] ? { ...seed[id] } : { self: 50, higher: 50 }]));
@@ -81,15 +83,15 @@ export function Attunement({ go }) {
               <div>
                 <div className="label">Scope</div>
                 <div className="small muted">
-                  {scope === "core" ? "Six core domains — about two minutes." : "All twelve — about five minutes."}
+                  {scope === "core" ? "Four domains — about ninety seconds." : "All twelve — about five minutes."}
                 </div>
               </div>
               <div className="row tight">
                 <button className={`chip ${scope === "core" ? "on" : ""}`} onClick={() => changeScope("core")}>
-                  Core six
+                  Quick
                 </button>
                 <button className={`chip ${scope === "full" ? "on" : ""}`} onClick={() => changeScope("full")}>
-                  Full twelve
+                  Deep
                 </button>
               </div>
             </div>

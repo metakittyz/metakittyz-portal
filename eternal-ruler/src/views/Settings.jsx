@@ -1,8 +1,9 @@
 import React, { useRef, useState } from "react";
-import { useStore } from "../lib/store.jsx";
+import { EMPTY_STATE, useStore } from "../lib/store.jsx";
 import { Check, DangerButton, Field, Panel } from "../components/ui.jsx";
 import { remarkById } from "../data/remarks.js";
 import { codexById } from "../data/codex.js";
+import { TOTAL_DAYS } from "../data/path.js";
 import { dayKey, download, prettyDate } from "../lib/util.js";
 
 export function Settings() {
@@ -78,6 +79,33 @@ export function Settings() {
             onChange={(e) => store.setProfile({ intention: e.target.value })}
           />
         </Field>
+      </Panel>
+
+      <Panel title="The Path">
+        <p className="small soft">
+          You&apos;ve taken <strong style={{ color: "var(--gold)" }}>{state.path.completed.length}</strong> of{" "}
+          {TOTAL_DAYS} steps. Position is held by steps completed, never by dates — there is no such thing as
+          falling behind here.
+        </p>
+        <Check
+          checked={state.path.freeRoam}
+          onChange={(v) => store.setFreeRoam(v)}
+          title="Open every room now"
+        >
+          By default the rooms open one at a time as the path reaches them, because showing ten tools on day
+          one is how people bounce off this work. Turn this on to have all of them immediately. The path
+          itself is unchanged either way.
+        </Check>
+        {state.path.completed.length > 0 && (
+          <DangerButton
+            className="btn ghost sm"
+            confirmLabel="Yes — start the path over"
+            onConfirm={() => store.replaceAll({ ...state, path: { ...EMPTY_STATE.path } })}
+          >
+            Restart the path from day one
+          </DangerButton>
+        )}
+        <div className="field-hint">Restarting clears your position only. Your journal and data are untouched.</div>
       </Panel>
 
       <Panel title="Intensity">
