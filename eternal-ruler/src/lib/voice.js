@@ -6,7 +6,7 @@
 // picker in Settings lets you choose any voice the device has.
 
 import { clips } from "./audio.js";
-import { getAudio } from "./tts.js";
+import { ensureAvailable, getAudio } from "./tts.js";
 import { DEFAULT_PRESET, presetById } from "../data/voices.js";
 
 let cachedVoices = null;
@@ -181,6 +181,29 @@ export function settingsFor(voiceState) {
 
 let currentAudio = null;
 
+// ---------------------------------------------------------------------------
+// Which engine actually produced the last line. The fallback used to be
+// silent, which made "why is this still robotic?" impossible to answer from
+// inside the app. Now the UI can show it.
+// ---------------------------------------------------------------------------
+
+let lastEngine = null; // "own" | "natural" | "device"
+const engineWatchers = new Set();
+
+export function getLastEngine() {
+  return lastEngine;
+}
+
+export function onEngineChange(fn) {
+  engineWatchers.add(fn);
+  return () => engineWatchers.delete(fn);
+}
+
+function setEngine(name) {
+  lastEngine = name;
+  engineWatchers.forEach((fn) => fn(name));
+}
+
 export function stopClip() {
   if (currentAudio) {
     currentAudio.pause();
@@ -226,16 +249,22 @@ export async function speakLine(lineId, text, voiceState, { onEnd } = {}) {
   if (voiceState.presetId === "own" && lineId) {
     try {
       const blob = await clips.get(`guide:${lineId}`);
-      if (blob) return await playBlob(blob, onEnd);
+      if (blob) {
+        setEngine("own");
+        return await playBlob(blob, onEnd);
+      }
     } catch {
       /* fall through */
     }
   }
 
-  // 2. the natural voice
-  if (voiceState.engine === "openai") {
+  // 2. the natural voice. "device" is the only way to opt out; anything else
+  //    tries natural first, but only after one session-wide availability check
+  //    so a static host doesn't pay a doomed round-trip on every line.
+  if (voiceState.engine !== "device") {
     const preset = presetById[voiceState.presetId] || presetById[DEFAULT_PRESET];
-    if (preset.openai) {
+    const reachable = await ensureAvailable(voiceState.apiKey || undefined);
+    if (preset.openai && reachable?.ok) {
       try {
         const { blob } = await getAudio({
           presetId: preset.id,
@@ -246,15 +275,17 @@ export async function speakLine(lineId, text, voiceState, { onEnd } = {}) {
           speed: preset.openai.speed,
           apiKey: voiceState.apiKey || undefined,
         });
+        setEngine("natural");
         return await playBlob(blob, onEnd);
       } catch (err) {
-        // Deliberately quiet: a missing key or a dead network should degrade
-        // to the device voice, not interrupt someone mid-practice.
+        // Degrade rather than interrupt someone mid-practice. The UI surfaces
+        // that this happened; it is not swallowed.
         if (err?.code !== "aborted") console.info("Natural voice unavailable, using the device voice.", err?.message);
       }
     }
   }
 
   // 3. the device voice
+  setEngine("device");
   return speak(text, settingsFor(voiceState), { onEnd });
 }

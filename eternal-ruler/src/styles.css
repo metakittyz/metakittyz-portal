@@ -1753,3 +1753,46 @@ footer.foot {
   text-transform: uppercase;
   color: var(--moss);
 }
+
+/* the plain answer to "which voice am I actually hearing?" */
+.engine-state {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 1rem;
+}
+.engine-state > div {
+  flex: 1;
+  min-width: 0;
+}
+.engine-state strong {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+.engine-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--text-3);
+}
+.engine-state.live {
+  border-color: rgba(111, 211, 154, 0.4);
+  background: rgba(111, 211, 154, 0.07);
+}
+.engine-state.live .engine-dot {
+  background: var(--moss);
+  box-shadow: 0 0 10px var(--moss);
+}
+.engine-state.down {
+  border-color: rgba(255, 106, 61, 0.35);
+  background: rgba(255, 106, 61, 0.06);
+}
+.engine-state.down .engine-dot {
+  background: var(--ember);
+}

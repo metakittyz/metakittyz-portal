@@ -5,8 +5,8 @@ import { PROTOCOLS } from "../data/protocols.js";
 import { Bar, Check, DangerButton, Field, Panel, Stat } from "../components/ui.jsx";
 import { useDeviceVoices } from "../components/Speak.jsx";
 import { clips, recordingSupported, useClipUrl, useRecorder } from "../lib/audio.js";
-import { isLikelyFemale, resolvePreset, settingsFor, speak, speakLine, speechSupported, stopAll } from "../lib/voice.js";
-import { cacheReport, clearCache, generate, probe } from "../lib/tts.js";
+import { getLastEngine, isLikelyFemale, onEngineChange, resolvePreset, settingsFor, speak, speakLine, speechSupported, stopAll } from "../lib/voice.js";
+import { cacheReport, clearCache, ensureAvailable, generate, knownAvailability, probe, resetAvailability } from "../lib/tts.js";
 import { formatDuration } from "../lib/util.js";
 
 export function VoiceLibrary() {
@@ -312,14 +312,16 @@ function LineRow({ line, store, supported }) {
 // ------------------------------------------------------- the natural voice --
 function NaturalVoice({ store }) {
   const v = store.state.voice;
-  const on = v.engine === "openai";
+  // Anything but an explicit "device" means natural-when-available.
+  const on = v.engine !== "device";
   const areas = useMemo(() => guideAreas(PROTOCOLS), []);
   const texts = useMemo(() => areas.flatMap((a) => a.lines.map((l) => l.text)), [areas]);
 
-  const [status, setStatus] = useState(null); // null | checking | {ok} | {ok:false,...}
+  const [status, setStatus] = useState(knownAvailability());
   const [keyDraft, setKeyDraft] = useState(v.apiKey);
   const [report, setReport] = useState(null);
   const [warm, setWarm] = useState(null); // { done, total, failed }
+  const [engine, setEngine] = useState(getLastEngine());
   const abort = useRef(null);
 
   // Takes an explicit key so "Save" can probe with the key you just typed —
@@ -327,10 +329,24 @@ function NaturalVoice({ store }) {
   const check = useCallback(
     async (keyOverride) => {
       setStatus("checking");
-      setStatus(await probe((keyOverride ?? v.apiKey) || undefined));
+      resetAvailability();
+      const r = await probe((keyOverride ?? v.apiKey) || undefined);
+      setStatus(r);
+      await ensureAvailable((keyOverride ?? v.apiKey) || undefined);
     },
     [v.apiKey]
   );
+
+  // Ask once on arrival so the panel is honest before you touch anything.
+  useEffect(() => {
+    let dead = false;
+    ensureAvailable(v.apiKey || undefined).then((r) => !dead && setStatus(r));
+    return () => {
+      dead = true;
+    };
+  }, [v.apiKey]);
+
+  useEffect(() => onEngineChange(setEngine), []);
 
   useEffect(() => {
     let dead = false;
@@ -384,50 +400,72 @@ function NaturalVoice({ store }) {
         generated once, cached on this device forever, and then plays instantly and offline.
       </p>
 
+      {/* The plain answer to "why does this still sound robotic?" */}
+      <div className={`engine-state ${status?.ok ? "live" : status === "checking" ? "" : "down"}`}>
+        <span className="engine-dot" />
+        <div>
+          <strong>
+            {status === "checking"
+              ? "Checking the voice service…"
+              : status?.ok
+                ? on
+                  ? "Natural voice active"
+                  : "Natural voice available — currently switched off"
+                : "Natural voice unavailable — you are hearing the device voice"}
+          </strong>
+          {engine && (
+            <span className="tiny muted" style={{ display: "block" }}>
+              Last line played by: {engine === "natural" ? "OpenAI" : engine === "own" ? "your recording" : "the browser"}
+            </span>
+          )}
+        </div>
+        <button className="btn ghost sm" onClick={() => check()}>
+          Re-check
+        </button>
+      </div>
+
+      {status && status !== "checking" && !status.ok && (
+        <div className="note warn">
+          {status.code === "no_route" ? (
+            <>
+              <strong>Nothing is serving <code>/api/tts</code> at this address.</strong> This is what a
+              plain static build looks like — and it is also what the hosted preview link looks like,
+              because that sandbox blocks all outbound network requests and always will.
+              <br />
+              <br />
+              To actually hear it: run <code>npm run dev</code> with your key in <code>.env</code>, or
+              deploy to Vercel with <code>api/tts.js</code> and <code>OpenAI_EternalRuler</code> set. Until
+              then the device voices are all that can play.
+            </>
+          ) : status.code === "no_key" ? (
+            <>
+              <strong>The voice service is running, but has no OpenAI key.</strong> Set{" "}
+              <code>OpenAI_EternalRuler</code> in its environment — the right way, since the key never
+              touches a browser — or paste a key below to use it from this device only.
+            </>
+          ) : (
+            <>
+              <strong>Couldn&apos;t reach the voice service.</strong> {status.message}
+            </>
+          )}
+        </div>
+      )}
+
       <Check
         checked={on}
         onChange={(next) => {
           stopAll();
-          store.setVoice({ engine: next ? "openai" : "device" });
+          store.setVoice({ engine: next ? "auto" : "device" });
           if (next) check();
         }}
-        title="Use the natural voice"
+        title="Use the natural voice when it's available"
       >
-        Falls back to the device voice whenever a line isn&apos;t cached and the service can&apos;t be
-        reached, so the guide is never silent.
+        On by default. Falls back to the device voice wherever the service can&apos;t be reached, so the
+        guide is never silent.
       </Check>
 
       {on && (
         <>
-          <div className="row" style={{ marginBottom: ".9rem" }}>
-            <button className="btn sm" onClick={check}>
-              Check connection
-            </button>
-            {status === "checking" && <span className="small muted">Checking…</span>}
-            {status && status !== "checking" && (
-              <span className={`chip static ${status.ok ? "moss" : "ember"}`}>
-                {status.ok ? "Connected" : status.code === "no_key" ? "No key" : "Unavailable"}
-              </span>
-            )}
-          </div>
-
-          {status && status !== "checking" && !status.ok && (
-            <div className="note warn">
-              {status.code === "no_key" ? (
-                <>
-                  <strong>No OpenAI key found.</strong> Either set <code>OpenAI_EternalRuler</code> on the server
-                  that hosts this app — the right way, since the key never touches a browser — or paste a
-                  key below to use it from this device only.
-                </>
-              ) : (
-                <>
-                  <strong>Couldn&apos;t reach the voice service.</strong> {status.message} If you&apos;re
-                  running a plain static build with no <code>/api/tts</code> function deployed, this is
-                  expected — the device voices still work.
-                </>
-              )}
-            </div>
-          )}
 
           <Field
             label="Your own OpenAI key (optional)"

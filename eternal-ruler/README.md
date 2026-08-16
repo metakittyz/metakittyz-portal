@@ -149,8 +149,24 @@ sentences fall away rather than land."* Uses `gpt-4o-mini-tts`, which is the mod
 those instructions.
 
 **The device voice.** The browser's own speech synthesis: free, offline, instant, and noticeably
-synthetic. A tuned pace and pitch plus an ordered list of OS voices to reach for. This is the
-default, and it's always the fallback.
+synthetic. A tuned pace and pitch plus an ordered list of OS voices to reach for. Always the
+fallback, never the goal.
+
+**The natural voice is on by default** (`engine: "auto"`). On load the app asks `/api/tts` once
+whether it's really there and whether it has a key; if the answer is no it stops trying for the
+session, so a static host never pays a doomed round-trip per line.
+
+### Where you will and won't hear it
+
+| Where | Natural voice? |
+| --- | --- |
+| `npm run dev` with a key in `.env` | **Yes** |
+| Deployed to Vercel with `OpenAI_EternalRuler` set | **Yes** |
+| `npm run preview`, or any plain static host | No — nothing serves `/api/tts` |
+| The published Artifact preview link | **No, and it never can** — that sandbox blocks all outbound network requests |
+
+The Voice Library says which of these you're in, in plain language, and shows which engine played
+the last line. If it's robotic, the app now tells you exactly why.
 
 ### How playback resolves
 

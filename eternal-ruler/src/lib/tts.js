@@ -111,23 +111,73 @@ export async function getAudio(opts) {
 }
 
 /**
- * Is a natural voice actually reachable? Cheap probe used to decide whether to
- * show the feature as live or as "needs a key". Deliberately generates one very
- * short line so the answer is real rather than assumed.
+ * Is a natural voice actually reachable? A free GET health check — it costs
+ * nothing at OpenAI and distinguishes the three failures that matter:
+ *
+ *   no_route — nothing is serving /api/tts. A plain static host, or the
+ *              published artifact preview, whose sandbox blocks all network.
+ *   no_key   — the function is there but has no OpenAI key.
+ *   offline  — the request itself failed.
  */
 export async function probe(apiKey) {
+  let res;
   try {
-    const headers = { "Content-Type": "application/json" };
+    const headers = {};
     if (apiKey) headers["x-openai-key"] = apiKey;
-    const res = await fetch(TTS_ENDPOINT, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ input: "Here.", voice: "shimmer", model: "gpt-4o-mini-tts" }),
-    });
-    if (res.ok) return { ok: true };
-    const payload = await res.json().catch(() => ({}));
-    return { ok: false, code: payload.error === "no_key" || res.status === 401 ? "no_key" : "failed", message: payload.message };
+    res = await fetch(TTS_ENDPOINT, { method: "GET", headers });
   } catch {
-    return { ok: false, code: "offline", message: "No route to the voice service. Is the API function deployed?" };
+    return { ok: false, code: "offline", message: "The request could not be sent." };
   }
+
+  let payload = null;
+  try {
+    payload = await res.json();
+  } catch {
+    payload = null;
+  }
+
+  // A static host answers unknown paths with index.html, not our JSON marker.
+  if (!payload || payload.service !== "eternal-ruler-tts") {
+    return {
+      ok: false,
+      code: "no_route",
+      message: "Nothing is serving /api/tts here.",
+    };
+  }
+  if (!payload.keyPresent) {
+    return { ok: false, code: "no_key", message: "The voice service is running but has no OpenAI key." };
+  }
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Availability, resolved once per session.
+//
+// Without this, every single line on a static host would fire a doomed request
+// and then fall back — adding a network timeout to every spoken line. We ask
+// once, remember, and stop trying.
+// ---------------------------------------------------------------------------
+
+let availability = null; // null = not asked yet
+let inFlight = null;
+
+export function knownAvailability() {
+  return availability;
+}
+
+export function resetAvailability() {
+  availability = null;
+  inFlight = null;
+}
+
+export async function ensureAvailable(apiKey) {
+  if (availability) return availability;
+  if (!inFlight) {
+    inFlight = probe(apiKey).then((r) => {
+      availability = r;
+      inFlight = null;
+      return r;
+    });
+  }
+  return inFlight;
 }

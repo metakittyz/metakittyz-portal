@@ -47,13 +47,23 @@ export async function synthesize({ input, voice, instructions, speed, model, api
 }
 
 export default async function handler(req, res) {
+  const apiKey =
+    process.env.OpenAI_EternalRuler || process.env.OPENAI_API_KEY || req.headers["x-openai-key"];
+
+  // GET is a free health check: it says whether this route is really the TTS
+  // function and whether a key is present, without spending anything at
+  // OpenAI. The `service` marker matters — a static host answers unknown paths
+  // with index.html, and the client must be able to tell that apart.
+  if (req.method === "GET") {
+    res.status(200).json({ service: "eternal-ruler-tts", keyPresent: !!apiKey });
+    return;
+  }
+
   if (req.method !== "POST") {
     res.status(405).json({ error: "POST only" });
     return;
   }
 
-  const apiKey =
-    process.env.OpenAI_EternalRuler || process.env.OPENAI_API_KEY || req.headers["x-openai-key"];
   if (!apiKey) {
     res.status(401).json({
       error: "no_key",
