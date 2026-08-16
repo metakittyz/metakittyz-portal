@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "../lib/store.jsx";
 import { VOICE_PRESETS, guideAreas } from "../data/voices.js";
 import { PROTOCOLS } from "../data/protocols.js";
-import { Check, DangerButton, Field, Panel, Stat } from "../components/ui.jsx";
+import { Bar, Check, DangerButton, Field, Panel, Stat } from "../components/ui.jsx";
 import { useDeviceVoices } from "../components/Speak.jsx";
 import { clips, recordingSupported, useClipUrl, useRecorder } from "../lib/audio.js";
-import { isLikelyFemale, resolvePreset, settingsFor, speak, speechSupported, stopAll } from "../lib/voice.js";
+import { isLikelyFemale, resolvePreset, settingsFor, speak, speakLine, speechSupported, stopAll } from "../lib/voice.js";
+import { cacheReport, clearCache, generate, probe } from "../lib/tts.js";
 import { formatDuration } from "../lib/util.js";
 
 export function VoiceLibrary() {
@@ -71,11 +72,13 @@ function Library({ store }) {
   function preview(preset) {
     stopAll();
     setPlaying(preset.id);
-    speak(
+    // Preview through the real pipeline so you hear exactly what you'll get.
+    speakLine(
+      null,
       preset.sample,
-      settingsFor({ ...v, presetId: preset.id, voiceURI: v.presetId === preset.id ? v.voiceURI : "" }),
+      { ...v, enabled: true, presetId: preset.id, voiceURI: v.presetId === preset.id ? v.voiceURI : "" },
       { onEnd: () => setPlaying(null) }
-    );
+    ).catch(() => setPlaying(null));
   }
 
   const active = resolvePreset(v.presetId, v.voiceURI);
@@ -93,6 +96,8 @@ function Library({ store }) {
         The guide reads each protocol step aloud, marks completed steps, and reads anything with a ▶ Listen
         button. Mute any time from the ◉ in the header.
       </Check>
+
+      <NaturalVoice store={store} />
 
       <div className="voice-grid">
         {VOICE_PRESETS.map((p) => {
@@ -123,7 +128,7 @@ function Library({ store }) {
         })}
       </div>
 
-      <Panel title="Fine tuning">
+      <Panel title="Fine tuning" right={<span className="label">Device voice only</span>}>
         <Field
           label="Device voice"
           hint={
@@ -301,5 +306,230 @@ function LineRow({ line, store, supported }) {
       {url && <audio controls src={url} preload="none" />}
       {rec.error && <div className="tiny" style={{ color: "var(--blood)" }}>{rec.error}</div>}
     </div>
+  );
+}
+
+// ------------------------------------------------------- the natural voice --
+function NaturalVoice({ store }) {
+  const v = store.state.voice;
+  const on = v.engine === "openai";
+  const areas = useMemo(() => guideAreas(PROTOCOLS), []);
+  const texts = useMemo(() => areas.flatMap((a) => a.lines.map((l) => l.text)), [areas]);
+
+  const [status, setStatus] = useState(null); // null | checking | {ok} | {ok:false,...}
+  const [keyDraft, setKeyDraft] = useState(v.apiKey);
+  const [report, setReport] = useState(null);
+  const [warm, setWarm] = useState(null); // { done, total, failed }
+  const abort = useRef(null);
+
+  // Takes an explicit key so "Save" can probe with the key you just typed —
+  // reading it from state here would use the previous value.
+  const check = useCallback(
+    async (keyOverride) => {
+      setStatus("checking");
+      setStatus(await probe((keyOverride ?? v.apiKey) || undefined));
+    },
+    [v.apiKey]
+  );
+
+  useEffect(() => {
+    let dead = false;
+    cacheReport(v.presetId, v.model, texts).then((r) => !dead && setReport(r));
+    return () => {
+      dead = true;
+    };
+  }, [v.presetId, v.model, texts, warm]);
+
+  async function prewarm() {
+    const preset = VOICE_PRESETS.find((p) => p.id === v.presetId) || VOICE_PRESETS[0];
+    const controller = new AbortController();
+    abort.current = controller;
+    let done = 0;
+    let failed = 0;
+    setWarm({ done: 0, total: texts.length, failed: 0 });
+    for (const text of texts) {
+      if (controller.signal.aborted) break;
+      try {
+        await generate({
+          presetId: preset.id,
+          model: v.model,
+          text,
+          voice: preset.openai.voice,
+          instructions: preset.openai.instructions,
+          speed: preset.openai.speed,
+          apiKey: v.apiKey || undefined,
+          signal: controller.signal,
+        });
+      } catch (err) {
+        if (err.code === "aborted") break;
+        failed++;
+        // A missing key means every remaining line fails too — stop early.
+        if (err.code === "no_key") {
+          setStatus({ ok: false, code: "no_key", message: err.message });
+          break;
+        }
+      }
+      done++;
+      setWarm({ done, total: texts.length, failed });
+    }
+    abort.current = null;
+    setWarm((w) => (w ? { ...w, finished: true } : null));
+  }
+
+  return (
+    <Panel tone={on ? "gold" : ""} title="A natural voice">
+      <p className="small soft">
+        The device voices below are free, instant and offline — and they sound synthetic. Turning this on
+        uses OpenAI&apos;s text-to-speech instead: soft, human, genuinely comforting. Each line is
+        generated once, cached on this device forever, and then plays instantly and offline.
+      </p>
+
+      <Check
+        checked={on}
+        onChange={(next) => {
+          stopAll();
+          store.setVoice({ engine: next ? "openai" : "device" });
+          if (next) check();
+        }}
+        title="Use the natural voice"
+      >
+        Falls back to the device voice whenever a line isn&apos;t cached and the service can&apos;t be
+        reached, so the guide is never silent.
+      </Check>
+
+      {on && (
+        <>
+          <div className="row" style={{ marginBottom: ".9rem" }}>
+            <button className="btn sm" onClick={check}>
+              Check connection
+            </button>
+            {status === "checking" && <span className="small muted">Checking…</span>}
+            {status && status !== "checking" && (
+              <span className={`chip static ${status.ok ? "moss" : "ember"}`}>
+                {status.ok ? "Connected" : status.code === "no_key" ? "No key" : "Unavailable"}
+              </span>
+            )}
+          </div>
+
+          {status && status !== "checking" && !status.ok && (
+            <div className="note warn">
+              {status.code === "no_key" ? (
+                <>
+                  <strong>No OpenAI key found.</strong> Either set <code>OpenAI_EternalRuler</code> on the server
+                  that hosts this app — the right way, since the key never touches a browser — or paste a
+                  key below to use it from this device only.
+                </>
+              ) : (
+                <>
+                  <strong>Couldn&apos;t reach the voice service.</strong> {status.message} If you&apos;re
+                  running a plain static build with no <code>/api/tts</code> function deployed, this is
+                  expected — the device voices still work.
+                </>
+              )}
+            </div>
+          )}
+
+          <Field
+            label="Your own OpenAI key (optional)"
+            hint="Stored in this browser only and sent to this app's own /api/tts, never to a third party. A server-side key is safer; use this only for your own device."
+          >
+            <div className="row">
+              <input
+                type="password"
+                value={keyDraft}
+                onChange={(e) => setKeyDraft(e.target.value)}
+                placeholder="sk-…"
+                style={{ flex: 1, minWidth: 180 }}
+                autoComplete="off"
+              />
+              <button
+                className="btn sm"
+                onClick={() => {
+                  const next = keyDraft.trim();
+                  store.setVoice({ apiKey: next });
+                  check(next);
+                }}
+              >
+                Save
+              </button>
+              {v.apiKey && (
+                <DangerButton
+                  onConfirm={() => {
+                    store.setVoice({ apiKey: "" });
+                    setKeyDraft("");
+                    setStatus(null);
+                  }}
+                >
+                  Forget
+                </DangerButton>
+              )}
+            </div>
+          </Field>
+
+          <hr className="rule" />
+
+          <div className="spread" style={{ marginBottom: ".8rem" }}>
+            <div>
+              <div className="label">Cached for this voice</div>
+              <p className="small soft" style={{ marginBottom: 0 }}>
+                {report
+                  ? `${report.have} of ${report.total} lines ready${
+                      report.bytes ? ` · ${(report.bytes / 1048576).toFixed(1)} MB` : ""
+                    }`
+                  : "Counting…"}
+              </p>
+            </div>
+            {report && <Stat n={`${report.have}/${report.total}`} k="Ready" />}
+          </div>
+
+          {warm && !warm.finished ? (
+            <>
+              <Bar pct={(warm.done / warm.total) * 100} />
+              <div className="row" style={{ marginTop: ".7rem" }}>
+                <span className="small muted">
+                  Generating {warm.done}/{warm.total}
+                  {warm.failed ? ` · ${warm.failed} failed` : ""}
+                </span>
+                <button className="btn ghost sm" onClick={() => abort.current?.abort()}>
+                  Stop
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="row">
+              <button className="btn" onClick={prewarm}>
+                Generate every line
+              </button>
+              <DangerButton
+                className="btn ghost sm"
+                confirmLabel="Clear cached audio"
+                onConfirm={async () => {
+                  await clearCache();
+                  setReport(await cacheReport(v.presetId, v.model, texts));
+                }}
+              >
+                Clear cache
+              </DangerButton>
+              {warm?.finished && (
+                <span className="small" style={{ color: warm.failed ? "var(--ember)" : "var(--moss)" }}>
+                  {warm.failed ? `${warm.failed} failed` : "All generated."}
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className="field-hint">
+            Pre-generating means a guided protocol never pauses mid-practice waiting on the network. It
+            costs one API call per line, once. Changing voice or model regenerates.
+          </div>
+
+          <div className="note calm" style={{ marginTop: "1rem", marginBottom: 0 }}>
+            <strong>What gets sent.</strong> Only the guide&apos;s own fixed lines — protocol steps and four
+            app moments. Your journal, readings, intake, goals and recordings are never sent anywhere, by
+            this feature or any other.
+          </div>
+        </>
+      )}
+    </Panel>
   );
 }

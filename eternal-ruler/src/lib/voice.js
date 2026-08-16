@@ -6,6 +6,7 @@
 // picker in Settings lets you choose any voice the device has.
 
 import { clips } from "./audio.js";
+import { getAudio } from "./tts.js";
 import { DEFAULT_PRESET, presetById } from "../data/voices.js";
 
 let cachedVoices = null;
@@ -193,40 +194,67 @@ export function stopAll() {
   stopClip();
 }
 
+/** Play a blob through the shared audio channel. */
+function playBlob(blob, onEnd) {
+  const url = URL.createObjectURL(blob);
+  const audio = new Audio(url);
+  currentAudio = audio;
+  const done = () => {
+    stopClip();
+    onEnd?.();
+  };
+  audio.onended = done;
+  audio.onerror = done;
+  return audio.play().then(() => true);
+}
+
 /**
- * Speak one addressable line. When "Your Own Voice" is selected and a recording
- * exists for this line, your recording plays. Anything unrecorded falls back to
- * the preset's synthesized voice, so the guide is never silent.
+ * Speak one addressable line, in this order:
+ *
+ *   1. your own recording of that exact line, if you made one
+ *   2. the preset's OpenAI voice, from cache or generated once and cached
+ *   3. the device's speech synthesis
+ *
+ * Every step falls through to the next on failure, so the guide is never
+ * silent — no key, no network and no microphone all still produce a voice.
  */
 export async function speakLine(lineId, text, voiceState, { onEnd } = {}) {
-  if (!voiceState.enabled) return false;
+  if (!voiceState.enabled || !text) return false;
   stopAll();
 
+  // 1. your own voice
   if (voiceState.presetId === "own" && lineId) {
     try {
       const blob = await clips.get(`guide:${lineId}`);
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const audio = new Audio(url);
-        currentAudio = audio;
-        audio.onended = () => {
-          stopClip();
-          onEnd?.();
-        };
-        audio.onerror = () => {
-          stopClip();
-          onEnd?.();
-        };
-        await audio.play().catch(() => {
-          stopClip();
-          speak(text, settingsFor(voiceState), { onEnd });
-        });
-        return true;
-      }
+      if (blob) return await playBlob(blob, onEnd);
     } catch {
-      /* fall through to synthesis */
+      /* fall through */
     }
   }
 
+  // 2. the natural voice
+  if (voiceState.engine === "openai") {
+    const preset = presetById[voiceState.presetId] || presetById[DEFAULT_PRESET];
+    if (preset.openai) {
+      try {
+        const { blob } = await getAudio({
+          presetId: preset.id,
+          model: voiceState.model || "gpt-4o-mini-tts",
+          text,
+          voice: preset.openai.voice,
+          instructions: preset.openai.instructions,
+          speed: preset.openai.speed,
+          apiKey: voiceState.apiKey || undefined,
+        });
+        return await playBlob(blob, onEnd);
+      } catch (err) {
+        // Deliberately quiet: a missing key or a dead network should degrade
+        // to the device voice, not interrupt someone mid-practice.
+        if (err?.code !== "aborted") console.info("Natural voice unavailable, using the device voice.", err?.message);
+      }
+    }
+  }
+
+  // 3. the device voice
   return speak(text, settingsFor(voiceState), { onEnd });
 }

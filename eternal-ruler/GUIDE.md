@@ -67,8 +67,15 @@ She reads each protocol step as it arrives, marks completed steps, and reads any
 **Your own voice** replaces any line you record; anything unrecorded falls back to Solace, so you're
 never forced to finish all 77 before it works.
 
-It's your device's own speech synthesis — nothing is sent anywhere, works offline, and the timbre
-depends on what your OS has installed. The pace and pitch are ours and travel.
+**Two engines.** *Natural* uses OpenAI's text-to-speech — soft, human, comforting — generated once
+per line then cached forever, so it plays instantly and offline after that. *Device* uses the
+browser's own synthesis: free and offline, but synthetic. Device is the default and always the
+fallback, so the guide is never silent.
+
+Playback resolves in three tiers: your recording → the natural voice → the device voice.
+
+Only the guide's fixed lines are ever sent for synthesis. Your journal, readings and intake never
+leave the device.
 
 ---
 

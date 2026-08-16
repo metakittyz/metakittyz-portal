@@ -20,8 +20,19 @@ npm run build        # static bundle in dist/
 npm run preview
 ```
 
-No API keys, no accounts, no server. `dist/` drops onto Vercel, Netlify, GitHub Pages, or any
-static host.
+No API keys, no accounts, no server required. `dist/` drops onto Vercel, Netlify, GitHub Pages, or
+any static host.
+
+**Optional — the natural voice.** For a soft, human guide voice instead of the browser's synthetic
+one, add an OpenAI key and deploy the included `api/tts.js` function:
+
+```bash
+cp .env.example .env      # then paste your key into OpenAI_EternalRuler
+npm run dev               # the dev server serves /api/tts for you
+```
+
+On Vercel, `api/tts.js` deploys automatically — set `OpenAI_EternalRuler` in the project's
+environment variables (`OPENAI_API_KEY` also works if you prefer the conventional name). Without any of this the app works exactly as before, on device voices.
 
 **Deployment note:** microphone capture needs a secure context — it works on `localhost` and on any
 `https://` host. Over plain `http://` the Voice Room correctly reports that recording is unavailable.
@@ -128,12 +139,50 @@ Six choices for who reads the app to you.
 
 Solace is the default. Every preset has a ▶ Hear button so you pick by ear, not by name.
 
-**What a preset actually is.** Browsers only expose whatever voices the operating system has, so a
-preset is a *character*, not a file: a tuned pace and pitch, plus an ordered list of device voices to
-reach for, falling back to the best female voice available. That means Solace resolves to Samantha on
-a Mac and something else on Android — the pace and pitch are ours and travel intact, the timbre is
-whatever the device has. Fine tuning lets you override the device voice outright and nudge pace and
-pitch.
+### Two engines behind the same six voices
+
+**The natural voice (OpenAI).** Soft, human, genuinely comforting. Each preset maps to an OpenAI
+voice plus delivery `instructions` written for this app — Solace is `shimmer` told to speak *"like
+someone sitting beside a close friend late at night… never bright, never announcer-like. This is
+comfort, not performance."* Stillness is `sage` at 0.8 speed, *"almost a whisper… let the ends of
+sentences fall away rather than land."* Uses `gpt-4o-mini-tts`, which is the model that honours
+those instructions.
+
+**The device voice.** The browser's own speech synthesis: free, offline, instant, and noticeably
+synthetic. A tuned pace and pitch plus an ordered list of OS voices to reach for. This is the
+default, and it's always the fallback.
+
+### How playback resolves
+
+Three tiers, each falling through to the next on failure, so **the guide is never silent**:
+
+1. Your own recording of that exact line, if you made one
+2. The preset's OpenAI voice — from cache, or generated once and cached
+3. The device's speech synthesis
+
+### Caching is the whole design
+
+Every generated line is stored in IndexedDB keyed by (preset, model, text). So:
+
+- each line is paid for **exactly once, ever**
+- the second play is instant, with no network round-trip
+- once prewarmed, a guided protocol runs **fully offline**
+
+**Generate every line** in the Voice Library pre-renders all 77 with a progress bar, so a protocol
+never pauses mid-practice waiting on the network. Changing voice or model regenerates.
+
+### Keys, and what gets sent
+
+The client only ever talks to this app's own `/api/tts`. That function reads `OpenAI_EternalRuler`
+from the server environment (falling back to `OPENAI_API_KEY`) — the right way, since the key never touches a browser. Failing that, it
+accepts a key you paste into the Voice Library, stored in that browser only.
+
+**Only the guide's own fixed lines are sent** — protocol steps and four app moments. Your journal,
+readings, intake, goals and recordings are never sent anywhere, by this feature or any other.
+
+Costs are per character of speech, billed by OpenAI. With caching you pay once per line, so the
+whole 77-line library is a one-off. Check current pricing at
+[openai.com/api/pricing](https://openai.com/api/pricing).
 
 ### Your own voice
 
@@ -281,6 +330,8 @@ The seam is `src/lib/store.jsx` — every mutation goes through one place.
 ## Layout
 
 ```
+api/
+  tts.js                  serverless proxy to OpenAI TTS (keeps the key server-side)
 src/
   App.jsx                 shell, progressive nav, "I need something now"
   main.jsx                entry point
@@ -288,7 +339,8 @@ src/
   lib/
     store.jsx             all app state, localStorage persistence, every mutation
     temperature.js        the Hot & Cold model
-    voice.js              speech synthesis + female-voice scoring
+    voice.js              the three-tier playback chain + female-voice scoring
+    tts.js                OpenAI TTS client: cache-first, prewarm, probe
     consistency.js        activity by day, runs, returns
     audio.js              IndexedDB clip store + recorder hook
     util.js               dates, ids, streaks, export

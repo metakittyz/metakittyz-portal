@@ -44,7 +44,20 @@ export const EMPTY_STATE = {
   },
   // The guide voice. `presetId` names a character from the Voice Library;
   // `voiceURI` empty means "let the preset choose the device voice".
-  voice: { enabled: true, presetId: "solace", voiceURI: "", rateOffset: 0, pitchOffset: 0 },
+  // `engine`: "device" uses the browser's speech synthesis (free, offline,
+  // robotic); "openai" uses a real human-sounding voice, generated once per
+  // line and cached forever. `apiKey` is only set in bring-your-own-key mode
+  // and never leaves this browser except as a header to our own /api/tts.
+  voice: {
+    enabled: true,
+    presetId: "solace",
+    engine: "device",
+    model: "gpt-4o-mini-tts",
+    apiKey: "",
+    voiceURI: "",
+    rateOffset: 0,
+    pitchOffset: 0,
+  },
   ownVoice: {}, // lineId -> { at, duration }; the audio lives in IndexedDB
 };
 
