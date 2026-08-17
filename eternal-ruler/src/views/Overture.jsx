@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { OVERTURE_LINES, SCENES, overtureLineId } from "../lib/overture-scenes.js";
-import { speakLine, stopAll } from "../lib/voice.js";
+import { getLastEngine, onEngineChange, speakLine, stopAll } from "../lib/voice.js";
 import { duckTrack, playTrack, releaseTrack } from "../lib/track.js";
 import { suspendScore } from "../lib/ambient.js";
 import { useStore } from "../lib/store.jsx";
@@ -35,6 +35,12 @@ export function Overture({ onDone, reduceMotion = false }) {
   // refused, autoplay blocked — the generated score comes back rather than the
   // intro running dry.
   const trackRef = useRef(false);
+  // Which engine actually spoke the last line. The fallback to the browser
+  // voice used to be completely silent, which made "why does this sound
+  // robotic?" impossible to answer from inside the app — and the answer was a
+  // one-line deploy config mistake nobody could have guessed at.
+  const [engine, setEngine] = useState(getLastEngine());
+  useEffect(() => onEngineChange(setEngine), []);
 
   const canvasRef = useRef(null);
   const startedAt = useRef(0);
@@ -272,9 +278,18 @@ export function Overture({ onDone, reduceMotion = false }) {
             </button>
           </>
         ) : (
-          <button className="btn ghost sm" onClick={next}>
-            {still ? "Next" : "Skip ahead"} →
-          </button>
+          <>
+            {narrate && engine === "device" && (
+              <p className="overture-engine">
+                Using this device&apos;s built-in voice — the natural one isn&apos;t reachable here.
+                <br />
+                <span className="dim">Guide Voice, in the app, explains why and how to fix it.</span>
+              </p>
+            )}
+            <button className="btn ghost sm" onClick={next}>
+              {still ? "Next" : "Skip ahead"} →
+            </button>
+          </>
         )}
       </div>
     </div>

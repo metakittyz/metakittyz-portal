@@ -2227,3 +2227,12 @@ footer.foot {
   font-size: 0.98rem;
 }
 .orient-expect span { font-size: 0.76rem; color: var(--text-3); }
+.overture-engine {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  color: var(--ember);
+  margin: 0 0 0.9rem;
+  opacity: 0.8;
+}
+.overture-engine .dim { color: var(--text-3); }
