@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { OVERTURE_LINES, SCENES, overtureLineId } from "../lib/overture-scenes.js";
 import { speakLine, stopAll } from "../lib/voice.js";
+import { duckTrack, playTrack, releaseTrack } from "../lib/track.js";
+import { suspendScore } from "../lib/ambient.js";
 import { useStore } from "../lib/store.jsx";
 
 // THE OVERTURE — the story the app opens with.
@@ -29,6 +31,10 @@ export function Overture({ onDone, reduceMotion = false }) {
   const [i, setI] = useState(0);
   const [progress, setProgress] = useState(0);
   const [narrate, setNarrate] = useState(state.voice.enabled);
+  // Whether the recorded track took. If it didn't — file missing, codec
+  // refused, autoplay blocked — the generated score comes back rather than the
+  // intro running dry.
+  const trackRef = useRef(false);
 
   const canvasRef = useRef(null);
   const startedAt = useRef(0);
@@ -45,8 +51,20 @@ export function Overture({ onDone, reduceMotion = false }) {
 
   function finish() {
     stopAll();
+    releaseTrack();
+    suspendScore(false);
     onDone();
   }
+
+  // Hold the generated score off for the whole intro, and hand it back on the
+  // way out however the intro ends — finished, skipped or unmounted.
+  useEffect(() => {
+    suspendScore(true);
+    return () => {
+      releaseTrack();
+      suspendScore(false);
+    };
+  }, []);
 
   // ---- narration ----------------------------------------------------------
   // Read on arrival at each beat. The line carries a stable id, so it resolves
@@ -55,22 +73,29 @@ export function Overture({ onDone, reduceMotion = false }) {
   useEffect(() => {
     if (!started || !narrate) {
       speaking.current = false;
+      duckTrack(false);
       stopAll();
       return undefined;
     }
     const line = OVERTURE_LINES[i];
     speaking.current = true;
+    duckTrack(true);
     speakLine(overtureLineId(scene.id), line.text, state.voice, {
       onEnd: () => {
         speaking.current = false;
+        duckTrack(false);
       },
     })
       .then((ok) => {
-        if (!ok) speaking.current = false; // nothing will speak, so nothing will end
+        if (!ok) {
+          speaking.current = false; // nothing will speak, so nothing will end
+          duckTrack(false);
+        }
       })
       .catch(() => {
         // A refused or failed line must never hold the sequence hostage.
         speaking.current = false;
+        duckTrack(false);
       });
     return () => stopAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -169,9 +194,14 @@ export function Overture({ onDone, reduceMotion = false }) {
           </p>
           <button
             className="btn primary lg"
-            onClick={() => {
+            onClick={async () => {
               setStarted(true);
               setNarrate(state.voice.enabled);
+              if (state.music.enabled) {
+                trackRef.current = await playTrack();
+                // If the recording won't play, fall back rather than run silent.
+                if (!trackRef.current) suspendScore(false);
+              }
             }}
           >
             ▶ Begin

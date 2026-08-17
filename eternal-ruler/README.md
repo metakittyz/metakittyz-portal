@@ -418,6 +418,31 @@ with modest, inconsistent effects. That it opens intuition is **not established*
 nudge into a state, not a mechanism, and it is labelled *mixed evidence* in the UI. There are no
 solfeggio or "528Hz" tones here; those were invented in the 1970s and have nothing behind them.
 
+## The intro track
+
+The Overture opens with **The Awakening** (`public/the-awakening.mp3`) rather than the generated
+score. The score is built to sit under an app indefinitely without repeating; the intro is ninety
+seconds with a shape of its own, and a recording holds that better than something assembled bar by
+bar. 1.6MB at 64kbps, cached for a week by `netlify.toml`.
+
+It plays from a plain `HTMLAudioElement` — all this needs is play, loop, fade and duck, and an
+element does those with far fewer moving parts than an audio graph, and streams so playback starts
+before the file has finished arriving.
+
+Three behaviours matter, and all three are tested:
+
+- **The generated score is suspended** for the whole intro, via `suspendScore()`, so the two never
+  overlap. It is handed back on the way out however the intro ends — finished, skipped or unmounted —
+  and the user's actual music setting is never touched.
+- **It ducks under the narration**, 0.55 down to 0.165 and back. Measured across a run: average 0.21
+  while the guide is speaking, 0.47 while she isn't.
+- **It falls back.** If the file is missing, the codec is refused, or playback is blocked,
+  `playTrack()` resolves false and the generated score comes back rather than the intro running in
+  silence.
+
+Swapping it is a file replacement plus one constant: drop a new mp3 in `public/` and change
+`AWAKENING` in `src/lib/track.js`.
+
 ## The score
 
 A cinematic piece plays under the app — a church-organ stack, a relentless eighth-note ostinato

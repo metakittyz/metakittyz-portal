@@ -81,6 +81,10 @@ let volume = 0.5;
 let running = false;
 let armed = false;
 let wanted = false;
+// The Overture plays a recorded track instead. This holds the generated score
+// off for its duration without disturbing the user's actual music setting, so
+// whatever they chose is still there when the intro ends.
+let suspended = false;
 
 const watchers = new Set();
 const announce = () => watchers.forEach((fn) => fn(running));
@@ -440,7 +444,7 @@ function tick() {
 }
 
 export async function startMusic() {
-  if (!musicSupported() || running) return false;
+  if (!musicSupported() || running || suspended) return false;
   if (!ctx) build();
   try {
     await ctx.resume();
@@ -506,6 +510,12 @@ export function duckMusic(on) {
 // discard audio started before the page has been touched, so the setting is
 // recorded here and the next gesture of any kind honours it.
 // ---------------------------------------------------------------------------
+
+export function suspendScore(on) {
+  suspended = on;
+  if (on) stopMusic();
+  else if (wanted) startMusic();
+}
 
 export function setWanted(on) {
   wanted = on;

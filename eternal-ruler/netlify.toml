@@ -31,3 +31,10 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# The intro track. Hashed asset filenames get the immutable treatment above;
+# this one has a stable name, so cache it hard but let a new upload through.
+[[headers]]
+  for = "/the-awakening.mp3"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
