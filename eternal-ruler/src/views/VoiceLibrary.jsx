@@ -6,7 +6,7 @@ import { Bar, Check, DangerButton, Field, Panel, Stat } from "../components/ui.j
 import { useDeviceVoices } from "../components/Speak.jsx";
 import { clips, recordingSupported, useClipUrl, useRecorder } from "../lib/audio.js";
 import { getLastEngine, isLikelyFemale, onEngineChange, resolvePreset, settingsFor, speak, speakLine, speechSupported, stopAll } from "../lib/voice.js";
-import { cacheReport, clearCache, ensureAvailable, generate, knownAvailability, probe, resetAvailability } from "../lib/tts.js";
+import { cacheReport, clearCache, ensureAvailable, generate, knownAvailability, probe, pruneStaleDeliveries, resetAvailability } from "../lib/tts.js";
 import { formatDuration } from "../lib/util.js";
 
 export function VoiceLibrary() {
@@ -350,7 +350,11 @@ function NaturalVoice({ store }) {
 
   useEffect(() => {
     let dead = false;
-    cacheReport(v.presetId, v.model, texts).then((r) => !dead && setReport(r));
+    // Clear out audio from retuned presets first, so the count below reflects
+    // what will actually be heard rather than what is merely stored.
+    pruneStaleDeliveries()
+      .then(() => cacheReport(v.presetId, v.model, texts))
+      .then((r) => !dead && setReport(r));
     return () => {
       dead = true;
     };

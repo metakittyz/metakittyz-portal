@@ -11,12 +11,20 @@
 
 import { clips } from "./audio.js";
 import { hashString } from "./util.js";
+import { VOICE_PRESETS, deliveryTag } from "../data/voices.js";
 
 export const TTS_ENDPOINT = "/api/tts";
 
-/** Stable cache key. Changing preset, model or wording produces a new entry. */
+/**
+ * Stable cache key. Changing the preset, its delivery, the model or the
+ * wording all produce a new entry.
+ *
+ * The delivery fingerprint matters: without it, retuning a preset to sound
+ * more human would silently keep serving the old audio for every line already
+ * generated, and the retune would appear to have done nothing.
+ */
 export function cacheKey(presetId, model, text) {
-  return `tts:${presetId}:${model}:${hashString(text).toString(36)}`;
+  return `tts:${presetId}:${deliveryTag(presetId)}:${model}:${hashString(text).toString(36)}`;
 }
 
 export async function cached(presetId, model, text) {
@@ -39,6 +47,25 @@ export async function cacheReport(presetId, model, texts) {
     }
   }
   return { have, total: texts.length, bytes };
+}
+
+/**
+ * Delete audio generated under a delivery that no longer exists — the old
+ * recordings left behind when a preset is retuned. Without this they sit in
+ * IndexedDB forever, unreachable and taking up space. Cheap, and safe to call
+ * on every visit to the Voice Library.
+ */
+export async function pruneStaleDeliveries() {
+  try {
+    const live = new Set(VOICE_PRESETS.map((p) => `tts:${p.id}:${deliveryTag(p.id)}:`));
+    const stale = (await clips.keys()).filter(
+      (k) => String(k).startsWith("tts:") && ![...live].some((p) => String(k).startsWith(p))
+    );
+    await Promise.all(stale.map((k) => clips.delete(k)));
+    return stale.length;
+  } catch {
+    return 0;
+  }
 }
 
 export async function clearCache() {

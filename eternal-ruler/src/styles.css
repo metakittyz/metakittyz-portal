@@ -1489,7 +1489,10 @@ audio {
 }
 
 /* ---------------------------------------------------------------- voice -- */
-.voice-toggle {
+/* The two round topbar toggles — guide voice and score — share a look but keep
+   separate class names, so a selector for one never silently matches both. */
+.voice-toggle,
+.music-toggle {
   appearance: none;
   border: 1px solid var(--line-soft);
   background: none;
@@ -1502,7 +1505,8 @@ audio {
   flex-shrink: 0;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
-.voice-toggle.on {
+.voice-toggle.on,
+.music-toggle.on {
   color: var(--gold);
   border-color: var(--line);
   background: rgba(232, 195, 122, 0.08);

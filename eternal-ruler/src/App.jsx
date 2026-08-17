@@ -15,6 +15,7 @@ import { Settings } from "./views/Settings.jsx";
 import { Calendar } from "./views/Calendar.jsx";
 import { VoiceLibrary } from "./views/VoiceLibrary.jsx";
 import { VoiceToggle } from "./components/Speak.jsx";
+import { AmbientDriver, MusicToggle } from "./components/Music.jsx";
 import { NeedNow } from "./components/NeedNow.jsx";
 import { Runner } from "./components/Runner.jsx";
 import { TOTAL_DAYS, currentDay, nextUnlock, stageOf, unlockedRooms } from "./data/path.js";
@@ -93,6 +94,7 @@ function Inner() {
             <small>Beta · a self-experiment</small>
           </div>
           <div className="topbar-spacer" />
+          <MusicToggle />
           <VoiceToggle />
           <button className="btn need-btn" onClick={() => setNeedNow(true)}>
             ◈<span className="need-label"> I need something now</span>
@@ -187,6 +189,9 @@ export default function App() {
   return (
     <StoreProvider>
       <Backdrop />
+      {/* Above the onboarding gate, so the score is there from the welcome
+          screen rather than arriving once you're already inside. */}
+      <AmbientDriver />
       <Inner />
     </StoreProvider>
   );

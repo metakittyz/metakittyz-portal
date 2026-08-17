@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { EMPTY_STATE, useStore } from "../lib/store.jsx";
 import { Check, DangerButton, Field, Panel } from "../components/ui.jsx";
+import { MusicPanel } from "../components/Music.jsx";
 import { remarkById } from "../data/remarks.js";
 import { codexById } from "../data/codex.js";
 import { TOTAL_DAYS } from "../data/path.js";
@@ -122,6 +123,8 @@ export function Settings({ go }) {
           Stops the slow drift behind the app.
         </Check>
       </Panel>
+
+      <MusicPanel />
 
       <Panel title="Your data" tone="gold">
         <p className="soft small">

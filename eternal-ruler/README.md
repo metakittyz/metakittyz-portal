@@ -201,11 +201,23 @@ Solace is the default. Every preset has a ▶ Hear button so you pick by ear, no
 ### Two engines behind the same six voices
 
 **The natural voice (OpenAI).** Soft, human, genuinely comforting. Each preset maps to an OpenAI
-voice plus delivery `instructions` written for this app — Solace is `shimmer` told to speak *"like
-someone sitting beside a close friend late at night… never bright, never announcer-like. This is
-comfort, not performance."* Stillness is `sage` at 0.8 speed, *"almost a whisper… let the ends of
-sentences fall away rather than land."* Uses `gpt-4o-mini-tts`, which is the model that honours
-those instructions.
+voice plus a delivery brief written for this app, in an *affect / voice / delivery / pacing /
+avoid* shape. Solace is `sage`, told it is *"a close friend talking to you late at night, keeping
+their voice down"* — *"don't over-enunciate; let words soften and run together the way they do in
+ordinary speech"* — and told to avoid *"audiobook narration, meditation-app hush, announcer
+polish."* Uses `gpt-4o-mini-tts`, the model that honours those instructions.
+
+Two things that turned out to matter more than the adjectives:
+
+- **`speed` is not calm.** It time-stretches audio *after* generation, so dialling it to 0.8 to
+  sound peaceful just smears the words and adds a sedated, underwater quality. Every preset now
+  sits near 1.0 and gets its slowness from instructed pauses instead.
+- **Negative direction works.** Naming what to avoid moves the delivery toward ordinary human
+  speech further than any amount of warm adjectives piled on the positive side.
+
+Retuning a preset changes its **delivery fingerprint**, which is part of the cache key — so lines
+already generated under the old delivery regenerate on their own, and the stale audio is swept out
+of IndexedDB next time you open the Voice Library. Without that, retuning appears to do nothing.
 
 **The device voice.** The browser's own speech synthesis: free, offline, instant, and noticeably
 synthetic. A tuned pace and pitch plus an ordered list of OS voices to reach for. Always the
@@ -237,7 +249,7 @@ Three tiers, each falling through to the next on failure, so **the guide is neve
 
 ### Caching is the whole design
 
-Every generated line is stored in IndexedDB keyed by (preset, model, text). So:
+Every generated line is stored in IndexedDB keyed by (preset, delivery fingerprint, model, text). So:
 
 - each line is paid for **exactly once, ever**
 - the second play is instant, with no network round-trip
@@ -274,6 +286,38 @@ automatically, anything with a ▶ Listen button, and a short line when you comp
 else she stays quiet. The `◉))` in the header mutes her instantly.
 
 ---
+
+## The score
+
+A faint piece plays under the whole app — a slow minor-key ostinato turning under a sustained
+string pad, in the register those long piano-and-strings pieces live in.
+
+It is **composed live in the browser** with Web Audio (`src/lib/ambient.js`) rather than shipped as
+an audio file. Four reasons, in the order they mattered:
+
+- **It's original.** Every note is generated from a i–VI–III–VII progression in D minor and a
+  six-note figure that climbs and comes back down. No existing recording or composition is
+  reproduced, so there is nothing to license and nothing to take down.
+- **It never loops audibly.** The melody enters and drops out on a sixteen-bar cycle while the
+  harmony moves on eight, so the two rarely line up the same way twice and there is no seam to
+  start listening for.
+- **It costs nothing to download.** Twenty minutes of audio would be several megabytes; this is
+  ~5 kB of arithmetic, and it works offline.
+- **It gets out of the way.** The moment the guide speaks, the whole bed ducks to 18% in 0.35s and
+  comes back over 1.6s — down fast enough to be clear of the first syllable, back slowly enough
+  that the return isn't the thing you notice.
+
+Notes are placed against the audio clock with a lookahead scheduler, with a few milliseconds of
+timing drift and some unevenness in weight on every note. Dead-on timing is the giveaway that
+nobody is playing it.
+
+**Controls.** A ♪ toggle in the topbar, and volume in Settings → Score. `MASTER_CEILING` in
+`ambient.js` caps the whole thing well below conversational level: full volume is still soft. Off
+is genuinely silent — the reverb tail runs back through the master gain rather than around it, so
+the toggle, the slider and the duck all apply to everything you can hear.
+
+Browsers won't start audio before the page is touched, so the setting is recorded and honoured on
+the first gesture of any kind. The toggle says which state you're in rather than pretending.
 
 ## The Calendar
 

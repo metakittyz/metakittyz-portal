@@ -69,13 +69,24 @@ never forced to finish all 77 before it works.
 
 **Two engines.** *Natural* uses OpenAI's text-to-speech — soft, human, comforting — generated once
 per line then cached forever, so it plays instantly and offline after that. *Device* uses the
-browser's own synthesis: free and offline, but synthetic. Device is the default and always the
-fallback, so the guide is never silent.
+browser's own synthesis: free and offline, but synthetic. Natural is the default wherever it can be
+reached; device is always the fallback, so the guide is never silent.
 
 Playback resolves in three tiers: your recording → the natural voice → the device voice.
 
 Only the guide's fixed lines are ever sent for synthesis. Your journal, readings and intake never
 leave the device.
+
+---
+
+## The score
+
+A quiet piece plays under everything — written for this app and composed live in your browser, so
+nothing is streamed and it works offline. It steps back on its own the moment the guide speaks, and
+comes back when she's done.
+
+`♪` in the header switches it off. Volume lives in **Settings → Score**. It is meant to be faint:
+full volume is still soft, and the point is that you notice it when it stops.
 
 ---
 

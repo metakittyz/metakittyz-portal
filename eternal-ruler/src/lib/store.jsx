@@ -42,6 +42,9 @@ export const EMPTY_STATE = {
     reduceMotion: false,
     anchorHour: 7,
   },
+  // The score that plays under everything. Quiet by default, and it ducks
+  // itself whenever the guide speaks.
+  music: { enabled: true, volume: 0.5 },
   // The guide voice. `presetId` names a character from the Voice Library;
   // `voiceURI` empty means "let the preset choose the device voice".
   // `engine`: "auto" (the default) uses the natural OpenAI voice wherever it
@@ -76,6 +79,7 @@ function load() {
       council: { ...EMPTY_STATE.council, ...(parsed.council || {}) },
       path: { ...EMPTY_STATE.path, ...(parsed.path || {}) },
       voice: { ...EMPTY_STATE.voice, ...(parsed.voice || {}) },
+      music: { ...EMPTY_STATE.music, ...(parsed.music || {}) },
     };
   } catch (err) {
     console.warn("Eternal Ruler: could not read saved state, starting fresh.", err);
@@ -147,6 +151,9 @@ export function StoreProvider({ children }) {
       },
       setVoice(patch) {
         update((prev) => ({ voice: { ...prev.voice, ...patch } }));
+      },
+      setMusic(patch) {
+        update((prev) => ({ music: { ...prev.music, ...patch } }));
       },
       setOwnLine(lineId, meta) {
         update((prev) => ({ ownVoice: { ...prev.ownVoice, [lineId]: meta } }));

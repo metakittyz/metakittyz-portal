@@ -7,6 +7,7 @@
 
 import { clips } from "./audio.js";
 import { ensureAvailable, getAudio } from "./tts.js";
+import { duckMusic } from "./ambient.js";
 import { DEFAULT_PRESET, presetById } from "../data/voices.js";
 
 let cachedVoices = null;
@@ -215,6 +216,7 @@ export function stopClip() {
 export function stopAll() {
   stopSpeaking();
   stopClip();
+  duckMusic(false);
 }
 
 /** Play a blob through the shared audio channel. */
@@ -245,13 +247,21 @@ export async function speakLine(lineId, text, voiceState, { onEnd } = {}) {
   if (!voiceState.enabled || !text) return false;
   stopAll();
 
+  // Get the score out of the way before the first syllable, and let it back up
+  // however this line ends — played, fallen back, or failed outright.
+  duckMusic(true);
+  const done = () => {
+    duckMusic(false);
+    onEnd?.();
+  };
+
   // 1. your own voice
   if (voiceState.presetId === "own" && lineId) {
     try {
       const blob = await clips.get(`guide:${lineId}`);
       if (blob) {
         setEngine("own");
-        return await playBlob(blob, onEnd);
+        return await playBlob(blob, done);
       }
     } catch {
       /* fall through */
@@ -276,7 +286,7 @@ export async function speakLine(lineId, text, voiceState, { onEnd } = {}) {
           apiKey: voiceState.apiKey || undefined,
         });
         setEngine("natural");
-        return await playBlob(blob, onEnd);
+        return await playBlob(blob, done);
       } catch (err) {
         // Degrade rather than interrupt someone mid-practice. The UI surfaces
         // that this happened; it is not swallowed.
@@ -287,5 +297,7 @@ export async function speakLine(lineId, text, voiceState, { onEnd } = {}) {
 
   // 3. the device voice
   setEngine("device");
-  return speak(text, settingsFor(voiceState), { onEnd });
+  const spoke = speak(text, settingsFor(voiceState), { onEnd: done });
+  if (!spoke) duckMusic(false); // nothing will speak, so nothing will un-duck
+  return spoke;
 }
