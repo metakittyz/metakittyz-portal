@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "../lib/store.jsx";
 import { VOICE_PRESETS, guideAreas } from "../data/voices.js";
+import { OVERTURE_LINES } from "../lib/overture-scenes.js";
 import { PROTOCOLS } from "../data/protocols.js";
 import { Bar, Check, DangerButton, Field, Panel, Stat } from "../components/ui.jsx";
 import { useDeviceVoices } from "../components/Speak.jsx";
@@ -15,7 +16,7 @@ export function VoiceLibrary() {
   const v = state.voice;
   const [tab, setTab] = useState(v.presetId === "own" ? "record" : "library");
 
-  const areas = useMemo(() => guideAreas(PROTOCOLS), []);
+  const areas = useMemo(() => guideAreas(PROTOCOLS, OVERTURE_LINES), []);
   const totalLines = areas.reduce((a, g) => a + g.lines.length, 0);
   const recorded = Object.keys(state.ownVoice).length;
 
@@ -314,7 +315,7 @@ function NaturalVoice({ store }) {
   const v = store.state.voice;
   // Anything but an explicit "device" means natural-when-available.
   const on = v.engine !== "device";
-  const areas = useMemo(() => guideAreas(PROTOCOLS), []);
+  const areas = useMemo(() => guideAreas(PROTOCOLS, OVERTURE_LINES), []);
   const texts = useMemo(() => areas.flatMap((a) => a.lines.map((l) => l.text)), [areas]);
 
   const [status, setStatus] = useState(knownAvailability());

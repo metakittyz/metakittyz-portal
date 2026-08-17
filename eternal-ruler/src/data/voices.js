@@ -217,9 +217,10 @@ export const APP_LINES = [
 export const protocolLineId = (protocolId, index) => `protocol:${protocolId}:${index}`;
 
 /** Every recordable line, grouped by area. */
-export function guideAreas(protocols) {
+export function guideAreas(protocols, overtureLines = []) {
   return [
     { id: "app", name: "App moments", lines: APP_LINES },
+    ...(overtureLines.length ? [{ id: "overture", name: "The opening", lines: overtureLines }] : []),
     ...protocols.map((p) => ({
       id: p.id,
       name: p.name,

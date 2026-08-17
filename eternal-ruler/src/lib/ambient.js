@@ -1,233 +1,319 @@
-// AMBIENT — a faint score that plays under the app.
+// THE SCORE — composed live in the browser.
 //
-// Composed live in the browser with Web Audio rather than shipped as an audio
-// file. Four reasons, in order of how much they mattered:
+// Written in the idiom of slow cinematic minimalism: a church-organ stack, a
+// relentless eighth-note ostinato turning under it, sub-bass for weight, and a
+// swell that takes over a minute to arrive. Original throughout — the harmony
+// and the figures below are generated here and no existing recording or
+// composition is reproduced. What is borrowed is the *grammar*, which is not
+// anybody's property: a minor cell, a pedal that refuses to move, and dynamics
+// doing the emotional work rather than melody.
 //
-//   · It is original. The writing sits in the register those slow
-//     piano-and-strings pieces live in — a minor-key ostinato turning under a
-//     sustained string pad — but every note is generated from the progression
-//     below. No existing recording or composition is reproduced, so there is
-//     nothing to license and nothing to take down.
-//   · It never loops audibly. The phrase is re-voiced as it plays, with the
-//     melody entering and dropping out on a longer cycle than the harmony, so
-//     there is no seam to start listening for.
-//   · It adds nothing to the download. A twenty-minute bed as audio would be
-//     several megabytes; this is a few kilobytes of arithmetic.
-//   · It can get out of the way. When the guide speaks, the whole bed ducks in
-//     half a second and comes back afterwards.
+// Four reasons it is synthesised rather than shipped as a file:
 //
-// Everything is deliberately quiet. MASTER_CEILING is the loudest this can go
-// with the volume slider at maximum, and it is set low on purpose: this is
-// meant to be noticed only when it stops.
+//   · Original by construction. Nothing to license, nothing to take down.
+//   · No audible loop. The 18-second harmonic cycle sits under a 72-second
+//     intensity arc, so the same bar returns at a different weight each time
+//     and there is no seam to start listening for.
+//   · A few kilobytes instead of megabytes, and it works offline.
+//   · It can get out of the way. When the guide speaks, the whole thing ducks.
+//
+// ---------------------------------------------------------------------------
+// The one structural rule, learned by breaking it: everything audible passes
+// through `master`. The reverb send folds back into it rather than running
+// alongside. Alongside, the wet tail escapes the volume slider entirely —
+// switching the score off leaves it ringing for seconds, and ducking under the
+// guide only ducks the dry signal.
+//
+//   notes ─┬──────────────────────► master ─► shade ─► duck ─► out
+//          └─ send ─► convolver ──┘
+// ---------------------------------------------------------------------------
 
-const MASTER_CEILING = 0.16;
+// Loud enough to be a score. The first pass peaked at 0.048 even with the
+// slider at maximum, which is a whisper — fine for a bed under an app, wrong
+// for something meant to carry an intro.
+const MASTER_CEILING = 0.5;
 
-const EIGHTH = 0.62; // seconds — about 58bpm in a slow six
-const BAR = EIGHTH * 6;
-const BARS_PER_CHORD = 2;
+const EIGHTH = 0.28;
+const BAR = EIGHTH * 8;
+const CYCLE = BAR * 8; // 8 bars ≈ 17.9s
+const ARC = CYCLE * 4; // the swell: ≈ 72s up and back down
 
-// i – VI – III – VII in D minor. Bass note, then the chord tones the ostinato
-// climbs through, as MIDI numbers.
+/**
+ * Eight bars in D minor with a pedal that keeps refusing to resolve, then
+ * lifts on the last two. Bass note, then the tones the ostinato climbs.
+ */
 const PROGRESSION = [
-  { bass: 50, tones: [62, 65, 69, 74] }, // Dm
-  { bass: 46, tones: [58, 62, 65, 70] }, // B♭
+  { bass: 38, tones: [62, 65, 69, 74] }, // Dm
+  { bass: 36, tones: [60, 65, 69, 74] }, // Dm/C
+  { bass: 34, tones: [58, 62, 65, 70] }, // B♭
   { bass: 41, tones: [60, 65, 69, 72] }, // F
-  { bass: 48, tones: [60, 64, 67, 72] }, // C
+  { bass: 43, tones: [62, 67, 70, 74] }, // Gm
+  { bass: 45, tones: [57, 60, 65, 69] }, // F/A
+  { bass: 34, tones: [58, 62, 65, 70] }, // B♭
+  { bass: 48, tones: [60, 64, 67, 72] }, // C — the lift
 ];
 
-// Up and back down — the shape both of those pieces lean on, and the reason
-// the figure feels like breathing rather than counting.
-const FIGURE = [0, 1, 2, 3, 2, 1];
+// Eight eighths, up and turning back. Relentless is the point: the figure
+// never arrives anywhere, which is what makes the swell over the top of it
+// feel like it does.
+const FIGURE = [0, 1, 2, 3, 2, 3, 1, 2];
 
-const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
+// A four-note theme, held long, only once the score has earned it.
+const THEME = [74, 77, 81, 79];
+
+const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+const TAU = Math.PI * 2;
 
 let ctx = null;
-let master = null; // volume slider
-let duckGain = null; // pulled down while the guide speaks
-let verb = null;
+let master = null;
+let duckGain = null;
+let send = null;
+let shade = null;
 let timer = null;
 let bar = 0;
 let nextBarAt = 0;
+let startClock = 0;
 let volume = 0.5;
 let running = false;
 let armed = false;
+let wanted = false;
 
 const watchers = new Set();
-function announce() {
-  watchers.forEach((fn) => fn(running));
-}
+const announce = () => watchers.forEach((fn) => fn(running));
 
 export function onMusicChange(fn) {
   watchers.add(fn);
   return () => watchers.delete(fn);
 }
-
-export function isPlaying() {
-  return running;
-}
-
+export const isPlaying = () => running;
 export function musicSupported() {
   return typeof window !== "undefined" && !!(window.AudioContext || window.webkitAudioContext);
 }
 
-/** Exponentially decaying noise — a cheap, convincing hall. */
-function buildReverb(seconds = 3.4, decay = 2.6) {
+/** Exponentially decaying noise — a large, cheap hall. */
+function buildReverb(seconds = 4.6, decay = 2.2) {
   const len = Math.floor(ctx.sampleRate * seconds);
   const buf = ctx.createBuffer(2, len, ctx.sampleRate);
   for (let ch = 0; ch < 2; ch++) {
-    const data = buf.getChannelData(ch);
-    for (let i = 0; i < len; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
-    }
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
   }
   const node = ctx.createConvolver();
   node.buffer = buf;
   return node;
 }
 
-function build() {
-  const AC = window.AudioContext || window.webkitAudioContext;
-  ctx = new AC();
-
+function buildGraph() {
   master = ctx.createGain();
   master.gain.value = volume * MASTER_CEILING;
 
   duckGain = ctx.createGain();
   duckGain.gain.value = 1;
 
-  // Nothing above 5kHz. Removing the top end is most of what separates
-  // "underscore" from "something playing in the room".
-  const shade = ctx.createBiquadFilter();
+  shade = ctx.createBiquadFilter();
   shade.type = "lowpass";
-  shade.frequency.value = 5000;
+  shade.frequency.value = 6200;
 
-  verb = ctx.createGain();
-  verb.gain.value = 0.42;
+  send = ctx.createGain();
+  send.gain.value = 0.5;
   const conv = buildReverb();
 
-  // The wet path folds back into `master` rather than running alongside it.
-  // Alongside, the reverb tail escapes the volume slider entirely: turning the
-  // score off leaves it ringing for several seconds, and ducking under the
-  // guide only ducks the dry signal. Everything audible has to pass through
-  // one gain, or none of the controls mean what they say.
-  //
-  //   notes ─┬─────────────────────► master ─► shade ─► duck ─► out
-  //          └─ verb ─► convolver ─┘
-  verb.connect(conv);
+  send.connect(conv);
   conv.connect(master);
   master.connect(shade);
   shade.connect(duckGain);
   duckGain.connect(ctx.destination);
 }
 
-/** One struck note. Fast on, long decay, a second partial slightly out of tune. */
-function strike(at, midi, level, decay = 3.4) {
+function build() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  ctx = new AC();
+  buildGraph();
+}
+
+/**
+ * Render the score to an AudioBuffer without playing it.
+ *
+ * This exists because a score you cannot hear cannot be judged, and the person
+ * asking for changes to it is not always in front of the browser. Same graph,
+ * same scheduler, rendered offline — so what comes out of here is what comes
+ * out of the speakers, not an approximation of it.
+ */
+export async function renderOffline(seconds, sampleRate = 44100) {
+  const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  if (!OAC) throw new Error("No OfflineAudioContext");
+
+  const keep = { ctx, master, duckGain, send, shade };
+  ctx = new OAC(2, Math.ceil(seconds * sampleRate), sampleRate);
+  buildGraph();
+  master.gain.value = MASTER_CEILING;
+
+  for (let i = 0; i * BAR < seconds; i++) scheduleBar(i, i * BAR);
+
+  try {
+    return await ctx.startRendering();
+  } finally {
+    // Put the live graph back exactly as it was; rendering must not disturb
+    // a score that happens to be playing.
+    ({ ctx, master, duckGain, send, shade } = keep);
+  }
+}
+
+function wire(node, at, seconds) {
+  node.connect(master);
+  node.connect(send);
+  return node;
+}
+
+/**
+ * The organ. Additive — a fundamental plus the harmonics a drawbar stack
+ * pulls, which is what gives it that hollow, churchy weight a single sawtooth
+ * never gets near.
+ */
+const DRAWBARS = [
+  [1, 1.0],
+  [2, 0.5],
+  [3, 0.34],
+  [4, 0.22],
+  [6, 0.12],
+  [8, 0.07],
+];
+
+function organ(at, midi, level, seconds, { bright = 1600 } = {}) {
   const f = hz(midi);
   const g = ctx.createGain();
   g.gain.setValueAtTime(0.0001, at);
-  g.gain.linearRampToValueAtTime(level, at + 0.015);
-  g.gain.exponentialRampToValueAtTime(0.0001, at + decay);
+  g.gain.linearRampToValueAtTime(level, at + 0.035);
+  g.gain.setValueAtTime(level, at + seconds * 0.55);
+  g.gain.exponentialRampToValueAtTime(0.0001, at + seconds);
 
   const lp = ctx.createBiquadFilter();
   lp.type = "lowpass";
-  lp.frequency.setValueAtTime(2600, at);
-  lp.frequency.exponentialRampToValueAtTime(700, at + decay);
+  lp.frequency.setValueAtTime(bright, at);
+  lp.frequency.exponentialRampToValueAtTime(Math.max(220, bright * 0.4), at + seconds);
 
-  const a = ctx.createOscillator();
-  a.type = "triangle";
-  a.frequency.value = f;
+  const mix = ctx.createGain();
+  mix.gain.value = 0.34;
 
-  // Detuned by two cents against the fundamental. Perfectly tuned partials are
-  // most of what makes synthesised piano sound like plastic.
-  const b = ctx.createOscillator();
-  b.type = "sine";
-  b.frequency.value = f * 2.002;
-  const bg = ctx.createGain();
-  bg.gain.value = 0.3;
-
-  a.connect(lp);
-  b.connect(bg);
-  bg.connect(lp);
+  for (const [mult, amp] of DRAWBARS) {
+    const o = ctx.createOscillator();
+    o.type = "sine";
+    o.frequency.value = f * mult;
+    // A couple of cents out on the upper partials. Perfectly tuned harmonics
+    // are most of what makes additive synthesis sound like plastic.
+    o.detune.value = mult > 2 ? (mult % 2 ? 3 : -3) : 0;
+    const a = ctx.createGain();
+    a.gain.value = amp;
+    o.connect(a);
+    a.connect(mix);
+    o.start(at);
+    o.stop(at + seconds + 0.15);
+  }
+  mix.connect(lp);
   lp.connect(g);
-  g.connect(master);
-  g.connect(verb);
-
-  a.start(at);
-  b.start(at);
-  a.stop(at + decay + 0.1);
-  b.stop(at + decay + 0.1);
+  wire(g);
 }
 
-/** The held string bed under a chord. Slow in, slow out, always overlapping. */
-function pad(at, midi, seconds) {
+/** The string bed: detuned saws, slow in, slow out, always overlapping. */
+function strings(at, midi, level, seconds) {
   const g = ctx.createGain();
   g.gain.setValueAtTime(0.0001, at);
-  g.gain.linearRampToValueAtTime(0.075, at + seconds * 0.45);
+  g.gain.linearRampToValueAtTime(level, at + seconds * 0.4);
   g.gain.linearRampToValueAtTime(0.0001, at + seconds);
 
   const lp = ctx.createBiquadFilter();
   lp.type = "lowpass";
-  lp.frequency.setValueAtTime(340, at);
-  lp.frequency.linearRampToValueAtTime(720, at + seconds * 0.5);
-  lp.frequency.linearRampToValueAtTime(340, at + seconds);
-
-  const oscs = [0, 7, 12].flatMap((interval, i) =>
-    [-4, 4].map((cents) => {
-      const o = ctx.createOscillator();
-      o.type = i === 2 ? "triangle" : "sawtooth";
-      o.frequency.value = hz(midi + interval);
-      o.detune.value = cents;
-      return o;
-    })
-  );
+  lp.frequency.setValueAtTime(320, at);
+  lp.frequency.linearRampToValueAtTime(900 + level * 1400, at + seconds * 0.5);
+  lp.frequency.linearRampToValueAtTime(320, at + seconds);
 
   const mix = ctx.createGain();
-  mix.gain.value = 1 / oscs.length;
-  oscs.forEach((o) => {
-    o.connect(mix);
-    o.start(at);
-    o.stop(at + seconds + 0.2);
-  });
+  const voices = [0, 7, 12, 19];
+  mix.gain.value = 1 / (voices.length * 2);
+  for (const iv of voices) {
+    for (const cents of [-5, 5]) {
+      const o = ctx.createOscillator();
+      o.type = "sawtooth";
+      o.frequency.value = hz(midi + iv);
+      o.detune.value = cents;
+      o.connect(mix);
+      o.start(at);
+      o.stop(at + seconds + 0.2);
+    }
+  }
   mix.connect(lp);
   lp.connect(g);
-  g.connect(master);
-  g.connect(verb);
+  wire(g);
+}
+
+/** Sub. Felt more than heard, and only once the score is up. */
+function sub(at, midi, level, seconds) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, at);
+  g.gain.linearRampToValueAtTime(level, at + 0.18);
+  g.gain.linearRampToValueAtTime(0.0001, at + seconds);
+  const o = ctx.createOscillator();
+  o.type = "sine";
+  o.frequency.value = hz(midi - 12);
+  o.connect(g);
+  o.start(at);
+  o.stop(at + seconds + 0.1);
+  g.connect(master); // no reverb on the sub — it only muddies
 }
 
 /**
- * Lay down one bar. Called ahead of time by the scheduler — `at` is a moment in
- * the future on the audio clock, never "now".
+ * How big the score is right now: a slow raised cosine over 72 seconds, so it
+ * arrives and recedes rather than sitting at one level. This is where the
+ * emotion lives. Melody is nearly static; the dynamics do the work.
  */
+function intensityAt(seconds) {
+  const arc = 0.5 - 0.5 * Math.cos((seconds / ARC) * TAU);
+  return 0.3 + 0.7 * arc;
+}
+
 function scheduleBar(index, at) {
-  const chord = PROGRESSION[Math.floor(index / BARS_PER_CHORD) % PROGRESSION.length];
-  const first = index % BARS_PER_CHORD === 0;
+  const chord = PROGRESSION[index % PROGRESSION.length];
+  const I = intensityAt(index * BAR);
 
-  if (first) pad(at, chord.bass, BAR * BARS_PER_CHORD);
+  // ---- balance -----------------------------------------------------------
+  // The mix is the whole difference between a score and a rumble. First pass
+  // had the ostinato eight times quieter than the pad and sub, which left the
+  // spectrum with nothing above 300Hz — all weight, no music. The ostinato is
+  // the driving element in this idiom and has to sit on top of the bed, not
+  // under it.
 
-  FIGURE.forEach((step, i) => {
-    // A few milliseconds either side of the beat, and a little unevenness in
-    // weight. Both references are played by hands; dead-on timing is the
-    // giveaway that this isn't.
-    const drift = (Math.random() - 0.5) * 0.022;
-    const accent = i === 0 ? 0.105 : i === 3 ? 0.085 : 0.062;
-    const level = accent * (0.88 + Math.random() * 0.24);
-    strike(at + i * EIGHTH + drift, chord.tones[step], level);
-  });
+  // The bed is always there.
+  strings(at, chord.bass, 0.09 + I * 0.13, BAR * 1.08);
 
-  // The melody comes and goes on a sixteen-bar cycle, well out of step with the
-  // eight-bar harmony, so the two rarely line up the same way twice.
-  const phrase = index % 16;
-  if (phrase === 4 || phrase === 11) {
-    strike(at + EIGHTH * 2, chord.tones[3] + 12, 0.05, 6.5);
-  } else if (phrase === 8) {
-    strike(at + EIGHTH * 1, chord.tones[1] + 12, 0.045, 6.5);
-    strike(at + EIGHTH * 4, chord.tones[2] + 12, 0.038, 6.5);
+  // Organ pad from the start, opening up as the score grows.
+  organ(at, chord.bass + 12, 0.035 + I * 0.055, BAR * 1.05, { bright: 900 + I * 2200 });
+
+  // The ostinato fades in once there is something to turn under.
+  if (I > 0.34) {
+    const drive = Math.min(1, (I - 0.34) / 0.35);
+    FIGURE.forEach((step, i) => {
+      const drift = (Math.random() - 0.5) * 0.016;
+      const accent = i === 0 ? 1 : i === 4 ? 0.88 : 0.66;
+      organ(at + i * EIGHTH + drift, chord.tones[step], 0.21 * accent * drive, EIGHTH * 2.4, {
+        bright: 2200 + I * 3200,
+      });
+    });
+  }
+
+  // Weight underneath, only in the upper half of the arc. Kept in check — sub
+  // is felt, and past a certain level it just masks everything above it.
+  if (I > 0.55) sub(at, chord.bass, (I - 0.55) * 0.26, BAR);
+
+  // And the theme last of all — the thing the whole swell was for. Long notes
+  // over the second half of the cycle, where the harmony lifts.
+  if (I > 0.7 && index % 8 >= 4) {
+    const note = THEME[(index % 8) - 4];
+    organ(at, note, (I - 0.7) * 0.75, BAR * 1.6, { bright: 3400 });
   }
 }
 
-// Timer-driven scheduling against the audio clock. setInterval alone is far too
-// jittery to place notes with; it is only ever used to ask "is another bar due
-// soon?", and the answer is written on ctx.currentTime.
+// setInterval is far too jittery to place notes with. It only ever asks "is
+// another bar due soon?"; the answer is written on ctx.currentTime.
 function tick() {
   if (!running) return;
   while (nextBarAt < ctx.currentTime + 1.5) {
@@ -235,6 +321,10 @@ function tick() {
     bar++;
     nextBarAt += BAR;
   }
+  // Keep the top end moving with the arc, so swells open rather than just
+  // getting louder.
+  const I = intensityAt((ctx.currentTime - startClock) % ARC);
+  shade.frequency.setTargetAtTime(4200 + I * 6000, ctx.currentTime, 0.6);
 }
 
 export async function startMusic() {
@@ -245,12 +335,12 @@ export async function startMusic() {
   } catch {
     return false;
   }
-  // A suspended context means the browser is still waiting for a gesture.
-  if (ctx.state !== "running") return false;
+  if (ctx.state !== "running") return false; // still waiting on a gesture
 
   running = true;
   bar = 0;
-  nextBarAt = ctx.currentTime + 0.25;
+  startClock = ctx.currentTime;
+  nextBarAt = ctx.currentTime + 0.3;
   setVolume(volume);
   tick();
   timer = setInterval(tick, 250);
@@ -262,19 +352,18 @@ export function stopMusic() {
   running = false;
   clearInterval(timer);
   timer = null;
-  if (master) {
-    // Ride it down rather than cutting, and let scheduled notes ring out.
+  if (master && ctx) {
     const now = ctx.currentTime;
     master.gain.cancelScheduledValues(now);
     master.gain.setValueAtTime(master.gain.value, now);
-    master.gain.linearRampToValueAtTime(0.0001, now + 1.2);
+    master.gain.linearRampToValueAtTime(0.0001, now + 1.4);
   }
   announce();
 }
 
 export function setVolume(next) {
   volume = Math.max(0, Math.min(1, next));
-  if (master && running) {
+  if (master && running && ctx) {
     const now = ctx.currentTime;
     master.gain.cancelScheduledValues(now);
     master.gain.setValueAtTime(master.gain.value, now);
@@ -283,29 +372,29 @@ export function setVolume(next) {
 }
 
 /**
- * Pull the bed down under the guide. The voice is the point; the music is not
- * allowed to compete with it for a single line.
+ * Pull the score down under the guide. The voice is the point; a cinematic
+ * score is exactly the thing that would fight it, so this ducks harder than a
+ * quiet bed would need to.
  */
 export function duckMusic(on) {
   if (!duckGain || !ctx) return;
   const now = ctx.currentTime;
   duckGain.gain.cancelScheduledValues(now);
   duckGain.gain.setValueAtTime(duckGain.gain.value, now);
-  // Down fast so it is already out of the way by the first syllable, back up
-  // slowly so the return is never the thing you notice.
-  duckGain.gain.linearRampToValueAtTime(on ? 0.18 : 1, now + (on ? 0.35 : 1.6));
+  // Out of the way before the first syllable; back slowly enough that the
+  // return is never the thing you notice.
+  // A third, not a whisper. Crushing a score to 13% under narration is what
+  // makes an intro feel like a slideshow with a soundtrack bug; film ducks
+  // dialogue against music at roughly this depth and the music stays present.
+  duckGain.gain.linearRampToValueAtTime(on ? 0.32 : 1, now + (on ? 0.3 : 1.8));
 }
 
 // ---------------------------------------------------------------------------
 // Wanting to play and being allowed to play are different things. Browsers
-// refuse to start audio until the page has been interacted with, and silently
-// discard the attempt if you ask too early — so the setting is recorded here,
-// and the next gesture of any kind honours it.
+// discard audio started before the page has been touched, so the setting is
+// recorded here and the next gesture of any kind honours it.
 // ---------------------------------------------------------------------------
 
-let wanted = false;
-
-/** Turn the score on or off. Safe to call before the page has been touched. */
 export function setWanted(on) {
   wanted = on;
   if (on) return startMusic();
@@ -320,7 +409,7 @@ export function installGestureStart() {
     if (wanted && !running) startMusic();
   };
   // Left installed rather than removed after the first hit: the setting can be
-  // switched on again later from a keyboard, and that gesture has to count too.
+  // switched on again later, and that gesture has to count too.
   window.addEventListener("pointerdown", go);
   window.addEventListener("keydown", go);
   return () => {
@@ -329,3 +418,6 @@ export function installGestureStart() {
     window.removeEventListener("keydown", go);
   };
 }
+
+// Exposed for tests: the shape of the swell, without needing an audio context.
+export const _internals = { intensityAt, PROGRESSION, FIGURE, THEME, ARC, CYCLE, BAR };

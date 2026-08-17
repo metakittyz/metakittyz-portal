@@ -318,8 +318,16 @@ else she stays quiet. The `◉))` in the header mutes her instantly.
 
 ## The Overture
 
-Nine beats before the welcome screen, making one argument: everything is vibration, and a receiver
-finds what it is tuned to.
+Nine beats before the welcome screen, **read aloud by the guide**, making one argument: everything is
+vibration, and a receiver finds what it is tuned to.
+
+The narration runs through the same three tiers as everything else the guide says — your own
+recording, then the natural voice, then the device voice — so all nine lines appear in the Voice
+Studio under **The opening** and can be recorded in your own voice. `◉))` beside Skip mutes it. A
+beat never advances out from under its own narration, however short its hold.
+
+The text is deliberately short: one line and one clause per beat, about 64 seconds of speech across
+the whole sequence.
 
 | | Beat | What it draws |
 | --- | --- | --- |
@@ -369,18 +377,20 @@ Skippable from the first frame, and replayable from **Settings → The opening**
 
 ## The score
 
-A faint piece plays under the whole app — a slow minor-key ostinato turning under a sustained
-string pad, in the register those long piano-and-strings pieces live in.
+A cinematic piece plays under the app — a church-organ stack, a relentless eighth-note ostinato
+turning underneath, sub-bass for weight, and a swell that takes over a minute to arrive and recede.
+The emotion is carried by dynamics rather than melody: intensity runs 0.30 to 1.00 across a 72-second
+arc, and the layers enter as it climbs — pad, then ostinato at 12s, sub at 18s, the four-note theme
+at 24s, peak at 36s.
 
 It is **composed live in the browser** with Web Audio (`src/lib/ambient.js`) rather than shipped as
 an audio file. Four reasons, in the order they mattered:
 
-- **It's original.** Every note is generated from a i–VI–III–VII progression in D minor and a
-  six-note figure that climbs and comes back down. No existing recording or composition is
-  reproduced, so there is nothing to license and nothing to take down.
-- **It never loops audibly.** The melody enters and drops out on a sixteen-bar cycle while the
-  harmony moves on eight, so the two rarely line up the same way twice and there is no seam to
-  start listening for.
+- **It's original.** Every note is generated from the eight-bar D-minor progression and the figures
+  in `ambient.js`. No existing recording or composition is reproduced — what is borrowed is the
+  grammar of the idiom, which is nobody's property. Nothing to license, nothing to take down.
+- **It never loops audibly.** The 18-second harmonic cycle sits under the 72-second intensity arc, so
+  the same bar returns at a different weight each time and there is no seam to start listening for.
 - **It costs nothing to download.** Twenty minutes of audio would be several megabytes; this is
   ~5 kB of arithmetic, and it works offline.
 - **It gets out of the way.** The moment the guide speaks, the whole bed ducks to 18% in 0.35s and
@@ -390,6 +400,15 @@ an audio file. Four reasons, in the order they mattered:
 Notes are placed against the audio clock with a lookahead scheduler, with a few milliseconds of
 timing drift and some unevenness in weight on every note. Dead-on timing is the giveaway that
 nobody is playing it.
+
+**Level.** `MASTER_CEILING` in `ambient.js` caps the whole thing. The first pass peaked at 0.048 with
+the slider at maximum — a whisper, fine for a bed under an app and wrong for something meant to carry
+an intro. It now peaks at 0.217, with the mix rebalanced: the ostinato had been eight times quieter
+than the pad and sub, which left nothing above 300Hz and made the score all weight and no music.
+
+**Hearing it without a browser.** `renderOffline(seconds, sampleRate)` runs the same graph and the
+same scheduler through an `OfflineAudioContext` and hands back an AudioBuffer. Point a two-line
+module page at it to render a WAV — useful because a score nobody can play back cannot be judged.
 
 **Controls.** A ♪ toggle in the topbar, and volume in Settings → Score. `MASTER_CEILING` in
 `ambient.js` caps the whole thing well below conversational level: full volume is still soft. Off

@@ -81,8 +81,11 @@ leave the device.
 
 ## The opening
 
-Nine short beats before you start: matter, light, ocean, heartbeat, everything at once, resonance,
-the instruments other animals are issued, recognition, and flow.
+Nine short beats before you start, read aloud: matter, light, ocean, heartbeat, everything at once,
+resonance, the instruments other animals are issued, recognition, and flow.
+
+`◉))` mutes the narration. Every line is recordable in your own voice — Voice Library → Your own
+voice → **The opening**.
 
 The point it makes is the one the whole app runs on — **a receiver finds only what it is tuned to**.
 Two waves that disagree cancel to nothing; the same two in step reach twice the height. Nothing is
@@ -97,12 +100,12 @@ Skippable. Replay it any time from **Settings → The opening**.
 
 ## The score
 
-A quiet piece plays under everything — written for this app and composed live in your browser, so
-nothing is streamed and it works offline. It steps back on its own the moment the guide speaks, and
-comes back when she's done.
+A cinematic piece plays under everything — organ, a driving ostinato, and sub-bass, swelling and
+receding over about seventy seconds. Written for this app and composed live in your browser, so
+nothing is streamed and it works offline. It steps back the moment the guide speaks and returns when
+she's done.
 
-`♪` in the header switches it off. Volume lives in **Settings → Score**. It is meant to be faint:
-full volume is still soft, and the point is that you notice it when it stops.
+`♪` in the header switches it off. Volume lives in **Settings → Score**.
 
 ---
 

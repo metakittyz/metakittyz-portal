@@ -2060,3 +2060,30 @@ footer.foot {
   font-size: 1.05rem;
   margin: 2.4rem 0 1.6rem;
 }
+.overture-controls {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.5rem;
+}
+.overture-controls .overture-skip {
+  position: static;
+}
+.overture-narrate {
+  appearance: none;
+  border: 1px solid var(--line-soft);
+  background: none;
+  color: var(--text-3);
+  border-radius: 999px;
+  padding: 0.34rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.overture-narrate.on {
+  color: var(--gold);
+  border-color: var(--line);
+  background: rgba(232, 195, 122, 0.08);
+}
