@@ -444,6 +444,23 @@ Notes are placed against the audio clock with a lookahead scheduler, with a few 
 timing drift and some unevenness in weight on every note. Dead-on timing is the giveaway that
 nobody is playing it.
 
+**The bottom end.** The sub used to play an octave below the bass note, which put six of the eight
+chords between 14 and 25Hz — under the bottom of human hearing. It spent headroom on air nobody could
+hear while the mix stayed thin. It now plays the bass note itself: 29 to 65Hz, the range you feel in
+your chest, with a fifth and an octave above it at low level so the weight survives a phone speaker,
+where a pure 30Hz sine reproduces as nothing at all.
+
+Sub sits around 10x the midrange at the peak, which is deliberate and aggressive. Small speakers roll
+off below 80Hz anyway, so it reads much more mid-forward on a laptop than on headphones. If it is too
+much, `sub()`'s level in `scheduleBar` is the one number to turn down.
+
+**The endless rise.** A Shepard–Risset glissando enters in the upper half of the swell: six partials
+an octave apart, all gliding up by exactly one octave per bar, with loudness following a bell across
+the spectrum so each fades out at the top as a new one fades in below. After one bar the set is
+identical to how it started, so the ear hears continuous ascent with nowhere to arrive. It is a real
+auditory illusion and it is there to do the psychological work volume can't — rising tension the
+listener cannot resolve, because there is nothing to resolve to.
+
 **Level.** `MASTER_CEILING` in `ambient.js` caps the whole thing. The first pass peaked at 0.048 with
 the slider at maximum — a whisper, fine for a bed under an app and wrong for something meant to carry
 an intro. It now peaks at 0.217, with the mix rebalanced: the ostinato had been eight times quieter

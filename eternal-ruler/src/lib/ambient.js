@@ -31,7 +31,7 @@
 // Loud enough to be a score. The first pass peaked at 0.048 even with the
 // slider at maximum, which is a whisper — fine for a bed under an app, wrong
 // for something meant to carry an intro.
-const MASTER_CEILING = 0.5;
+const MASTER_CEILING = 0.46;
 
 const EIGHTH = 0.32; // slower than it was — space is most of the feeling
 const BAR = EIGHTH * 8;
@@ -277,19 +277,89 @@ function choir(at, midi, level, seconds) {
   wire(g);
 }
 
-/** Sub. Felt more than heard, and only once the score is up. */
+/**
+ * Sub. Felt more than heard.
+ *
+ * It used to play an octave below the bass note, which put six of the eight
+ * chords between 14 and 25Hz — under the bottom of human hearing. All that did
+ * was spend headroom on air nobody could hear while the mix stayed thin. It
+ * now plays the bass note itself, which lands between 29 and 65Hz: the range
+ * you feel in your chest.
+ *
+ * Two oscillators, one a fifth up at low level. A pure sine at 30Hz barely
+ * registers on a phone or a laptop; the fifth gives the ear something to infer
+ * the fundamental from, so the weight survives small speakers.
+ */
 function sub(at, midi, level, seconds) {
   const g = ctx.createGain();
   g.gain.setValueAtTime(0.0001, at);
-  g.gain.linearRampToValueAtTime(level, at + 0.18);
+  g.gain.linearRampToValueAtTime(level, at + 0.2);
+  g.gain.setValueAtTime(level, at + seconds * 0.6);
   g.gain.linearRampToValueAtTime(0.0001, at + seconds);
-  const o = ctx.createOscillator();
-  o.type = "sine";
-  o.frequency.value = hz(midi - 12);
-  o.connect(g);
-  o.start(at);
-  o.stop(at + seconds + 0.1);
+
+  for (const [iv, amt] of [
+    [0, 1],
+    [12, 0.28],
+    [19, 0.14],
+  ]) {
+    const o = ctx.createOscillator();
+    o.type = "sine";
+    o.frequency.value = hz(midi + iv);
+    const a = ctx.createGain();
+    a.gain.value = amt;
+    o.connect(a);
+    a.connect(g);
+    o.start(at);
+    o.stop(at + seconds + 0.15);
+  }
   g.connect(master); // no reverb on the sub — it only muddies
+}
+
+/**
+ * A Shepard–Risset rise: the tone that seems to climb forever without ever
+ * getting higher.
+ *
+ * Six partials an octave apart, all gliding up by exactly one octave over the
+ * bar. Loudness follows a bell curve across the spectrum, so each partial
+ * fades out as it reaches the top and a new one fades in underneath. After one
+ * bar the set is identical to how it started — the ear hears continuous ascent
+ * with no destination.
+ *
+ * This is the reason it is here and not something merely louder. It is a real
+ * auditory illusion that produces rising tension the listener cannot resolve,
+ * because there is nothing to resolve to. It does the psychological work that
+ * volume can't.
+ */
+function shepard(at, baseMidi, level, seconds) {
+  const OCTAVES = 6;
+  const STEPS = 24;
+
+  for (let k = 0; k < OCTAVES; k++) {
+    const o = ctx.createOscillator();
+    o.type = "sine";
+    const f0 = hz(baseMidi + k * 12);
+    o.frequency.setValueAtTime(f0, at);
+    o.frequency.exponentialRampToValueAtTime(f0 * 2, at + seconds);
+
+    // Amplitude as a function of where this partial sits in the spectrum:
+    // silent at the edges, full in the middle. Written as a curve because the
+    // partial is moving the whole time.
+    const curve = new Float32Array(STEPS);
+    for (let i = 0; i < STEPS; i++) {
+      const pos = (k + i / (STEPS - 1)) / OCTAVES; // 0..1 across the stack
+      const bell = Math.exp(-Math.pow((pos - 0.5) / 0.28, 2));
+      curve[i] = Math.max(0.0001, level * bell);
+    }
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.setValueCurveAtTime(curve, at, seconds);
+
+    o.connect(g);
+    o.start(at);
+    o.stop(at + seconds + 0.05);
+    wire(g);
+  }
 }
 
 /**
@@ -317,10 +387,10 @@ function scheduleBar(index, at) {
   organ(at, PEDAL, 0.05 + I * 0.05, BAR * 1.1, { bright: 400 + I * 500 });
 
   // The bed.
-  strings(at, chord.bass + 12, 0.09 + I * 0.13, BAR * 1.08);
+  strings(at, chord.bass + 12, 0.08 + I * 0.14, BAR * 1.08);
 
   // Organ pad from the start, opening up as the score grows.
-  organ(at, chord.bass + 12, 0.035 + I * 0.055, BAR * 1.05, { bright: 900 + I * 2200 });
+  organ(at, chord.bass + 24, 0.03 + I * 0.05, BAR * 1.05, { bright: 900 + I * 2400 });
 
   // The ostinato fades in once there is something to turn under.
   if (I > 0.34) {
@@ -328,7 +398,7 @@ function scheduleBar(index, at) {
     FIGURE.forEach((step, i) => {
       const drift = (Math.random() - 0.5) * 0.016;
       const accent = i === 0 ? 1 : i === 4 ? 0.88 : 0.66;
-      organ(at + i * EIGHTH + drift, chord.tones[step], 0.21 * accent * drive, EIGHTH * 2.4, {
+      organ(at + i * EIGHTH + drift, chord.tones[step], 0.3 * accent * drive, EIGHTH * 2.4, {
         bright: 2200 + I * 3200,
       });
     });
@@ -336,16 +406,21 @@ function scheduleBar(index, at) {
 
   // Weight underneath, only in the upper half of the arc. Kept in check — sub
   // is felt, and past a certain level it just masks everything above it.
-  if (I > 0.5) sub(at, chord.bass, (I - 0.5) * 0.34, BAR);
+  // Sub from early and hard. This is the "deep" the score is built around.
+  if (I > 0.34) sub(at, chord.bass, 0.035 + (I - 0.34) * 0.22, BAR * 1.02);
 
   // The choir at the top of the arc — the moment the whole swell exists for.
-  if (I > 0.62) choir(at, chord.bass, (I - 0.62) * 0.11, BAR * 1.3);
+  if (I > 0.62) choir(at, chord.bass + 12, (I - 0.62) * 0.11, BAR * 1.3);
+
+  // The endless rise, under the second half of the climb. Bar-length, so each
+  // one hands off seamlessly to the next and the ascent never lands.
+  if (I > 0.5) shepard(at, chord.bass + 12, (I - 0.5) * 0.05, BAR);
 
   // And the theme last of all — the thing the whole swell was for. Long notes
   // over the second half of the cycle, where the harmony lifts.
   if (I > 0.7 && index % 8 >= 4) {
     const note = THEME[(index % 8) - 4];
-    organ(at, note, (I - 0.7) * 0.75, BAR * 1.6, { bright: 3400 });
+    organ(at, note, (I - 0.7) * 1.05, BAR * 1.6, { bright: 3400 });
   }
 }
 
