@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { OVERTURE_LINES, SCENES, overtureLineId } from "../lib/overture-scenes.js";
 import { getLastEngine, onEngineChange, speakLine, stopAll } from "../lib/voice.js";
+import { ensureAvailable, knownAvailability } from "../lib/tts.js";
 import { duckTrack, playTrack, releaseTrack } from "../lib/track.js";
 import { suspendScore } from "../lib/ambient.js";
 import { useStore } from "../lib/store.jsx";
@@ -16,6 +17,20 @@ import { useStore } from "../lib/store.jsx";
 
 /** Silence after a spoken line, before the next beat begins. */
 const TAIL = 1.8;
+
+/**
+ * Why the natural voice isn't playing, in the words of someone who has to fix
+ * it. Each of these is a different job, and the difference is not guessable
+ * from hearing a robotic voice.
+ */
+const WHY = {
+  no_route:
+    "This site has no voice service. The deploy needs its netlify/functions folder, and netlify.toml needs functions = \"netlify/functions\".",
+  no_key:
+    "The voice service is running but has no OpenAI key. Set OpenAI_EternalRuler in the site's environment variables, then deploy again — the key is read at deploy time.",
+  offline: "Couldn't reach the voice service. Check the connection and reload.",
+  unknown: "Still checking whether the natural voice is available.",
+};
 
 function prefersLessMotion() {
   return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -44,6 +59,19 @@ export function Overture({ onDone, reduceMotion = false }) {
   // one-line deploy config mistake nobody could have guessed at.
   const [engine, setEngine] = useState(getLastEngine());
   useEffect(() => onEngineChange(setEngine), []);
+
+  // Not just *that* it fell back, but which of the three reasons. The probe
+  // already tells them apart; saying "isn't reachable here" and making someone
+  // go and open a URL on a phone to find out which is no better than silence.
+  const [why, setWhy] = useState(knownAvailability());
+  useEffect(() => {
+    let dead = false;
+    ensureAvailable(state.voice.apiKey || undefined).then((r) => !dead && setWhy(r));
+    return () => {
+      dead = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const canvasRef = useRef(null);
   const startedAt = useRef(0);
@@ -294,9 +322,9 @@ export function Overture({ onDone, reduceMotion = false }) {
           <>
             {narrate && engine === "device" && (
               <p className="overture-engine">
-                Using this device&apos;s built-in voice — the natural one isn&apos;t reachable here.
+                Reading in this device&apos;s built-in voice.
                 <br />
-                <span className="dim">Guide Voice, in the app, explains why and how to fix it.</span>
+                <span className="dim">{WHY[why?.code] || WHY.unknown}</span>
               </p>
             )}
             <button className="btn ghost sm" onClick={next}>
