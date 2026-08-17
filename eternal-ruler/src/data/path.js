@@ -1,16 +1,77 @@
-// THE PATH — one step a day, 42 days, 5 stages.
+// THE PATH — one step a day, 42 days, 6 themes.
 //
 // Wording rule for this file: `why` is one line. `steps` are imperatives.
 // `closing` only where it earns its place. If a sentence can go, it goes.
 //
 // Position advances by steps completed, never by dates. Miss a month, resume here.
 
+/**
+ * Six themes, seven days each, run like a course rather than a checklist.
+ *
+ * The shape is borrowed from learning music, because it is the same shape:
+ * first the notes — the individual signals, heard one at a time and barely.
+ * Then the instrument, because an untuned receiver cannot hear anything no
+ * matter how good its ear. Then phrases. Then whole compositions. Then
+ * conducting the thing yourself.
+ *
+ * `teaches` is the plain-language version, shown on the orientation screen and
+ * on your profile. `promise` is what you can do at the end of it.
+ */
 export const STAGES = [
-  { id: "opening", n: "I", name: "The Opening", days: [1, 6], glyph: "◉", promise: "Make contact." },
-  { id: "listening", n: "II", name: "The Listening", days: [7, 15], glyph: "❋", promise: "Tell signal from noise." },
-  { id: "reckoning", n: "III", name: "The Reckoning", days: [16, 25], glyph: "◑", promise: "Look at what you avoid." },
-  { id: "forging", n: "IV", name: "The Forging", days: [26, 35], glyph: "✦", promise: "Put a date on it." },
-  { id: "sovereignty", n: "V", name: "Sovereignty", days: [36, 42], glyph: "▲", promise: "Make it yours." },
+  {
+    id: "notes",
+    n: "I",
+    name: "The Notes",
+    days: [1, 7],
+    glyph: "◉",
+    promise: "Make contact.",
+    teaches: "The basic tools for becoming sensitive. Single signals, heard one at a time.",
+  },
+  {
+    id: "instrument",
+    n: "II",
+    name: "The Instrument",
+    days: [8, 14],
+    glyph: "❋",
+    promise: "Tune the receiver.",
+    teaches: "Preparing the body for subtle energy — sleep, food, movement, and telling your yes from your no.",
+  },
+  {
+    id: "ear",
+    n: "III",
+    name: "The Ear",
+    days: [15, 21],
+    glyph: "◑",
+    promise: "Clear what distorts it.",
+    teaches: "The material you avoid is the material that drowns the signal. This is the honest stretch.",
+  },
+  {
+    id: "melody",
+    n: "IV",
+    name: "The Melody",
+    days: [22, 28],
+    glyph: "♪",
+    promise: "Follow a whole phrase.",
+    teaches: "Guidance stops arriving as single notes and starts arriving as lines you can follow.",
+  },
+  {
+    id: "composition",
+    n: "V",
+    name: "The Composition",
+    days: [29, 35],
+    glyph: "✦",
+    promise: "Put it on the page.",
+    teaches: "Structure, dates and evidence. What you heard becomes something written down.",
+  },
+  {
+    id: "orchestration",
+    n: "VI",
+    name: "The Orchestration",
+    days: [36, 42],
+    glyph: "▲",
+    promise: "Conduct it yourself.",
+    teaches: "Divinely guided, creative living — all of it moving together, and you holding the baton.",
+  },
 ];
 
 export const ROOM_UNLOCKS = { journal: 2, reading: 4, voice: 7, intake: 10, forge: 12, council: 18 };

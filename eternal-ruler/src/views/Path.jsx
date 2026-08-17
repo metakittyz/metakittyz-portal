@@ -235,7 +235,7 @@ function Done({ justDid, onContinue, go, graduated, completedCount }) {
       {graduated ? (
         <p className="center soft">Another turn of your own rhythm.</p>
       ) : justDid.milestone ? (
-        <p className="center soft">One of five markers on this road.</p>
+        <p className="center soft">One of six markers on this road.</p>
       ) : (
         <p className="center soft">Logged. The path moved.</p>
       )}
@@ -282,7 +282,7 @@ function MapModal({ completed, onClose, store }) {
   return (
     <Modal title="The map" onClose={onClose} wide>
       <p className="small soft">
-        Forty-two steps, five stages. You&apos;re on day {Math.min(day, TOTAL_DAYS)}. Nothing expires.
+        Forty-two steps, six themes. You&apos;re on day {Math.min(day, TOTAL_DAYS)}. Nothing expires.
       </p>
 
       {STAGES.map((s) => {

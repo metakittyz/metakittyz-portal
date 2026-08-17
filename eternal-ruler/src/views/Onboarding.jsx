@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { useStore } from "../lib/store.jsx";
 import { Field } from "../components/ui.jsx";
+import { Orientation } from "./Orientation.jsx";
+import { STAGES } from "../data/path.js";
 
-// Welcome → account → name → who you're reaching for.
-// One question per screen. The consent Threshold comes after this.
+// Welcome → orientation → account → name → who you're reaching for.
+// One question per screen, except the orientation, which is the one place
+// somebody genuinely needs the whole picture before deciding to continue.
+// The consent Threshold comes after this.
 
 export function Onboarding() {
   const store = useStore();
@@ -13,7 +17,8 @@ export function Onboarding() {
   return (
     <div className="gate">
       <div className="gate-inner">
-        {step === "welcome" && <Welcome onNext={() => setStep("account")} />}
+        {step === "welcome" && <Welcome onNext={() => setStep("orient")} />}
+        {step === "orient" && <Orientation onNext={() => setStep("account")} />}
         {step === "account" && <Account store={store} onNext={() => setStep("name")} />}
         {step === "name" && <Name store={store} onNext={() => setStep("who")} />}
         {step === "who" && <Who store={store} />}
@@ -33,21 +38,17 @@ function Welcome({ onNext }) {
       <p className="creed center">Become the eternal ruler of your own reality.</p>
 
       <p className="center soft" style={{ margin: "2rem 0" }}>
-        Forty-two days. One step a day. You open the line to your higher self, learn to tell its voice from
-        every other voice in your head, and end up running your own life.
+        Forty-two days, six themes, one step a day. You open the line to your higher self, learn to tell its
+        voice from every other voice in your head, and end up running your own life.
       </p>
 
+      {/* Read from STAGES rather than restated here — a second copy of the arc
+          is a second thing to forget to update. */}
       <div className="arc">
-        {[
-          ["I", "Make contact"],
-          ["II", "Tell signal from noise"],
-          ["III", "Look at what you avoid"],
-          ["IV", "Put a date on it"],
-          ["V", "Make it yours"],
-        ].map(([n, what]) => (
-          <div key={n} className="arc-step">
-            <span className="arc-n">{n}</span>
-            <span>{what}</span>
+        {STAGES.map((s) => (
+          <div key={s.id} className="arc-step">
+            <span className="arc-n">{s.n}</span>
+            <span>{s.promise}</span>
           </div>
         ))}
       </div>

@@ -775,7 +775,7 @@ input[type="range"]::-moz-range-thumb {
   letter-spacing: 0.02em;
 }
 
-/* the five stages, shown before you start and again on your profile */
+/* the six themes, shown before you start and again on your profile */
 .arc {
   display: flex;
   flex-direction: column;
@@ -1944,4 +1944,119 @@ footer.foot {
   margin: 1rem auto 0;
   max-width: 52ch;
   text-align: left;
+}
+
+/* ------------------------------------------------------------ orientation -- */
+/* The one screen in the app that is allowed to be long: what this is, what it
+   asks, and how the six themes stack. */
+.orient {
+  max-width: 620px;
+  margin: 0 auto;
+}
+.orient-h1 {
+  margin-bottom: 0.5rem;
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+}
+.orient-block {
+  margin-top: 2.4rem;
+}
+.orient-h2 {
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--violet);
+  font-family: var(--sans);
+  margin-bottom: 0.9rem;
+}
+.orient-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.orient-list li {
+  color: var(--text-2);
+  font-size: 0.93rem;
+  line-height: 1.6;
+  border-left: 2px solid var(--line);
+  padding-left: 0.85rem;
+}
+.orient-list b {
+  color: var(--text);
+  font-weight: 400;
+}
+
+.orient-arc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 1.4rem 0;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.orient-stage {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line-soft);
+}
+.orient-stage:last-child {
+  border-bottom: 0;
+}
+.orient-stage-glyph {
+  color: var(--gold);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  flex-shrink: 0;
+  width: 1.2rem;
+  text-align: center;
+}
+.orient-stage-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.orient-stage-head b {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.02rem;
+  color: var(--text);
+}
+.orient-stage-n {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  color: var(--violet);
+}
+.orient-stage-days {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--text-3);
+  margin-left: auto;
+}
+.orient-stage-teaches {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-3);
+}
+
+.orient-plain {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.1rem 1.2rem;
+  background: rgba(232, 195, 122, 0.04);
+}
+.orient-plain p {
+  color: var(--text-2);
+}
+.orient-close {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  margin: 2.4rem 0 1.6rem;
 }

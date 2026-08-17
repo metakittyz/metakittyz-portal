@@ -111,17 +111,32 @@ reaching for → the consent Threshold → day one. One question per screen.
 
 ---
 
+## The orientation
+
+Between the Overture and making an account there is one screen that is allowed to be long. It answers
+the four questions somebody actually has before handing over a name:
+
+- **What this is for** — one purpose: open the line to your higher self, then make it strong enough to
+  run a life on.
+- **What to expect** — one step a day; nothing will happen for a while and that's normal; the middle
+  goes somewhere uncomfortable; your position never expires; it all stays on this device.
+- **How it's laid out** — the six themes, with what each one teaches, read straight from `STAGES` so
+  there is no second copy to forget to update.
+- **Before you start** — not therapy, 18+, and the plain warning that this can shift how reality looks
+  to you. That paragraph sits *above* the button, not buried under it. Somebody deciding whether to
+  begin deserves the awkward part at the same moment as the invitation.
+
 ## Always know where you are
 
 A strip sits under the nav on **every screen**:
 
 ```
-◉ THE LISTENING · DAY 11/42  ─────────────────  Becoming your own eternal ruler
+❋ THE INSTRUMENT · DAY 11/42  ─────────────────  Becoming your own eternal ruler
 ```
 
-Stage, day, a progress line, and the point of the whole thing. Tap it to jump back to the Path. Your
-initial sits in the top-right — tap for **Profile**, which shows your standing across all five
-stages, everything you've built, and your account.
+Theme, day, a progress line, and the point of the whole thing. Tap it to jump back to the Path. Your
+initial sits in the top-right — tap for **Profile**, which shows your standing across all six
+themes, everything you've built, and your account.
 
 ---
 
@@ -151,15 +166,29 @@ thing as falling behind, no broken streak, no guilt mechanic.
 
 ## The path
 
-Forty-two steps in five stages, then a self-directed weekly rhythm forever after.
+Forty-two steps in six themes, then a self-directed weekly rhythm forever after.
 
-| Stage | Days | What it does |
+It is built as a course rather than a checklist — closer in shape to a music appreciation class. You
+learn the **notes** of the realm of spirit, then the **melodies** of spirit guidance, and finally the
+**composition and orchestration** of six-sensory, divinely guided, creative living.
+
+| Theme | Days | What it does |
 | --- | --- | --- |
-| **I · The Opening** | 1–6 | Make contact. Build the habit. Prove something is on the other end. |
-| **II · The Listening** | 7–15 | Learn to tell guidance from noise — the skill everything else depends on. |
-| **III · The Reckoning** | 16–25 | Look at what you've been avoiding. The hardest stage, and the one that changes people. |
-| **IV · The Forging** | 26–35 | Turn what you want into something with a date on it. |
-| **V · Sovereignty** | 36–42 | Make it yours. You stop following the path and start setting it. |
+| **I · The Notes** | 1–7 | The basic tools for becoming sensitive. Make contact, build the habit, learn what a signal even feels like. |
+| **II · The Instrument** | 8–14 | Prepare the body to tune in to subtle energy — sleep, food, movement — and learn to tell your yes from your no. |
+| **III · The Ear** | 15–21 | Clear what distorts the signal. The material you avoid is the material that drowns it. The hardest stretch, and the one that changes people. |
+| **IV · The Melody** | 22–28 | Guidance stops arriving as single notes and starts arriving as lines you can follow. |
+| **V · The Composition** | 29–35 | Structure, dates and evidence. What you heard becomes something written down. |
+| **VI · The Orchestration** | 36–42 | All of it moving together, and you holding the baton. You stop following the path and start setting it. |
+
+The order carries weight: you cannot tune an instrument you haven't picked up, and you cannot hear a
+melody through a receiver full of static. Each theme is built on the one under it, and the rooms
+unlock at the point where they'd actually help.
+
+**Themes are a regrouping of the same forty-two steps, not a rewrite.** The boundaries moved to seven
+days each; the content and its order are unchanged. Body work is threaded throughout rather than
+confined to Theme II — day 3 is already "The body is the receiver" — because you don't finish
+perception and then separately start on the body.
 
 Each step is a single card: why it matters, three to four numbered instructions, a guided timer if
 one applies, a journal prompt if one applies, and one button — **I did this**. Finishing a step
@@ -375,7 +404,7 @@ the first gesture of any kind. The toggle says which state you're in rather than
 Every day you showed up, coloured by what you did — step, journal, reading, intake, practice, voice —
 with current run, longest run, and days shown up.
 
-**Eighteen seals** reward consistency, and two rules keep them from becoming a guilt mechanic:
+**Nineteen seals** reward consistency, and two rules keep them from becoming a guilt mechanic:
 
 1. **A seal is permanent.** Nothing here is taken away by a bad week.
 2. **Nothing punishes a gap.** The run counter is information, not a debt.
@@ -414,14 +443,14 @@ Implemented in [`src/lib/temperature.js`](src/lib/temperature.js).
 | Room | What it's for |
 | --- | --- |
 | **Path** | Today's one step, the remark to carry, and the map. |
-| **Profile** | Who you are here, your position across the five stages, your totals, and your account. |
+| **Profile** | Who you are here, your position across the six themes, your totals, and your account. |
 | **Journal** | 70+ prompts graded surface → deep → abyss, with attached voice notes. |
 | **Reading** | Hot & Cold, with history and per-domain trends. |
 | **Intake** | What you feed the machine — content, food, movement, substances, people, sleep — each charged from drained to lit up, with a Patterns view that lines it up against your Readings. |
 | **Voice** | Record your own voice saying what you need to hear. Six starter scripts, litany playback. |
 | **Forge** | Manifestation as engineering, plus your life goals. |
 | **Council** | Mentor directory, session requests, mentor profiles, field notes. |
-| **Calendar** | Every day you showed up, your runs, and eighteen seals earned by consistency. |
+| **Calendar** | Every day you showed up, your runs, and nineteen seals earned by consistency. |
 | **Guide Voice** | Pick from six voices, or record all 77 guide lines in your own. |
 | **Library** | Every practice and all 29 long-form entries, if you want to go looking. |
 

@@ -202,7 +202,7 @@ export const APP_LINES = [
   },
   {
     id: "app:milestone",
-    text: "Milestone. One of five markers on this road.",
+    text: "Milestone. One of six markers on this road.",
   },
   {
     id: "app:practice-complete",

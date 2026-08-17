@@ -1,6 +1,6 @@
 # The Framework
 
-How to build a practice with this app. Five layers, one loop, one step a day.
+How to build a practice with this app. Six themes, five layers, one loop, one step a day.
 
 **The whole point:** connect with your higher self, and become the eternal ruler of your own reality.
 That line sits under the nav on every screen, next to your stage and day, so you never lose the thread.
@@ -116,7 +116,7 @@ The **Calendar** shows every day you showed up and what it earned.
 | Nothing punishes a gap | The run counter is information, not a debt |
 | **The Return** | Earned by coming back after 3+ days away — the hardest seal, and the one worth having |
 
-Eighteen seals across showing up, runs, the five stages, and craft in each room.
+Nineteen seals across showing up, runs, the six themes, and craft in each room.
 
 ---
 
@@ -136,13 +136,21 @@ The minimum on a bad day beats the deep version abandoned in week two.
 
 ## The 42 days
 
-| Stage | Days | Gets you |
+Six themes, seven days each. It runs like a course, not a checklist — closer to a music
+appreciation class. First the **notes** of the realm of spirit, then the **melodies** of spirit
+guidance, then the **composition and orchestration** of six-sensory, divinely guided living.
+
+| Theme | Days | Gets you |
 | --- | --- | --- |
-| **I · The Opening** | 1–6 | Contact and a habit |
-| **II · The Listening** | 7–15 | Signal from noise |
-| **III · The Reckoning** | 16–25 | What you avoid |
-| **IV · The Forging** | 26–35 | A dated plan |
-| **V · Sovereignty** | 36–42 | Your own practice |
+| **I · The Notes** | 1–7 | Contact, and a habit. The basic tools for becoming sensitive. |
+| **II · The Instrument** | 8–14 | A prepared body — sleep, food, movement, and your yes from your no |
+| **III · The Ear** | 15–21 | What you avoid, which is what drowns the signal |
+| **IV · The Melody** | 22–28 | Guidance arriving as lines you can follow, not single notes |
+| **V · The Composition** | 29–35 | Structure, dates, evidence |
+| **VI · The Orchestration** | 36–42 | All of it moving together, and you holding the baton |
+
+You cannot tune an instrument you haven't picked up, and you cannot hear a melody through a receiver
+full of static. Each theme is built on the one under it.
 
 Then **The Practice** — eight steps that rotate forever: Reach · Read · Move · Feed · Look · Build · Speak · Rest.
 

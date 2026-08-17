@@ -8,6 +8,8 @@
 // `test` receives the object from sealStats(). `progress` is optional and
 // returns [done, target] so a locked seal can still show how close you are.
 
+import { STAGES } from "./path.js";
+
 export const SEALS = [
   // ---- showing up --------------------------------------------------------
   {
@@ -77,47 +79,23 @@ export const SEALS = [
     progress: (s) => [Math.min(s.longestStreak, 21), 21],
   },
 
-  // ---- the stages --------------------------------------------------------
-  {
-    id: "stage-1",
-    name: "The Opening",
-    glyph: "I",
+  // ---- the themes --------------------------------------------------------
+  // Generated from STAGES so the boundaries can never drift out of step with
+  // the path itself — the previous hand-written days were still pointing at an
+  // older five-stage split after the path was regrouped into six.
+  ...STAGES.slice(0, -1).map((stage) => ({
+    id: `stage-${stage.n.toLowerCase()}`,
+    name: stage.name,
+    glyph: stage.n,
     tier: "stage",
-    earn: "Finish stage one — days 1 to 6.",
-    test: (s) => s.steps >= 6,
-    progress: (s) => [Math.min(s.steps, 6), 6],
-  },
+    earn: `Finish Theme ${stage.n} — through day ${stage.days[1]}.`,
+    test: (s) => s.steps >= stage.days[1],
+    progress: (s) => [Math.min(s.steps, stage.days[1]), stage.days[1]],
+  })),
   {
-    id: "stage-2",
-    name: "The Listening",
-    glyph: "II",
-    tier: "stage",
-    earn: "Finish stage two — through day 15.",
-    test: (s) => s.steps >= 15,
-    progress: (s) => [Math.min(s.steps, 15), 15],
-  },
-  {
-    id: "stage-3",
-    name: "The Reckoning",
-    glyph: "III",
-    tier: "stage",
-    earn: "Finish stage three — through day 25.",
-    test: (s) => s.steps >= 25,
-    progress: (s) => [Math.min(s.steps, 25), 25],
-  },
-  {
-    id: "stage-4",
-    name: "The Forging",
-    glyph: "IV",
-    tier: "stage",
-    earn: "Finish stage four — through day 35.",
-    test: (s) => s.steps >= 35,
-    progress: (s) => [Math.min(s.steps, 35), 35],
-  },
-  {
-    id: "stage-5",
+    id: "stage-crown",
     name: "The Crown",
-    glyph: "V",
+    glyph: "VI",
     tier: "rare",
     earn: "Finish all forty-two steps.",
     test: (s) => s.steps >= 42,
