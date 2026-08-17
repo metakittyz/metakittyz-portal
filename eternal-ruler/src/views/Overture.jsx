@@ -14,6 +14,9 @@ import { useStore } from "../lib/store.jsx";
 // It is skippable from the first frame. Something unskippable between someone
 // and the app they came to use is an obstacle no matter how good it looks.
 
+/** Silence after a spoken line, before the next beat begins. */
+const TAIL = 1.8;
+
 function prefersLessMotion() {
   return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 }
@@ -47,6 +50,10 @@ export function Overture({ onDone, reduceMotion = false }) {
   // True while the guide is still mid-sentence. A beat will not advance out
   // from under its own narration, however short the hold is.
   const speaking = useRef(false);
+  // When the last line finished. A beat needs a beat of silence after its
+  // narration — without it the next line begins the instant the previous one
+  // stops, and nine of those back to back is a reading, not a sequence.
+  const spokeAt = useRef(0);
   const advance = useRef(() => {});
 
   const scene = SCENES[i];
@@ -85,22 +92,26 @@ export function Overture({ onDone, reduceMotion = false }) {
     }
     const line = OVERTURE_LINES[i];
     speaking.current = true;
+    spokeAt.current = 0;
     duckTrack(true);
     speakLine(overtureLineId(scene.id), line.text, state.voice, {
       onEnd: () => {
         speaking.current = false;
+        spokeAt.current = performance.now();
         duckTrack(false);
       },
     })
       .then((ok) => {
         if (!ok) {
           speaking.current = false; // nothing will speak, so nothing will end
+          spokeAt.current = performance.now();
           duckTrack(false);
         }
       })
       .catch(() => {
         // A refused or failed line must never hold the sequence hostage.
         speaking.current = false;
+        spokeAt.current = performance.now();
         duckTrack(false);
       });
     return () => stopAll();
@@ -147,9 +158,11 @@ export function Overture({ onDone, reduceMotion = false }) {
       if (still) return;
 
       setProgress(p);
-      // A beat waits for its own narration, but only so far — if a line never
-      // reports finishing, the sequence still moves.
-      if (p >= 1 && (!speaking.current || elapsed > scene.hold + 14)) {
+      // A beat waits for its own narration, then for a short silence after it,
+      // but only so far — if a line never reports finishing, the sequence
+      // still moves.
+      const rested = !spokeAt.current || (now - spokeAt.current) / 1000 > TAIL;
+      if (p >= 1 && ((!speaking.current && rested) || elapsed > scene.hold + 14)) {
         advance.current();
         return;
       }

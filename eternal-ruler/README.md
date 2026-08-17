@@ -443,6 +443,22 @@ Three behaviours matter, and all three are tested:
 Swapping it is a file replacement plus one constant: drop a new mp3 in `public/` and change
 `AWAKENING` in `src/lib/track.js`.
 
+## Recording the intro yourself
+
+`VOICEOVER.md` is the voice-over script — nine cues, timecoded, with direction per beat. It is
+**generated** by `npm run vo` from `src/lib/overture-scenes.js`, not written by hand: a script that has
+drifted from the lines actually in the app is worse than none, because you record against it and every
+take is wrong.
+
+Record cue by cue rather than in one take. Each line is stored separately and played at its own
+moment, so the app does the syncing; a continuous take would have to be cut up anyway, and one bad
+line couldn't be redone without the ones around it. They live in **Guide Voice → Your own voice → The
+opening**, and anything unrecorded falls back to the chosen voice.
+
+Beats now leave `TAIL` (1.8s) of silence after each line before the next begins. Without it the next
+line started the instant the previous one stopped, and nine of those back to back is a reading rather
+than a sequence.
+
 ## The score
 
 A cinematic piece plays under the app — a church-organ stack, a relentless eighth-note ostinato
