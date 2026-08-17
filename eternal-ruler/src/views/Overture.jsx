@@ -20,6 +20,12 @@ export function Overture({ onDone, reduceMotion = false }) {
   const { state } = useStore();
   const still = reduceMotion || prefersLessMotion();
 
+  // Browsers block every kind of sound until the page has been clicked once.
+  // The Overture is the first screen there is, so without a door to knock on,
+  // its opening line is refused outright (NotAllowedError) and the guide falls
+  // back to the robotic device voice for the one line that sets the tone.
+  // The title card is that door.
+  const [started, setStarted] = useState(false);
   const [i, setI] = useState(0);
   const [progress, setProgress] = useState(0);
   const [narrate, setNarrate] = useState(state.voice.enabled);
@@ -47,7 +53,7 @@ export function Overture({ onDone, reduceMotion = false }) {
   // through the same three tiers as everything else the guide says: your own
   // recording first, then the natural voice, then the device voice.
   useEffect(() => {
-    if (!narrate) {
+    if (!started || !narrate) {
       speaking.current = false;
       stopAll();
       return undefined;
@@ -58,17 +64,22 @@ export function Overture({ onDone, reduceMotion = false }) {
       onEnd: () => {
         speaking.current = false;
       },
-    }).then((ok) => {
-      if (!ok) speaking.current = false; // nothing will speak, so nothing will end
-    });
+    })
+      .then((ok) => {
+        if (!ok) speaking.current = false; // nothing will speak, so nothing will end
+      })
+      .catch(() => {
+        // A refused or failed line must never hold the sequence hostage.
+        speaking.current = false;
+      });
     return () => stopAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i, narrate]);
+  }, [i, narrate, started]);
 
   // ---- drawing ------------------------------------------------------------
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return undefined;
+    if (!canvas || !started) return undefined;
     const ctx = canvas.getContext("2d");
     let raf = 0;
     let alive = true;
@@ -105,7 +116,9 @@ export function Overture({ onDone, reduceMotion = false }) {
       if (still) return;
 
       setProgress(p);
-      if (p >= 1 && !speaking.current) {
+      // A beat waits for its own narration, but only so far — if a line never
+      // reports finishing, the sequence still moves.
+      if (p >= 1 && (!speaking.current || elapsed > scene.hold + 14)) {
         advance.current();
         return;
       }
@@ -122,11 +135,12 @@ export function Overture({ onDone, reduceMotion = false }) {
       window.removeEventListener("resize", onResize);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i, still]);
+  }, [i, still, started]);
 
   // Space and arrows advance; Escape leaves.
   useEffect(() => {
     const onKey = (e) => {
+      if (!started) return;
       if (e.key === "Escape") finish();
       if (e.key === " " || e.key === "ArrowRight" || e.key === "Enter") {
         e.preventDefault();
@@ -137,6 +151,41 @@ export function Overture({ onDone, reduceMotion = false }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   });
+
+  if (!started) {
+    return (
+      <div className="overture overture-door">
+        <button className="overture-skip" onClick={finish}>
+          Skip
+        </button>
+        <div className="rise center">
+          <p className="beta-stamp">Beta · a self-experiment · 18+</p>
+          <div className="sigil">◉</div>
+          <h1 style={{ marginBottom: ".5rem" }}>Eternal Ruler</h1>
+          <p className="creed">Become the eternal ruler of your own reality.</p>
+          <p className="soft" style={{ margin: "2rem auto", maxWidth: "34ch" }}>
+            Before anything else, a short story about how all of this works. Nine moments, about a
+            minute, read aloud.
+          </p>
+          <button
+            className="btn primary lg"
+            onClick={() => {
+              setStarted(true);
+              setNarrate(state.voice.enabled);
+            }}
+          >
+            ▶ Begin
+          </button>
+          <p className="tiny muted" style={{ marginTop: "1rem" }}>
+            Best with sound on. You can mute it once it starts.
+          </p>
+          <p className="tiny muted" style={{ marginTop: ".4rem" }}>
+            Not therapy, medical advice, or crisis support.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="overture">
@@ -177,15 +226,16 @@ export function Overture({ onDone, reduceMotion = false }) {
         {last ? (
           <>
             <p className="overture-honest">
-              Everything you just watched is drawn from the real equations — colours computed from
-              wavelength, the swell from its components summed, the bat's echo at a true 29 milliseconds.
-              That waves amplify when they agree is physics.
+              Everything you just watched was drawn from real measurements. The colours were worked out
+              from the actual speed of the light. The sea really is those three waves added together. The
+              bat's echo really does take that long to come back. That waves get bigger when they line up
+              is plain physics, and you can check any of it.
               <br />
               <br />
-              That spirit has a frequency you can tune to, that we are issued guides the way a bat is
-              issued sonar, and that the sixth sense opens onto ease and flow — that is Sonia Choquette's
-              teaching in <em>Ask Your Guides</em>. Teaching, not measurement. This app keeps the two apart
-              everywhere, and isn't going to start blurring them on the first screen.
+              The rest — that spirit has a frequency you can tune into, that we are given guides the way a
+              bat is given sonar, that a sixth sense opens onto ease and flow — comes from Sonia
+              Choquette's <em>Ask Your Guides</em>. That part is a teaching, not a measurement. This app
+              tells you which is which everywhere else, so it is going to tell you here too.
             </p>
             <button className="btn primary lg" onClick={finish}>
               Begin

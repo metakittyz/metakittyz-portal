@@ -33,25 +33,29 @@
 // for something meant to carry an intro.
 const MASTER_CEILING = 0.5;
 
-const EIGHTH = 0.28;
+const EIGHTH = 0.32; // slower than it was — space is most of the feeling
 const BAR = EIGHTH * 8;
 const CYCLE = BAR * 8; // 8 bars ≈ 17.9s
-const ARC = CYCLE * 4; // the swell: ≈ 72s up and back down
+const ARC = CYCLE * 4; // the swell: ≈ 82s up and back down
 
 /**
  * Eight bars in D minor with a pedal that keeps refusing to resolve, then
  * lifts on the last two. Bass note, then the tones the ostinato climbs.
  */
 const PROGRESSION = [
-  { bass: 38, tones: [62, 65, 69, 74] }, // Dm
-  { bass: 36, tones: [60, 65, 69, 74] }, // Dm/C
-  { bass: 34, tones: [58, 62, 65, 70] }, // B♭
-  { bass: 41, tones: [60, 65, 69, 72] }, // F
-  { bass: 43, tones: [62, 67, 70, 74] }, // Gm
-  { bass: 45, tones: [57, 60, 65, 69] }, // F/A
-  { bass: 34, tones: [58, 62, 65, 70] }, // B♭
-  { bass: 48, tones: [60, 64, 67, 72] }, // C — the lift
+  { bass: 26, tones: [62, 65, 69, 74] }, // Dm
+  { bass: 24, tones: [60, 65, 69, 74] }, // Dm/C
+  { bass: 22, tones: [58, 62, 65, 70] }, // B♭
+  { bass: 29, tones: [60, 65, 69, 72] }, // F
+  { bass: 31, tones: [62, 67, 70, 74] }, // Gm
+  { bass: 33, tones: [57, 60, 65, 69] }, // F/A
+  { bass: 22, tones: [58, 62, 65, 70] }, // B♭
+  { bass: 36, tones: [60, 64, 67, 72] }, // C — the lift
 ];
+
+// A pedal on the tonic that never moves. Everything above changes around it,
+// which is what gives the harmony somewhere to ache against.
+const PEDAL = 26; // D1
 
 // Eight eighths, up and turning back. Relentless is the point: the figure
 // never arrives anywhere, which is what makes the swell over the top of it
@@ -246,6 +250,33 @@ function strings(at, midi, level, seconds) {
   wire(g);
 }
 
+/**
+ * A choir, more or less: sines an octave and a fifth up, entering only at the
+ * top of the swell. Nothing here is clever — it is just the oldest trick there
+ * is for making a chord feel like it means something.
+ */
+function choir(at, midi, level, seconds) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, at);
+  g.gain.linearRampToValueAtTime(level, at + seconds * 0.45);
+  g.gain.linearRampToValueAtTime(0.0001, at + seconds);
+  const mix = ctx.createGain();
+  mix.gain.value = 0.3;
+  for (const iv of [12, 19, 24]) {
+    for (const cents of [-7, 7]) {
+      const o = ctx.createOscillator();
+      o.type = "sine";
+      o.frequency.value = hz(midi + iv);
+      o.detune.value = cents;
+      o.connect(mix);
+      o.start(at);
+      o.stop(at + seconds + 0.2);
+    }
+  }
+  mix.connect(g);
+  wire(g);
+}
+
 /** Sub. Felt more than heard, and only once the score is up. */
 function sub(at, midi, level, seconds) {
   const g = ctx.createGain();
@@ -282,8 +313,11 @@ function scheduleBar(index, at) {
   // the driving element in this idiom and has to sit on top of the bed, not
   // under it.
 
-  // The bed is always there.
-  strings(at, chord.bass, 0.09 + I * 0.13, BAR * 1.08);
+  // The pedal, always. It is the floor the rest of it stands on.
+  organ(at, PEDAL, 0.05 + I * 0.05, BAR * 1.1, { bright: 400 + I * 500 });
+
+  // The bed.
+  strings(at, chord.bass + 12, 0.09 + I * 0.13, BAR * 1.08);
 
   // Organ pad from the start, opening up as the score grows.
   organ(at, chord.bass + 12, 0.035 + I * 0.055, BAR * 1.05, { bright: 900 + I * 2200 });
@@ -302,7 +336,10 @@ function scheduleBar(index, at) {
 
   // Weight underneath, only in the upper half of the arc. Kept in check — sub
   // is felt, and past a certain level it just masks everything above it.
-  if (I > 0.55) sub(at, chord.bass, (I - 0.55) * 0.26, BAR);
+  if (I > 0.5) sub(at, chord.bass, (I - 0.5) * 0.34, BAR);
+
+  // The choir at the top of the arc — the moment the whole swell exists for.
+  if (I > 0.62) choir(at, chord.bass, (I - 0.62) * 0.11, BAR * 1.3);
 
   // And the theme last of all — the thing the whole swell was for. Long notes
   // over the second half of the cycle, where the harmony lifts.

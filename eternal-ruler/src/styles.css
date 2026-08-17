@@ -2087,3 +2087,24 @@ footer.foot {
   border-color: var(--line);
   background: rgba(232, 195, 122, 0.08);
 }
+.overture-door {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.overture-door .rise {
+  max-width: 460px;
+}
+/* The beta / self-experiment stamp. Top of the screen, before anything is
+   promised — not tucked under the button after the pitch. */
+.beta-stamp {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin: 0 0 1.4rem;
+}
+.orient-first {
+  margin-top: 2rem;
+}

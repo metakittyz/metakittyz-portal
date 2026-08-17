@@ -31,6 +31,7 @@ export function Onboarding() {
 function Welcome({ onNext }) {
   return (
     <div className="rise">
+      <p className="beta-stamp center">Beta · a self-experiment · 18+</p>
       <div className="sigil">◉</div>
       <h1 className="center" style={{ marginBottom: ".5rem" }}>
         Eternal Ruler
@@ -56,9 +57,6 @@ function Welcome({ onNext }) {
       <button className="btn solid block big" onClick={onNext} style={{ marginTop: "2rem" }}>
         Start
       </button>
-      <p className="tiny muted center" style={{ marginTop: "1rem" }}>
-        18+. A self-experiment, not therapy.
-      </p>
     </div>
   );
 }

@@ -125,6 +125,7 @@ function matter(ctx, { w, h, t, p }) {
 // Five wavelengths, each stroked in the colour that wavelength actually is.
 // Same wave, different rate, and the difference is something you can see.
 const LIGHT_BANDS = [660, 600, 550, 490, 440];
+const LIGHT_WORDS = ["red", "orange", "green", "cyan", "blue"];
 
 function light(ctx, { w, h, t, p }) {
   const padX = w * 0.16;
@@ -153,13 +154,13 @@ function light(ctx, { w, h, t, p }) {
       { color: rgbCss(rgb, 0.9 * reveal), width: 1.8, glow: 14 }
     );
 
-    label(ctx, `${nm}nm`, padX - 12, y0, { align: "right", color: rgbCss(rgb, 0.75 * reveal) });
-    label(ctx, `${Math.round(nmToTHz(nm))} THz`, padX + usable + 12, y0, {
-      color: `rgba(255,255,255,${0.3 * reveal})`,
+    label(ctx, LIGHT_WORDS[i], padX - 12, y0, { align: "right", color: rgbCss(rgb, 0.8 * reveal) });
+    label(ctx, i === 0 ? "slow" : i === LIGHT_BANDS.length - 1 ? "fast" : "", padX + usable + 12, y0, {
+      color: `rgba(255,255,255,${0.32 * reveal})`,
     });
   });
 
-  label(ctx, "same wave · different rate · different colour", w / 2, h - 14, {
+  label(ctx, "one wave. change its speed, change its colour", w / 2, h - 14, {
     align: "center",
     color: "rgba(255,255,255,.28)",
   });
@@ -178,9 +179,9 @@ function ocean(ctx, { w, h, t, p }) {
       color: `rgba(${FROST}, ${0.3 * reveal})`,
       width: 1.1,
     });
-    label(ctx, `${c.amp.toFixed(2)} × ${(c.omega / TAU).toFixed(2)} Hz`, w - 14, y0, {
+    label(ctx, `wave ${i + 1}`, w - 14, y0, {
       align: "right",
-      color: `rgba(255,255,255,${0.22 * reveal})`,
+      color: `rgba(255,255,255,${0.24 * reveal})`,
     });
   });
 
@@ -242,7 +243,7 @@ function heartbeat(ctx, { w, h, t, p }) {
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  label(ctx, "≈ 1 Hz · about once a second, your whole life", w / 2, h - 14, {
+  label(ctx, "about once a second, your whole life", w / 2, h - 14, {
     align: "center",
     color: "rgba(255,255,255,.28)",
   });
@@ -322,13 +323,13 @@ function resonanceScene(ctx, { w, h, t, p }) {
     glow: 8 + agreement * 26,
   });
 
-  label(ctx, gap > 0.15 ? "out of phase" : "in phase", w / 2, topY - h * 0.15, {
+  label(ctx, gap > 0.15 ? "out of step" : "in step", w / 2, topY - h * 0.15, {
     align: "center",
     color: "rgba(255,255,255,.34)",
   });
   label(
     ctx,
-    agreement > 0.9 ? "twice the height — same two waves" : "cancelling",
+    agreement > 0.9 ? "twice as big — same two waves" : "cancelling out",
     w / 2,
     h - 14,
     { align: "center", color: `rgba(${GOLD}, ${0.3 + 0.4 * agreement})` }
@@ -377,7 +378,7 @@ function senses(ctx, { w, h, t, p }) {
     if (cycle > 0.32) burst(0.92 - (cycle - 0.32) * 0.55, 8, 0.4);
 
     label(ctx, "bat", padX - 12, y, { align: "right", color: `rgba(${GOLD}, ${0.7 * on1})` });
-    label(ctx, "80 kHz out · echo back in 29 ms · 5 m away", padX, y + 26, {
+    label(ctx, "it shouts, and hears the echo come back", padX, y + 26, {
       color: `rgba(255,255,255,${0.26 * on1})`,
       size: 10,
     });
@@ -415,7 +416,7 @@ function senses(ctx, { w, h, t, p }) {
     ctx.shadowBlur = 0;
 
     label(ctx, "bird", padX - 12, y, { align: "right", color: `rgba(${VIOLET}, ${0.7 * on2})` });
-    label(ctx, `dip ${dip.toFixed(0)}° · that angle is its latitude`, padX, y + h * 0.1, {
+    label(ctx, "it feels the tilt, and knows how far north it is", padX, y + h * 0.1, {
       color: `rgba(255,255,255,${0.26 * on2})`,
       size: 10,
     });
@@ -440,7 +441,7 @@ function senses(ctx, { w, h, t, p }) {
     ctx.shadowBlur = 0;
 
     label(ctx, "us", padX - 12, y, { align: "right", color: `rgba(${GOLD}, ${0.7 * on3})` });
-    label(ctx, "no organ to point at · receiving anyway", padX, y + 26, {
+    label(ctx, "no ears for this one. listening anyway", padX, y + 26, {
       color: `rgba(255,255,255,${0.26 * on3})`,
       size: 10,
     });
@@ -478,7 +479,7 @@ function recognition(ctx, { w, h, t, p }) {
   });
   label(ctx, "you", 14, selfY, { color: `rgba(${GOLD}, ${0.4 + 0.4 * wake})` });
 
-  label(ctx, "a receiver finds only what it is tuned to", w / 2, h - 14, {
+  label(ctx, "you only pick up what you are tuned to", w / 2, h - 14, {
     align: "center",
     color: `rgba(255,255,255,${0.2 + 0.2 * wake})`,
   });
@@ -528,7 +529,7 @@ function flow(ctx, { w, h, t, p }) {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  label(ctx, `coherence ${r.toFixed(2)}`, cx, cy + rad + 22, {
+  label(ctx, `${Math.round(r * 100)}% in step`, cx, cy + rad + 22, {
     align: "center",
     color: `rgba(${GOLD}, ${0.35 + r * 0.45})`,
   });
@@ -558,7 +559,7 @@ function flow(ctx, { w, h, t, p }) {
     { color: `rgba(${GOLD}, ${0.3 + r * 0.65})`, width: 1.6 + r * 1.6, glow: 6 + r * 26 }
   );
 
-  label(ctx, r < 0.45 ? "cancelling each other out" : "ease, and flow", w / 2, h - 12, {
+  label(ctx, r < 0.45 ? "pulling against each other" : "together now", w / 2, h - 12, {
     align: "center",
     color: `rgba(255,255,255,${0.24 + r * 0.24})`,
   });
@@ -571,31 +572,31 @@ export const SCENES = [
     id: "matter",
     draw: matter,
     hold: 7,
-    line: "Every atom in you is moving.",
-    note: "It has never once stopped.",
+    line: "Nothing in you has ever been still.",
+    note: "Not one atom. Not for one second of your life.",
     still: 3.1,
   },
   {
     id: "light",
     draw: light,
     hold: 8,
-    line: "Light is the same wave at different speeds.",
-    note: "Seven hundred nanometres is red. Four hundred and forty is blue. Nothing else changed.",
+    line: "Everything you have ever seen was a speed.",
+    note: "Slow waves look red. Fast ones look blue. That is the whole difference.",
     still: 2.4,
   },
   {
     id: "ocean",
     draw: ocean,
     hold: 7,
-    line: "A swell looks complicated. It isn't.",
-    note: "Three simple waves, added together.",
+    line: "Nothing overwhelming is ever one thing.",
+    note: "This whole sea is three simple waves, stacked.",
     still: 4.2,
   },
   {
     id: "heart",
     draw: heartbeat,
     hold: 7,
-    line: "You are already keeping time.",
+    line: "You have kept time your entire life.",
     note: "About once a second, since before you were born.",
     still: 1.6,
   },
@@ -603,16 +604,16 @@ export const SCENES = [
     id: "everything",
     draw: everything,
     hold: 7,
-    line: "Matter, light, water, blood.",
-    note: "Not like waves. Waves.",
+    line: "You are not in the world. You are made of its motion.",
+    note: "Matter, light, water, blood. Not like waves. Waves.",
     still: 3.4,
   },
   {
     id: "resonance",
     draw: resonanceScene,
     hold: 9,
-    line: "Two waves that disagree cancel to nothing.",
-    note: "The same two, in step, come to twice the height. Connection isn't nearness. It's agreement.",
+    line: "Nothing changes but agreement. And everything changes.",
+    note: "Out of step, two waves cancel to nothing. In step, the same two double. Connection was never about being close.",
     still: 6.5,
   },
   {
@@ -620,27 +621,27 @@ export const SCENES = [
     draw: senses,
     hold: 10,
     line: "Birds have radar, bats have sonar — and we have guides.",
-    note: "Every creature gets an instrument for what it cannot otherwise perceive.",
+    note: "Every creature is given a way to sense what it otherwise couldn't.",
     source: "Sonia Choquette · Ask Your Guides",
     // The app labels its claims everywhere else; it doesn't get to stop here.
     footnote:
-      "Bats really do use sonar. Birds don't use radar — they read Earth's magnetic field, and its dip angle gives them their latitude. Stranger than radar, and measurable.",
+      "Bats really do use sonar. Birds don't use radar, though — they feel the Earth's magnetic pull, and its angle tells them how far north they are. Stranger than radar, and it can be measured.",
     still: 5.5,
   },
   {
     id: "recognition",
     draw: recognition,
     hold: 9,
-    line: "You only hear what you are tuned to.",
-    note: "The faint ones were always there. You just came into range.",
+    line: "Nothing arrives. You come into range.",
+    note: "The faint ones were always there, the whole time you could not hear them.",
     still: 7,
   },
   {
     id: "flow",
     draw: flow,
     hold: 13,
-    line: "In step, life stops fighting itself.",
-    note: "Twelve oscillators. Nothing is added when they lock — they stop subtracting from one another. That is ease, and flow.",
+    line: "Stop working against yourself, and life plays as one thing.",
+    note: "Twelve things ticking apart cancel each other out. In step, nothing new is added — they simply stop cancelling. That is ease, and flow.",
     source: "Sonia Choquette · Ask Your Guides",
     still: 12,
   },

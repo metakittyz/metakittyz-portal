@@ -13,9 +13,23 @@ import { STAGES, TOTAL_DAYS } from "../data/path.js";
 export function Orientation({ onNext }) {
   return (
     <div className="rise orient">
+      <p className="beta-stamp center">Beta · a self-experiment · 18+</p>
       <div className="sigil small">✧</div>
       <h1 className="center orient-h1">Welcome to the world of spirit</h1>
       <p className="creed center">You have been in it the whole time. Now you get the instrument.</p>
+
+      <section className="orient-block orient-plain orient-first">
+        <h2 className="orient-h2">Read this first</h2>
+        <p className="small">
+          This is a self-experiment, not treatment. It is not therapy, medical advice, or crisis support,
+          and it does not replace any of them. It is for adults. Practices like these can genuinely shift
+          how reality looks to you, which is the point and also the risk — if you are in a fragile stretch,
+          the kind thing is to wait.
+        </p>
+        <p className="small" style={{ marginBottom: 0 }}>
+          You will be asked to agree to all of this properly in a moment. Your life, your choices.
+        </p>
+      </section>
 
       <section className="orient-block">
         <h2 className="orient-h2">What this is for</h2>
@@ -91,18 +105,7 @@ export function Orientation({ onNext }) {
         </p>
       </section>
 
-      <section className="orient-block orient-plain">
-        <h2 className="orient-h2">Before you start</h2>
-        <p className="small">
-          This is a self-experiment, not treatment. It is not therapy, medical advice, or crisis support,
-          and it does not replace any of them. It is for adults. Practices like these can genuinely shift
-          how reality looks to you, which is the point and also the risk — if you are in a fragile stretch,
-          the kind thing is to wait.
-        </p>
-        <p className="small" style={{ marginBottom: 0 }}>
-          You'll be asked to agree to all of that properly in a moment. Your life, your choices.
-        </p>
-      </section>
+
 
       <p className="center soft orient-close">
         Let yourself be guided and you enter the flow of the thing. That is where the magic of this
