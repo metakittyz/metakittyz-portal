@@ -2236,3 +2236,8 @@ footer.foot {
   opacity: 0.8;
 }
 .overture-engine .dim { color: var(--text-3); }
+.voice-engine-name {
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  margin-top: 0.15rem;
+}

@@ -32,6 +32,21 @@
 
 import { hashString } from "../lib/util.js";
 
+/**
+ * The female voices OpenAI offers. The guide is a woman throughout the app —
+ * that was the brief — so every preset has to come from this list.
+ *
+ * There are four of them, against five presets, so one voice is deliberately
+ * used twice. That is fine: a preset is a voice *plus* a delivery brief, and
+ * two briefs this different do not sound like the same performance. What is
+ * not fine is reaching outside the list to avoid a repeat, which is how
+ * `ballad` — a male voice — ended up on Deep Water.
+ *
+ * ash, ballad, echo, fable, onyx read male. alloy reads neutral. None belong
+ * here. `scripts/check-voices.mjs` enforces it.
+ */
+export const FEMALE_VOICES = ["coral", "nova", "shimmer", "sage"];
+
 export const VOICE_PRESETS = [
   {
     id: "solace",
@@ -43,9 +58,9 @@ export const VOICE_PRESETS = [
     pitch: 0.96,
     prefer: ["samantha", "serena", "sonia", "joanna", "aria", "allison"],
     openai: {
-      // sage, not shimmer: shimmer is the airiest voice in the set and that
-      // air is exactly what reads as synthetic on the default preset.
-      voice: "sage",
+      // coral: warm, unmistakably a woman, and the most natural of the four on
+      // long sentences — which matters most on the default preset.
+      voice: "coral",
       speed: 0.95,
       instructions: [
         "Affect: a close friend talking to you late at night, keeping their voice down so as not to wake anyone.",
@@ -89,7 +104,7 @@ export const VOICE_PRESETS = [
     pitch: 1.04,
     prefer: ["victoria", "zira", "jenny", "ava", "michelle", "salli"],
     openai: {
-      voice: "coral",
+      voice: "nova",
       speed: 1.0,
       instructions: [
         "Affect: the first easy conversation of the morning, with someone who already knows you. Nothing to sell, nothing to prove.",
@@ -111,8 +126,10 @@ export const VOICE_PRESETS = [
     pitch: 1.08,
     prefer: ["ava", "nicole", "amy", "ivy", "kendra", "olivia"],
     openai: {
+      // The one repeat — nova is also Dawn. They sit far apart in delivery:
+      // Dawn is even and daylit at 1.0, this is close and slowed.
       voice: "nova",
-      speed: 1.0,
+      speed: 0.96,
       instructions: [
         "Affect: someone completely on your side, sitting close, a little worried about you and trying not to make a thing of it.",
         "Voice: warm and near, human, a touch uneven.",
@@ -133,7 +150,10 @@ export const VOICE_PRESETS = [
     pitch: 0.92,
     prefer: ["moira", "catherine", "hazel", "sonia", "natasha", "heera"],
     openai: {
-      voice: "ballad",
+      // Was `ballad`, which is a male voice — wrong for a guide who is a woman
+      // everywhere else in the app. sage sits lowest of the four and carries
+      // the weight this preset needs.
+      voice: "sage",
       speed: 0.96,
       instructions: [
         "Affect: someone who has seen this exact thing before and is not remotely alarmed by it.",
@@ -157,7 +177,7 @@ export const VOICE_PRESETS = [
     prefer: ["samantha", "serena", "sonia"],
     openai: {
       // Anything you haven't recorded yet falls back to Solace, so match it.
-      voice: "sage",
+      voice: "coral",
       speed: 0.95,
       instructions: [
         "Affect: a close friend talking to you late at night, keeping their voice down.",

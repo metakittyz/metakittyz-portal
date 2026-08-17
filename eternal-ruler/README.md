@@ -230,6 +230,25 @@ Solace is the default. Every preset has a ▶ Hear button so you pick by ear, no
 
 ### Two engines behind the same six voices
 
+**Every preset is a female voice.** That was the brief, and it is now enforced rather than assumed —
+`FEMALE_VOICES` in `voices.js` lists the four OpenAI offers (`coral`, `nova`, `shimmer`, `sage`) and
+`npm run check` fails the moment a preset reaches outside it. It had: Deep Water was set to `ballad`,
+a male voice, picked to avoid reusing one and never caught, because nothing in the code or the UI
+said it was wrong.
+
+Four voices against five presets means one is deliberately shared. That's fine — a preset is a voice
+*plus* a delivery brief, and Dawn (even, daylit, 1.0) against Aurora (close, worried, 0.96) does not
+read as one performance. The check also fails if two presets end up with identical delivery, which
+would collapse them onto the same cached audio.
+
+| Preset | Voice |
+| --- | --- |
+| Solace | `coral` |
+| Stillness | `shimmer` |
+| Dawn | `nova` |
+| Aurora | `nova` |
+| Deep Water | `sage` |
+
 **The natural voice (OpenAI).** Soft, human, genuinely comforting. Each preset maps to an OpenAI
 voice plus a delivery brief written for this app, in an *affect / voice / delivery / pacing /
 avoid* shape. Solace is `sage`, told it is *"a close friend talking to you late at night, keeping

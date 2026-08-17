@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "vo": "node scripts/vo-script.mjs"
+    "vo": "node scripts/vo-script.mjs",
+    "check": "node scripts/check-voices.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

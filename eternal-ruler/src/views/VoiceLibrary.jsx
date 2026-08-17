@@ -42,8 +42,8 @@ export function VoiceLibrary() {
         <div className="eyebrow">The guide</div>
         <h1>Voice Library</h1>
         <p className="lede">
-          Choose who reads the app to you. Five voices tuned for different states — or record every line
-          yourself.
+          Choose who reads the app to you. Five female voices tuned for different states — or record
+          every line yourself.
         </p>
       </div>
 
@@ -112,6 +112,9 @@ function Library({ store }) {
               </div>
               <strong>{p.name}</strong>
               <span className="small soft">{p.blurb}</span>
+              {p.openai && !p.own && (
+                <span className="tiny muted voice-engine-name">OpenAI · {p.openai.voice}</span>
+              )}
               <div className="row tight" style={{ marginTop: ".7rem" }}>
                 <button
                   className={`btn sm ${on ? "solid" : ""}`}
