@@ -464,6 +464,17 @@ Swapping it is a file replacement plus one constant: drop a new mp3 in `public/`
 
 ## Recording the intro yourself
 
+`npm run vo` writes two files from `src/lib/overture-scenes.js`: **`VOICEOVER.md`**, a timecoded
+nine-cue script with direction per beat, and **`SUNO.md`**, the same nine cues shaped as prompts for
+Suno. Both are generated rather than written, because a script that has drifted from the lines
+actually in the app is worse than none — you record against it and every take is wrong.
+
+**Any audio can go in, not just the microphone.** Each line in the Voice Studio has an **↑ Import**
+button taking mp3, m4a, wav, ogg or webm under 12MB. Until this existed the mic was the only way in,
+which quietly ruled out a phone voice memo, a take out of a DAW, or anything generated. Files are
+decoded before they are stored — one the browser can't play is refused with a message rather than
+saved and then silent when its line comes round.
+
 `VOICEOVER.md` is the voice-over script — nine cues, timecoded, with direction per beat. It is
 **generated** by `npm run vo` from `src/lib/overture-scenes.js`, not written by hand: a script that has
 drifted from the lines actually in the app is worse than none, because you record against it and every

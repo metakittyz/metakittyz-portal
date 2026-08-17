@@ -215,7 +215,7 @@ function Studio({ store, areas, recorded, totalLines }) {
             <p className="small soft" style={{ marginBottom: 0 }}>
               {isOwn
                 ? "Selected. Recorded lines play in your voice; anything unrecorded falls back to Solace."
-                : "Record as many or as few as you like, then select it in the library."}
+                : "Record as many or as few as you like, or import audio you made elsewhere. Then select it in the library."}
             </p>
           </div>
           <Stat n={`${recorded}/${totalLines}`} k="Lines recorded" />
@@ -269,11 +269,49 @@ function Studio({ store, areas, recorded, totalLines }) {
   );
 }
 
+/** Audio the browser can actually decode. Suno hands you mp3. */
+const AUDIO_TYPES = ".mp3,.m4a,.aac,.wav,.ogg,.webm,.mp4,audio/*";
+const MAX_CLIP_MB = 12;
+
 function LineRow({ line, store, supported }) {
   const meta = store.state.ownVoice[line.id];
   const rec = useRecorder();
   const url = useClipUrl(meta ? `guide:${line.id}` : null);
   const live = rec.status === "recording";
+  const fileRef = useRef(null);
+  const [importErr, setImportErr] = useState("");
+
+  /**
+   * Take an audio file for this line, rather than only a live recording.
+   *
+   * Without this the microphone was the only way in, which quietly ruled out
+   * everything recorded properly elsewhere — a phone voice memo, a take out of
+   * a DAW, anything generated. The storage is identical either way: the blob
+   * goes in the same IndexedDB slot a recording would.
+   */
+  async function importFile(file) {
+    setImportErr("");
+    if (!file) return;
+    if (file.size > MAX_CLIP_MB * 1024 * 1024) {
+      setImportErr(`That file is ${(file.size / 1048576).toFixed(1)}MB. Keep clips under ${MAX_CLIP_MB}MB.`);
+      return;
+    }
+    // Decode before storing. A file the browser can't play would otherwise sit
+    // there looking recorded and then be silent when the line came round.
+    const probe = new Audio(URL.createObjectURL(file));
+    const duration = await new Promise((resolve) => {
+      probe.onloadedmetadata = () => resolve(probe.duration);
+      probe.onerror = () => resolve(null);
+      setTimeout(() => resolve(probe.duration || null), 4000);
+    });
+    URL.revokeObjectURL(probe.src);
+    if (duration === null || Number.isNaN(duration)) {
+      setImportErr("This browser can't play that file. Try an mp3 or m4a.");
+      return;
+    }
+    await clips.put(`guide:${line.id}`, file);
+    store.setOwnLine(line.id, { at: new Date().toISOString(), duration, imported: true });
+  }
 
   async function toggle() {
     if (live) {
@@ -294,9 +332,25 @@ function LineRow({ line, store, supported }) {
         <button className={`btn sm ${live ? "danger" : meta ? "ghost" : ""}`} onClick={toggle} disabled={!supported}>
           {live ? `◼ Stop ${formatDuration(rec.elapsed)}` : meta ? "● Re-record" : "● Record"}
         </button>
+        <button className="btn ghost sm" onClick={() => fileRef.current?.click()}>
+          ↑ Import
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept={AUDIO_TYPES}
+          hidden
+          onChange={(e) => {
+            importFile(e.target.files?.[0]);
+            e.target.value = ""; // so the same file can be picked twice
+          }}
+        />
         {meta && (
           <>
-            <span className="tiny muted">{formatDuration(meta.duration)}</span>
+            <span className="tiny muted">
+              {formatDuration(meta.duration)}
+              {meta.imported ? " · imported" : ""}
+            </span>
             <DangerButton
               onConfirm={() => {
                 clips.delete(`guide:${line.id}`).catch(() => {});
@@ -309,7 +363,9 @@ function LineRow({ line, store, supported }) {
         )}
       </div>
       {url && <audio controls src={url} preload="none" />}
-      {rec.error && <div className="tiny" style={{ color: "var(--blood)" }}>{rec.error}</div>}
+      {(rec.error || importErr) && (
+        <div className="tiny" style={{ color: "var(--blood)" }}>{rec.error || importErr}</div>
+      )}
     </div>
   );
 }
