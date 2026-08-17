@@ -2108,3 +2108,122 @@ footer.foot {
 .orient-first {
   margin-top: 2rem;
 }
+
+/* ------------------------------------------------------------ meditation -- */
+.med-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r);
+  padding: 1rem 1.15rem;
+  margin-bottom: 0.75rem;
+}
+.med-card.locked { opacity: 0.45; }
+.med-card-head { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+.med-card-head strong { font-family: var(--serif); font-weight: 400; font-size: 1.08rem; }
+.med-glyph { color: var(--gold); }
+.med-purpose { margin: 0.35rem 0 0.5rem; max-width: 58ch; }
+.med-facts { display: flex; gap: 0.85rem; flex-wrap: wrap; color: var(--text-3); font-family: var(--mono); font-size: 0.72rem; }
+.med-count { color: var(--gold-dim); }
+
+/* The player takes the whole screen. Eyes are shut; nothing else should be
+   competing for them when they open. */
+.med-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: radial-gradient(900px 700px at 50% 45%, rgba(157, 123, 245, 0.09), transparent 65%), var(--void);
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem 1.1rem 2rem;
+  overflow-y: auto;
+}
+.med-quit { position: absolute; top: 1rem; right: 1rem; z-index: 2; }
+.med-door { max-width: 560px; margin: auto; width: 100%; }
+.med-title { font-family: var(--serif); font-weight: 400; font-size: 1.9rem; margin: 0.6rem 0 0.5rem; }
+.med-carrier { margin: 1.4rem 0; border: 1px solid var(--line-soft); border-radius: var(--r); padding: 1rem; }
+.med-carrier .label { margin-bottom: 0.6rem; }
+.med-honest { margin: 0.9rem 0 0; line-height: 1.6; color: var(--text-3); }
+
+.med-stage { flex: 1 1 auto; min-height: 260px; display: flex; }
+.med-canvas { width: 100%; height: 100%; display: block; }
+.med-line {
+  max-width: 34ch;
+  margin: 1.4rem auto 0;
+  text-align: center;
+  font-family: var(--serif);
+  font-size: 1.16rem;
+  line-height: 1.5;
+  color: var(--text-2);
+  animation: rise 1.1s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.med-foot { max-width: 480px; width: 100%; margin: 1.8rem auto 0; }
+.med-bar { height: 2px; background: rgba(255, 255, 255, 0.08); border-radius: 2px; overflow: hidden; }
+.med-bar i { display: block; height: 100%; background: var(--gold); transition: width 0.6s ease; }
+.med-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-3);
+}
+.orient-visual { height: 190px; margin: 1.6rem 0 0.4rem; }
+.orient-arc-canvas { width: 100%; height: 100%; display: block; }
+.orient-purpose {
+  font-family: var(--serif);
+  font-size: 1.18rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--text);
+  margin: 2.2rem auto 0;
+  max-width: 30ch;
+}
+.orient-themes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0 1.4rem;
+}
+.orient-theme {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+}
+.orient-theme-glyph { color: var(--gold); }
+.orient-theme b { font-family: var(--serif); font-weight: 400; font-size: 0.96rem; }
+.orient-theme-short {
+  width: 100%;
+  font-size: 0.76rem;
+  color: var(--text-3);
+}
+.orient-metaphor { margin: 0 auto 2rem; max-width: 40ch; }
+.orient-expect {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.orient-expect div {
+  border-left: 2px solid var(--line);
+  padding-left: 0.7rem;
+}
+.orient-expect b {
+  display: block;
+  font-family: var(--serif);
+  font-weight: 400;
+  color: var(--text);
+  font-size: 0.98rem;
+}
+.orient-expect span { font-size: 0.76rem; color: var(--text-3); }

@@ -74,7 +74,7 @@ export const STAGES = [
   },
 ];
 
-export const ROOM_UNLOCKS = { journal: 2, reading: 4, voice: 7, intake: 10, forge: 12, council: 18 };
+export const ROOM_UNLOCKS = { journal: 2, reading: 4, meditate: 5, voice: 7, intake: 10, forge: 12, council: 18 };
 
 export const PATH = [
   // ---------------------------------------------------- I · THE OPENING ----

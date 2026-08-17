@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { stopAll } from "../lib/voice.js";
 import { useStore } from "../lib/store.jsx";
 import { EVIDENCE_LABEL } from "../data/protocols.js";
 import { Dial } from "./Dial.jsx";
@@ -21,6 +22,15 @@ export function Runner({ protocol, onClose }) {
   const [left, setLeft] = useState(protocol.steps[0]?.seconds || 0);
   const [paused, setPaused] = useState(false);
   const [checked, setChecked] = useState({});
+
+  /** Back to the first step, timer and ticks cleared. */
+  function restart() {
+    stopAll();
+    setI(0);
+    setLeft(protocol.steps[0]?.seconds || 0);
+    setChecked({});
+    setPaused(false);
+  }
   const startedAt = useRef(Date.now());
 
   const step = protocol.steps[i];
@@ -155,6 +165,9 @@ export function Runner({ protocol, onClose }) {
                 }}
               >
                 Skip ahead
+              </button>
+              <button className="btn ghost" onClick={restart} title="Back to step one">
+                ↺ Start over
               </button>
               <button className="btn ghost" onClick={() => setPhase("after")}>
                 End early

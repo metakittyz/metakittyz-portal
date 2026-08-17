@@ -7,6 +7,7 @@ import { Attunement } from "./views/Attunement.jsx";
 import { Journal } from "./views/Journal.jsx";
 import { Intake } from "./views/Intake.jsx";
 import { VoiceRoom } from "./views/VoiceRoom.jsx";
+import { Meditate } from "./views/Meditate.jsx";
 import { Manifest } from "./views/Manifest.jsx";
 import { Library } from "./views/Library.jsx";
 import { Council } from "./views/Council.jsx";
@@ -27,6 +28,7 @@ const ROUTES = [
   { key: "journal", label: "Journal", View: Journal },
   { key: "reading", label: "Reading", View: Attunement },
   { key: "voice", label: "Voice", View: VoiceRoom },
+  { key: "meditate", label: "Meditate", View: Meditate },
   { key: "intake", label: "Intake", View: Intake },
   { key: "forge", label: "Forge", View: Manifest },
   { key: "council", label: "Council", View: Council },

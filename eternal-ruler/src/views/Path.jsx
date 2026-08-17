@@ -18,6 +18,7 @@ import { REMARKS } from "../data/remarks.js";
 import { Runner } from "../components/Runner.jsx";
 import { Modal, Panel } from "../components/ui.jsx";
 import { SpeakButton, useGuide } from "../components/Speak.jsx";
+import { stopAll } from "../lib/voice.js";
 import { APP_LINES } from "../data/voices.js";
 import { dayKey, pickForDay, streakFrom } from "../lib/util.js";
 
@@ -156,9 +157,22 @@ export function Path({ go }) {
         <button className="btn solid block big" onClick={markDone} style={{ marginTop: "1.4rem" }}>
           I did this
         </button>
-        <p className="tiny muted center" style={{ marginTop: ".7rem", marginBottom: 0 }}>
-          Moves when you do. Not the calendar.
-        </p>
+        <div className="row" style={{ justifyContent: "center", marginTop: ".7rem" }}>
+          <span className="tiny muted">Moves when you do. Not the calendar.</span>
+          <button
+            className="btn ghost sm"
+            onClick={() => {
+              // Clear anything half-done on this step and put it back at the
+              // top, unread. Nothing recorded is touched.
+              stopAll();
+              setRunning(null);
+              window.scrollTo(0, 0);
+            }}
+            title="Clear this step and begin it again"
+          >
+            ↺ Start over
+          </button>
+        </div>
       </div>
 
       {/* ---- the remark ---- */}

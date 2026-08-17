@@ -45,6 +45,7 @@ export const EMPTY_STATE = {
   // The score that plays under everything. Quiet by default, and it ducks
   // itself whenever the guide speaks.
   music: { enabled: true, volume: 0.5 },
+  meditationLog: {}, // meditationId -> { count, last }
   // The guide voice. `presetId` names a character from the Voice Library;
   // `voiceURI` empty means "let the preset choose the device voice".
   // `engine`: "auto" (the default) uses the natural OpenAI voice wherever it
@@ -154,6 +155,17 @@ export function StoreProvider({ children }) {
       },
       markOverture(seen = true) {
         update(() => ({ overtureSeen: seen }));
+      },
+      logMeditation(id) {
+        update((prev) => {
+          const prior = prev.meditationLog?.[id] || { count: 0 };
+          return {
+            meditationLog: {
+              ...prev.meditationLog,
+              [id]: { count: prior.count + 1, last: new Date().toISOString() },
+            },
+          };
+        });
       },
       setMusic(patch) {
         update((prev) => ({ music: { ...prev.music, ...patch } }));

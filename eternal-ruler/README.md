@@ -149,6 +149,7 @@ open as the path reaches them:
 | --- | --- |
 | Day 2 | The Journal |
 | Day 4 | The Reading |
+| Day 5 | Meditations |
 | Day 7 | The Voice Room |
 | Day 10 | Intake |
 | Day 12 | The Forge |
@@ -374,6 +375,48 @@ The app labels its claims everywhere else and doesn't stop here:
   so plainly before the Begin button.
 
 Skippable from the first frame, and replayable from **Settings → The opening**.
+
+## The meditation journey
+
+Six sits, one per theme, opening as the path reaches each one — so it is a journey of its own running
+alongside the 42 days rather than a library to pick through on day one.
+
+| | Sit | Theme | Kind |
+| --- | --- | --- | --- |
+| ◉ | First Contact | The Notes | Guided |
+| ❋ | Clearing the Receiver | The Instrument | Guided |
+| ◑ | The Room You Don't Go Into | The Ear | Guided |
+| ♪ | One Real Question | The Melody | Channelled |
+| ✦ | The Meeting | The Composition | Channelled |
+| ▲ | Living Guided | The Orchestration | Channelled |
+
+Two rules hold across all six, and both are safety rather than style:
+
+- **Every sit ends on the ground.** The last two or three segments are always the return, because
+  traditions that open people up without teaching the way back down produce casualties.
+- **Nothing tells you what you received.** The channelled sits ask a question and then get out of the
+  way. A guided meditation that supplies the answer has answered its own question.
+
+The screen is mostly a **breathing ring** — one line of text at a time, fading, because the target is
+someone with their eyes shut. The ring paces at 5.5 seconds in, 5.5 out: about 5.5 breaths a minute,
+the rate that maximises heart-rate variability in most adults, and the best-evidenced thing in the
+app. The confronting sit uses 4 in, 8 out instead, since a longer exhale biases the calming side.
+
+### The carrier tone
+
+Each sit can transmit a real tone underneath the voice, descending from 10Hz to 6Hz over three
+minutes — out of the relaxed waking band into the drowsy, image-rich one.
+
+- **Binaural** puts a slightly different pitch in each ear; your brainstem produces the pulse from the
+  difference. A genuine effect, and it genuinely needs headphones — over a speaker the tones mix in
+  the air and it vanishes.
+- **Isochronic** pulses the tone itself. Cruder, and survives a phone speaker.
+
+**What is actually known**, since the app labels its claims: the tone is real and you will hear the
+beat — that is physics. That listening nudges EEG toward the driven rate has some published support
+with modest, inconsistent effects. That it opens intuition is **not established**. It is offered as a
+nudge into a state, not a mechanism, and it is labelled *mixed evidence* in the UI. There are no
+solfeggio or "528Hz" tones here; those were invented in the 1970s and have nothing behind them.
 
 ## The score
 
