@@ -152,6 +152,9 @@ export function StoreProvider({ children }) {
       setVoice(patch) {
         update((prev) => ({ voice: { ...prev.voice, ...patch } }));
       },
+      markOverture(seen = true) {
+        update(() => ({ overtureSeen: seen }));
+      },
       setMusic(patch) {
         update((prev) => ({ music: { ...prev.music, ...patch } }));
       },

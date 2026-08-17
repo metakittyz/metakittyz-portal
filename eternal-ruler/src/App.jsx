@@ -15,6 +15,7 @@ import { Settings } from "./views/Settings.jsx";
 import { Calendar } from "./views/Calendar.jsx";
 import { VoiceLibrary } from "./views/VoiceLibrary.jsx";
 import { VoiceToggle } from "./components/Speak.jsx";
+import { Overture } from "./views/Overture.jsx";
 import { AmbientDriver, MusicToggle } from "./components/Music.jsx";
 import { NeedNow } from "./components/NeedNow.jsx";
 import { Runner } from "./components/Runner.jsx";
@@ -37,7 +38,8 @@ const ROUTES = [
 ];
 
 function Inner() {
-  const { state } = useStore();
+  const store = useStore();
+  const { state } = store;
   const [route, setRoute] = useState("path");
   const [params, setParams] = useState(null);
   const [needNow, setNeedNow] = useState(false);
@@ -65,7 +67,11 @@ function Inner() {
     window.location.hash = route;
   }, [route]);
 
-  // Welcome → account → name → who, then the consent gate, then the app.
+  // The opening story, then welcome → account → name → who, then the consent
+  // gate, then the app.
+  if (!state.overtureSeen) {
+    return <Overture onDone={() => store.markOverture()} reduceMotion={state.settings.reduceMotion} />;
+  }
   if (!state.account || !state.profile.onboarded) return <Onboarding />;
   if (!state.consent) return <Threshold />;
 

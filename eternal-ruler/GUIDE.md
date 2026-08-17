@@ -79,6 +79,22 @@ leave the device.
 
 ---
 
+## The opening
+
+Nine short beats before you start: matter, light, ocean, heartbeat, everything at once, resonance,
+the instruments other animals are issued, recognition, and flow.
+
+The point it makes is the one the whole app runs on — **a receiver finds only what it is tuned to**.
+Two waves that disagree cancel to nothing; the same two in step reach twice the height. Nothing is
+added when things come into phase. They stop working against each other.
+
+Every figure on screen is drawn from the real equation for the thing it shows. Where a teaching goes
+past what can be measured, the screen says so.
+
+Skippable. Replay it any time from **Settings → The opening**.
+
+---
+
 ## The score
 
 A quiet piece plays under everything — written for this app and composed live in your browser, so

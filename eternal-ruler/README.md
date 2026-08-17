@@ -287,6 +287,57 @@ else she stays quiet. The `◉))` in the header mutes her instantly.
 
 ---
 
+## The Overture
+
+Nine beats before the welcome screen, making one argument: everything is vibration, and a receiver
+finds what it is tuned to.
+
+| | Beat | What it draws |
+| --- | --- | --- |
+| 1 | Matter | A lattice, every site oscillating at its own rate |
+| 2 | Light | Five wavelengths, each stroked **in the colour that wavelength actually is** |
+| 3 | Ocean | Three component waves above, their sum below |
+| 4 | Heartbeat | A lead-II trace at 60bpm — P wave, QRS spike, T wave |
+| 5 | Everything | All four at once, then summed |
+| 6 | Resonance | Two waves closing from opposition to agreement |
+| 7 | Senses | Bat sonar, bird magnetoreception, and us |
+| 8 | Recognition | Neighbours coming up out of the dark as you tune |
+| 9 | Flow | Twelve coupled oscillators falling into step |
+
+**Every number on screen is real.** That is the whole reason this exists rather than being seven
+pretty gradients:
+
+- Colours come from `wavelengthToRGB` (the Bruton approximation of the CIE curves). 660nm renders
+  red because 660nm *is* red — the colour is computed from the frequency, not picked to look nice.
+- The swell is `seaSurface()`, its components literally summed; the test asserts the sum equals the
+  parts to floating-point exactness.
+- Interference gives amplitude **2.000** in phase, **1.414** a quarter-cycle apart, **0.000**
+  opposed.
+- The bat's echo takes **29.2ms**, from `echoDelayMs(5)` at 343 m/s. Its call is at 80 kHz; you hear
+  to 20 kHz. It is shouting and you have never heard it.
+- The bird's needle follows `dipoleInclination(lat)` — at 45° latitude the field dips 63.4° into the
+  ground, and that angle *is* the bird's latitude.
+- Beat 9 integrates the **Kuramoto model** forward from zero on every frame. Coherence runs 0.254 at
+  K=0 to 0.998 at K=3.2, and the summed output rises from 45% to 100% of full height.
+
+Integrating from zero each frame instead of keeping running state is what makes every scene a pure
+function of `(t, p)`. That buys two things: the sequence can hold completely still for anyone who has
+asked for less motion (`prefers-reduced-motion` or the in-app setting), and the maths is testable
+without a browser.
+
+### Where the evidence line falls
+
+Beats 7 and 9 carry lines from **Sonia Choquette's *Ask Your Guides***, credited on the beat itself.
+The app labels its claims everywhere else and doesn't stop here:
+
+- **Bats really do use sonar.** Echolocation, ultrasonic, measurable.
+- **Birds don't use radar.** They read Earth's magnetic field, and the dip angle gives them latitude
+  — stranger than radar, and real. That correction appears on the beat, next to the quote.
+- **That spirit has a frequency you can tune to** is teaching, not measurement. The closing card says
+  so plainly before the Begin button.
+
+Skippable from the first frame, and replayable from **Settings → The opening**.
+
 ## The score
 
 A faint piece plays under the whole app — a slow minor-key ostinato turning under a sustained

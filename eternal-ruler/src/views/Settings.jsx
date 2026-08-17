@@ -126,6 +126,16 @@ export function Settings({ go }) {
 
       <MusicPanel />
 
+      <Panel title="The opening">
+        <p className="soft small">
+          The story about frequency you saw before the welcome screen — matter, light, ocean, heartbeat,
+          resonance.
+        </p>
+        <button className="btn ghost" onClick={() => store.markOverture(false)}>
+          Play the opening again
+        </button>
+      </Panel>
+
       <Panel title="Your data" tone="gold">
         <p className="soft small">
           Everything is in this browser. Private by construction, and fragile — clearing site data erases it
