@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useContext, createContext } from "react"
 import { ImageWithFallback } from "./components/ImageWithFallback"
+import { startLoFiMusic, toggleLoFiMusicMuted, getLoFiMusicMuted } from "./audio/loFiMusic"
 import drSparkGif from "./assets/dr-spark.gif"
 import claymationMap from "./assets/claymation-map.webp"
 import tvFrame from "./assets/tv-frame.webp"
@@ -134,7 +135,10 @@ function TVShell({ children, sparkSpeech }: { children?: React.ReactNode; sparkS
 
 // ── App header ────────────────────────────────────────────────────────────────
 
+const MusicContext = createContext({ muted: false, toggle: () => {} })
+
 function AppHeader() {
+  const { muted, toggle } = useContext(MusicContext)
   return (
     <div className="flex items-center gap-2 px-3 pt-1 pb-1 flex-shrink-0">
       {/* Chrome title */}
@@ -158,19 +162,28 @@ function AppHeader() {
       </div>
       {/* Icon buttons */}
       <div className="flex gap-1.5 flex-shrink-0">
-        {["🔊", "⚙️"].map((icon) => (
-          <button
-            key={icon}
-            style={{
-              width: 38, height: 38, borderRadius: 7, fontSize: 16,
-              background: "rgba(12,12,32,0.96)",
-              border: "1.5px solid rgba(0,190,255,0.22)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >
-            {icon}
-          </button>
-        ))}
+        <button
+          onClick={toggle}
+          aria-label={muted ? "Unmute music" : "Mute music"}
+          style={{
+            width: 38, height: 38, borderRadius: 7, fontSize: 16,
+            background: "rgba(12,12,32,0.96)",
+            border: "1.5px solid rgba(0,190,255,0.22)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          {muted ? "🔇" : "🔊"}
+        </button>
+        <button
+          style={{
+            width: 38, height: 38, borderRadius: 7, fontSize: 16,
+            background: "rgba(12,12,32,0.96)",
+            border: "1.5px solid rgba(0,190,255,0.22)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          ⚙️
+        </button>
       </div>
     </div>
   )
@@ -1403,6 +1416,8 @@ export default function App() {
   const [goal, setGoal] = useState("")
   const [audience, setAudience] = useState("")
   const [tone, setTone] = useState("")
+  const [musicMuted, setMusicMutedState] = useState(() => getLoFiMusicMuted())
+  const toggleMusic = useCallback(() => setMusicMutedState(toggleLoFiMusicMuted()), [])
 
   const go = useCallback((s: Screen) => { setScreen(s); setOverlay(null) }, [])
 
@@ -1420,7 +1435,7 @@ export default function App() {
 
   const renderScreen = () => {
     switch (screen) {
-      case "intro": return <IntroClipScreen onEnter={() => go("splash")} />
+      case "intro": return <IntroClipScreen onEnter={() => { startLoFiMusic(); go("splash") }} />
       case "splash": return <SplashScreen onNext={() => go("welcome")} />
       case "welcome": return <WelcomeScreen onNext={() => go("home")} />
       case "home": return <HomeScreen onNav={navTab} onEnter={() => go("destination")} />
@@ -1442,6 +1457,7 @@ export default function App() {
   }
 
   return (
+    <MusicContext.Provider value={{ muted: musicMuted, toggle: toggleMusic }}>
     <div
       className="min-h-screen flex items-center justify-center p-4"
       style={{ background: "radial-gradient(ellipse at 50% 40%,#0a0018 0%,#000 80%)" }}
@@ -1533,5 +1549,6 @@ export default function App() {
         *{-webkit-tap-highlight-color:transparent;}
       `}</style>
     </div>
+    </MusicContext.Provider>
   )
 }
