@@ -26,7 +26,8 @@ are fully playable boards; the rest are on the map but not yet built (see Roadma
 ## What's playable in this slice
 
 - **Etherville** -- "AI isn't magic." Full board: Terminal Go-Kart, a prompt-space micro-challenge, a no-AI
-  context puzzle, a hallucinating tour-guide robot, a branch, a computer factory, and an obstacle-course boss.
+  context puzzle, Belify Bear (the town's permanently-blissed-out tour guide, hallucinating "facts" with total
+  confidence), a branch, a computer factory, and an obstacle-course boss.
 - **Eyelandia** -- "The AI is examining you too." Full board following the supplied map: an AI-terminal door
   puzzle, yellow signal spaces, eyeball/awareness spaces (including Brainco predicting your choice before you make
   it), a branch, a Madness Matters node, and a Lab Room boss where you have to do something Brainco didn't predict.

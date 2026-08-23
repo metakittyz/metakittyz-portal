@@ -81,7 +81,7 @@ export const TRAINING_CHIPS = {
 /* ---------------------------------------------------------------
    ETHERVILLE BOARD -- "AI isn't magic."
    Start -> Terminal Go-Kart -> Prompt Space -> Context Challenge ->
-   Hallucinating Robot -> BRANCH -> Computer Factory -> LAB (boss)
+   Belify Bear -> BRANCH -> Computer Factory -> LAB (boss)
 --------------------------------------------------------------- */
 
 const ETHERVILLE_BOARD = {
@@ -128,13 +128,13 @@ const ETHERVILLE_BOARD = {
       lesson: "SOME PROBLEMS JUST NEED YOU TO THINK IT THROUGH.",
     },
     {
-      id: "eth-awareness1", type: "AWARENESS", name: "Hallucinating Robot",
-      speaker: "A cheerful tour-guide robot, extremely sure of itself",
-      claim: "\"Etherville was founded in the year 1974 by the inventor of the sun.\"",
-      confidence: "It says this with 97% confidence and a friendly wave.",
-      truth: "Etherville wasn't founded, it was compiled -- and nobody invented the sun. The robot is fluent, not correct.",
-      trustConsequence: "You repeat the fact to a passing NPC, who looks at you like you've lost it.",
-      verifyConsequence: "You check the town archive plaque instead. It says something completely different -- and true.",
+      id: "eth-awareness1", type: "AWARENESS", name: "Belify Bear",
+      speaker: "🐻 Belify Bear, Etherville's tour guide, permanently high on his own thoughts, tour-guide hat slipping over one eye",
+      claim: "\"Whoa, dude... Etherville was founded in the year 1974, by the guy who invented the sun. I can literally see it happening right now.\"",
+      confidence: "He says this with 97% confidence and the serene smile of someone mid-vision-quest.",
+      truth: "Etherville wasn't founded, it was compiled -- and nobody invented the sun. Belify isn't lying. He's just having an extremely vivid thought and calling it a memory.",
+      trustConsequence: "You repeat the fact to a passing NPC, who looks at you like you've caught whatever Belify has.",
+      verifyConsequence: "You check the town archive plaque instead. It says something completely different -- and true. Belify nods along happily, already drifting into his next idea.",
       lesson: "CONFIDENCE ≠ CORRECTNESS.",
     },
   ],
