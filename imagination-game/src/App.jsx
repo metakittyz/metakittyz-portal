@@ -80,9 +80,51 @@ const STRESS_BEATS = [
   "URGENT!!! Something on the desk is now, technically, on fire.",
 ];
 
+function MatrixRain() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const canvas = canvasRef.current;
+    if (!canvas || reduceMotion) return;
+    const ctx = canvas.getContext("2d");
+    const glyphs = "01✦◇⬡ΞΨ⟁☰";
+    const fontSize = 16;
+    let columns = 0;
+    let drops = [];
+    let raf;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      columns = Math.max(1, Math.floor(canvas.width / fontSize));
+      drops = new Array(columns).fill(0).map(() => Math.random() * -50);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const draw = () => {
+      ctx.fillStyle = "rgba(7, 4, 15, 0.15)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `${fontSize}px "Space Mono", monospace`;
+      for (let i = 0; i < drops.length; i++) {
+        const text = glyphs[Math.floor(Math.random() * glyphs.length)];
+        ctx.fillStyle = Math.random() > 0.965 ? "#eaffef" : "#a6ff3e";
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
+  }, []);
+  return <canvas ref={canvasRef} className="matrix-rain" aria-hidden="true" />;
+}
+
 function TitleScreen({ onStart, hasSave, onContinueSave }) {
   return (
     <ScreenShell tone="title-bg">
+      <MatrixRain />
       <div className="title-wrap">
         <h1 className="game-title">IMAGINATION<br />IS THE LAST<br />CURRENCY</h1>
         <p className="subtitle">A visual adventure inside a corrupted AI.</p>

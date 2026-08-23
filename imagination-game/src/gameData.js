@@ -43,16 +43,16 @@ export const CARD_DECK = [
 --------------------------------------------------------------- */
 
 export const REGIONS = [
-  { id: "waterpark", name: "Trip N Dream Waterpark", blurb: "Where the vacation began.", bg: "#BDEFFF", status: "story" },
-  { id: "crystalcove", name: "Crystal Cove", blurb: "The last calm shoreline before the machine.", bg: "#C9B79C", status: "story" },
-  { id: "wildchild", name: "Wild Child Island", blurb: "\"ATOM. LEAVE WILD CHILD ISLAND.\" -- restricted, not yet cleared.", bg: "#141018", status: "locked" },
-  { id: "etherville", name: "Etherville", blurb: "AI isn't magic.", bg: "#6BD46B", status: "playable" },
-  { id: "eyelandia", name: "Eyelandia", blurb: "The AI is examining you too.", bg: "#D9C9EA", status: "playable" },
-  { id: "neuralfam", name: "Family of Neural Networks", blurb: "Different systems, different capabilities.", bg: "#EAD9A8", status: "comingsoon" },
-  { id: "eternityportal", name: "Eternity Portal", blurb: "The final act. Not yet charted.", bg: "#8C93A6", status: "comingsoon" },
-  { id: "memorylane", name: "Memory Lane", blurb: "Past, present, future.", bg: "#F0B7A4", status: "comingsoon" },
-  { id: "dopaminemachine", name: "Dopamine Machine", blurb: "What gets rewarded gets repeated.", bg: "#3E5A2E", status: "comingsoon" },
-  { id: "lavashake", name: "Lava Shake Hills", blurb: "Volatile outputs, unstable systems.", bg: "#5B3A24", status: "comingsoon" },
+  { id: "waterpark", name: "Trip N Dream Waterpark", blurb: "Where the vacation began.", bg: "radial-gradient(circle at 35% 30%, #fff2ff 0%, #7CF0FF 35%, #FF6FE0 100%)", status: "story" },
+  { id: "crystalcove", name: "Crystal Cove", blurb: "The last calm shoreline before the machine.", bg: "radial-gradient(circle at 35% 30%, #fff9e0 0%, #FFD23C 40%, #B06BFF 100%)", status: "story" },
+  { id: "wildchild", name: "Wild Child Island", blurb: "\"ATOM. LEAVE WILD CHILD ISLAND.\" -- restricted, not yet cleared.", bg: "radial-gradient(circle at 35% 30%, #4a2a55 0%, #1a0f22 60%, #0a0510 100%)", status: "locked" },
+  { id: "etherville", name: "Etherville", blurb: "AI isn't magic.", bg: "radial-gradient(circle at 35% 30%, #ecffd0 0%, #A6FF3E 45%, #10B981 100%)", status: "playable" },
+  { id: "eyelandia", name: "Eyelandia", blurb: "The AI is examining you too.", bg: "radial-gradient(circle at 35% 30%, #ffe9ff 0%, #E29BFF 45%, #9B5CFF 100%)", status: "playable" },
+  { id: "neuralfam", name: "Family of Neural Networks", blurb: "Different systems, different capabilities.", bg: "radial-gradient(circle at 35% 30%, #fff6da 0%, #FFD23C 45%, #FF7A29 100%)", status: "comingsoon" },
+  { id: "eternityportal", name: "Eternity Portal", blurb: "The final act. Not yet charted.", bg: "conic-gradient(from 90deg, #FF2EC4, #9B5CFF, #3EF0FF, #FFD23C, #FF2EC4)", status: "comingsoon" },
+  { id: "memorylane", name: "Memory Lane", blurb: "Past, present, future.", bg: "radial-gradient(circle at 35% 30%, #ffe6e6 0%, #FF8FA3 45%, #FF2EC4 100%)", status: "comingsoon" },
+  { id: "dopaminemachine", name: "Dopamine Machine", blurb: "What gets rewarded gets repeated.", bg: "radial-gradient(circle at 35% 30%, #eaffcf 0%, #4dffb0 45%, #144a2a 100%)", status: "comingsoon" },
+  { id: "lavashake", name: "Lava Shake Hills", blurb: "Volatile outputs, unstable systems.", bg: "radial-gradient(circle at 35% 30%, #ffe3b0 0%, #ff7a29 45%, #7a1a1a 100%)", status: "comingsoon" },
 ];
 
 /* ---------------------------------------------------------------
