@@ -58,6 +58,39 @@ function Starfield() {
 }
 
 // Dr. Spark — always the GIF, pose prop kept for backward compat
+function MapEnergyTrails() {
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ mixBlendMode: "screen", opacity: 0.6 }}
+      viewBox="0 0 400 300"
+      preserveAspectRatio="none"
+      aria-hidden
+    >
+      <defs>
+        <linearGradient id="trailGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#00AEFF" />
+          <stop offset="50%" stopColor="#B400FF" />
+          <stop offset="100%" stopColor="#FF00A0" />
+        </linearGradient>
+        <filter id="trailGlow" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="2.6" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <path d="M -10,44 C 80,8 140,86 222,50 S 342,6 412,58" fill="none" stroke="url(#trailGrad)" strokeWidth="1.7" filter="url(#trailGlow)" strokeDasharray="6 11">
+        <animate attributeName="stroke-dashoffset" from="0" to="-170" dur="9s" repeatCount="indefinite" />
+      </path>
+      <path d="M -10,232 C 68,268 152,196 232,238 S 352,276 412,214" fill="none" stroke="url(#trailGrad)" strokeWidth="1.3" filter="url(#trailGlow)" strokeDasharray="5 9" opacity="0.75">
+        <animate attributeName="stroke-dashoffset" from="0" to="150" dur="11s" repeatCount="indefinite" />
+      </path>
+    </svg>
+  )
+}
+
 function DrSpark({ size = 60 }: { pose?: string; size?: number }) {
   return (
     <ImageWithFallback
@@ -69,7 +102,7 @@ function DrSpark({ size = 60 }: { pose?: string; size?: number }) {
 }
 
 // Pixel-art speech bubble — tail points left toward Dr. Spark
-function SpeechBubble({ text }: { text: string }) {
+function SpeechBubble({ text, width = 200 }: { text: string; width?: number }) {
   return (
     <div style={{ position: "relative", zIndex: 5 }}>
       {/* left-pointing tail (outer) */}
@@ -82,7 +115,7 @@ function SpeechBubble({ text }: { text: string }) {
           border: "2.5px solid #7A5218",
           borderRadius: 6,
           padding: "6px 11px",
-          width: 200,
+          width,
           fontFamily: "'VT323', monospace",
           fontSize: 15,
           color: "#1a0800",
@@ -97,7 +130,14 @@ function SpeechBubble({ text }: { text: string }) {
 
 // ── TV Shell — the retro CRT frame around all scene content ───────────────────
 
-function TVShell({ children, sparkSpeech }: { children?: React.ReactNode; sparkSpeech?: string }) {
+function TVShell({
+  children, sparkSpeech, sparkSize = 54, sparkInScreen = false,
+}: {
+  children?: React.ReactNode
+  sparkSpeech?: string
+  sparkSize?: number
+  sparkInScreen?: boolean
+}) {
   return (
     <div className="relative w-full flex-shrink-0">
       {/* Physical TV frame */}
@@ -121,11 +161,20 @@ function TVShell({ children, sparkSpeech }: { children?: React.ReactNode; sparkS
         <div className="relative z-10 w-full h-full overflow-hidden">
           {children}
         </div>
+        {/* Dr. Spark + speech bubble — large in the screen's own bottom-left corner on screens with room */}
+        {sparkSpeech && sparkInScreen && (
+          <div className="absolute z-20 flex items-end gap-1.5" style={{ bottom: "3%", left: "3%" }}>
+            <DrSpark size={sparkSize} />
+            <div style={{ marginBottom: 30 }}>
+              <SpeechBubble text={sparkSpeech} width={176} />
+            </div>
+          </div>
+        )}
       </div>
-      {/* Dr. Spark + speech bubble — floats near the bottom-left foot of the TV frame */}
-      {sparkSpeech && (
+      {/* Dr. Spark + speech bubble — compact, floats near the bottom-left foot of the TV frame */}
+      {sparkSpeech && !sparkInScreen && (
         <div className="absolute z-20 flex items-center gap-1" style={{ bottom: "0%", left: "2%" }}>
-          <DrSpark size={54} />
+          <DrSpark size={sparkSize} />
           <SpeechBubble text={sparkSpeech} />
         </div>
       )}
@@ -694,11 +743,13 @@ function WelcomeScreen({ onNext }: { onNext: () => void }) {
 // ── Screens 3–17: shared shell with AppHeader + GameCounters + TV ─────────────
 
 function MainLayout({
-  children, sparkSpeech, ctaLabel, onCTA, ctaColor = "rainbow",
+  children, sparkSpeech, sparkSize, sparkInScreen, ctaLabel, onCTA, ctaColor = "rainbow",
   tiles, activeTab, onTab,
 }: {
   children: React.ReactNode
   sparkSpeech?: string
+  sparkSize?: number
+  sparkInScreen?: boolean
   ctaLabel?: string
   onCTA?: () => void
   ctaColor?: "rainbow" | "yellow" | "cyan" | "green" | "magenta"
@@ -712,7 +763,7 @@ function MainLayout({
       <AppHeader />
       <GameCounters />
       <div className="px-2 flex-shrink-0">
-        <TVShell sparkSpeech={sparkSpeech}>{children}</TVShell>
+        <TVShell sparkSpeech={sparkSpeech} sparkSize={sparkSize} sparkInScreen={sparkInScreen}>{children}</TVShell>
       </div>
       {ctaLabel && (
         <div className="px-2 mt-2 flex-shrink-0">
@@ -735,6 +786,8 @@ function HomeScreen({ onNav, onEnter }: { onNav: (t: string) => void; onEnter: (
   return (
     <MainLayout
       sparkSpeech="Ready to think weird?"
+      sparkSize={104}
+      sparkInScreen
       ctaLabel="ENTER THE PORTAL"
       onCTA={onEnter}
       ctaColor="rainbow"
@@ -746,11 +799,17 @@ function HomeScreen({ onNav, onEnter }: { onNav: (t: string) => void; onEnter: (
       activeTab="home"
       onTab={onNav}
     >
-      {/* Claymation map fills the TV screen */}
-      <ImageWithFallback src={claymationMap} alt="Weirdverse world map" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: "center" }} />
+      {/* Claymation map fills the TV screen, zoomed in on the island cluster */}
+      <ImageWithFallback
+        src={claymationMap}
+        alt="Weirdverse world map"
+        className="absolute inset-0 w-full h-full"
+        style={{ objectFit: "cover", objectPosition: "center 15%", transform: "scale(1.46)", transformOrigin: "50% 8%" }}
+      />
       <div className="absolute inset-0" style={{ background: "rgba(0,4,0,0.22)" }} />
+      <MapEnergyTrails />
       {/* Mission pulse on Etherville */}
-      <div className="absolute" style={{ left: "36%", top: "42%", width: 22, height: 22, borderRadius: "50%", border: "2px solid #FFE500", boxShadow: "0 0 10px #FFE500", animation: "ping 2.5s ease-in-out infinite" }} />
+      <div className="absolute" style={{ left: "36%", top: "34%", width: 22, height: 22, borderRadius: "50%", border: "2px solid #FFE500", boxShadow: "0 0 10px #FFE500", animation: "ping 2.5s ease-in-out infinite" }} />
     </MainLayout>
   )
 }
