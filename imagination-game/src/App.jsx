@@ -598,8 +598,10 @@ function HubScreen({ phaseData, tab, onTab, actions }) {
 function Device({ children, deck }) {
   return (
     <div className="device">
-      <div className="device-screen">{children}</div>
-      {deck && <div className="device-deck">{deck}</div>}
+      <div className="device-frame">
+        <div className="device-screen">{children}</div>
+        {deck && <div className="device-deck">{deck}</div>}
+      </div>
     </div>
   );
 }
