@@ -70,6 +70,58 @@ function ChipRow({ options, selected, onSelect }) {
 }
 
 /* ---------------------------------------------------------------
+   MASCOT -- Professor Physics / Atom's guide, as a generated pixel
+   sprite (data-driven, not hand-authored per-pixel markup).
+--------------------------------------------------------------- */
+
+const MASCOT_PALETTE = { W: "#f5f0ff", K: "#0a0810", Y: "#ffe066", R: "#ff3b5c", G: "#cfe8dc" };
+const MASCOT_ROWS = [
+  ".....WWWW.....",
+  "....WWWWWW....",
+  "...WWWWWWWW...",
+  "..WWKYYYYKWW..",
+  ".WWKYYYYYYKWW.",
+  "WWKYYYYYYYYKWW",
+  "WKYYKKYYKKYYKW",
+  "KYYKYYKKYYKYYK",
+  "WKYYKKYYKKYYKW",
+  ".WKYYYYYYYYKW.",
+  "..WKYYKKYYKW..",
+  "...WKYYYYKW...",
+  "....WWKKWW....",
+  "...RWWGGWWR...",
+  "..WWWWGGWWWW..",
+  ".WWWWWWWWWWWW.",
+];
+function MascotAvatar({ size = 40, className }) {
+  const cols = MASCOT_ROWS[0].length;
+  const rows = MASCOT_ROWS.length;
+  const cell = 4;
+  return (
+    <svg
+      viewBox={`0 0 ${cols * cell} ${rows * cell}`}
+      width={size}
+      height={(size * rows) / cols}
+      className={`mascot-avatar ${className || ""}`}
+      aria-label="Professor Physics"
+    >
+      {MASCOT_ROWS.map((row, y) =>
+        row.split("").map((ch, x) =>
+          ch === "." ? null : <rect key={`${x}-${y}`} x={x * cell} y={y * cell} width={cell} height={cell} fill={MASCOT_PALETTE[ch]} />
+        )
+      )}
+    </svg>
+  );
+}
+function MascotBadge({ size = 34 }) {
+  return (
+    <div className="mascot-badge" style={{ width: size + 10, height: size + 10 }}>
+      <MascotAvatar size={size} />
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------
    PRE-BOARD STORY BEATS
 --------------------------------------------------------------- */
 
@@ -127,6 +179,7 @@ function TitleScreen({ onStart, hasSave, onContinueSave }) {
     <ScreenShell tone="title-bg">
       <MatrixRain />
       <div className="title-wrap">
+        <MascotBadge size={44} />
         <h1 className="game-title">IMAGINATION<br />IS THE LAST<br />CURRENCY</h1>
         <p className="subtitle">A visual adventure inside a corrupted AI.</p>
         <button className="btn btn-primary" onClick={onStart}>{hasSave ? "New Journey" : "Begin"}</button>
@@ -143,6 +196,7 @@ function StressScreen({ onResolved }) {
     return (
       <ScreenShell tone="lab-bg">
         <div className="story-card">
+          <MascotBadge />
           <p className="story-line">{STRESS_BEATS[beat]}</p>
           <TapContinue onNext={() => setBeat((b) => b + 1)} />
         </div>
@@ -152,6 +206,7 @@ function StressScreen({ onResolved }) {
   return (
     <ScreenShell tone="lab-bg">
       <div className="story-card">
+        <MascotBadge />
         <h2>WHAT DO YOU DO WHEN YOU'RE STRESSED?</h2>
         {rejected && <p className="joke-line">{rejected}</p>}
         <div className="choice-grid">
@@ -185,6 +240,7 @@ function VacationScreen({ onKidnapped }) {
   return (
     <ScreenShell tone="black-bg">
       <div className="story-card">
+        <MascotBadge />
         <p className="story-line story-line-big">WHUMP.</p>
         <p className="story-line">"Vacation privileges revoked."</p>
         <TapContinue onNext={onKidnapped} />
@@ -198,6 +254,7 @@ function FacilityScreen({ onCooperate }) {
   return (
     <ScreenShell tone="facility-bg">
       <div className="story-card">
+        <MascotBadge />
         <h2>BRAINCO</h2>
         <p className="story-line">
           Civilization's information systems, automation, media, and infrastructure run through a single AI: Brainco.
@@ -375,7 +432,7 @@ function HomeTab({ completed, mapMessage, onPickRegion, onEnterPortal, onContinu
         <div className="home-panel-bezel">
           <WorldMap completed={completed} onPick={onPickRegion} compact />
           <div className="home-guide-row">
-            <span className="home-avatar">🧑‍🔬</span>
+            <div className="home-avatar"><MascotAvatar size={30} /></div>
             <div className="home-speech">{speech}</div>
           </div>
         </div>
@@ -436,6 +493,13 @@ function ProfileTab({ stats, completed, onRestart }) {
   const max = Math.max(1, ...items.map((it) => stats[it.key]));
   return (
     <div className="profile-tab">
+      <div className="profile-top">
+        <MascotBadge size={40} />
+        <div>
+          <p className="profile-name">Atom</p>
+          <p className="profile-sub">carrying Professor Physics's mind</p>
+        </div>
+      </div>
       <h3 className="profile-heading">Atom's Stats</h3>
       <div className="profile-bars">
         {items.map((it) => (
@@ -520,8 +584,23 @@ function HubScreen({ phaseData, tab, onTab, actions }) {
           )}
         </div>
       </div>
-      <TabBar tab={tab} onTab={onTab} />
     </ScreenShell>
+  );
+}
+
+/* ---------------------------------------------------------------
+   DEVICE -- the whole app renders inside one screen/deck frame:
+   everything lives in the black screen area, and a nav bar (only
+   the tab bar, only while in the hub) lives in the glowing deck
+   below it. Never the other way around.
+--------------------------------------------------------------- */
+
+function Device({ children, deck }) {
+  return (
+    <div className="device">
+      <div className="device-screen">{children}</div>
+      {deck && <div className="device-deck">{deck}</div>}
+    </div>
   );
 }
 
@@ -1041,16 +1120,18 @@ export default function App() {
     setPhase("title");
   };
 
-  if (phase === "title") return <TitleScreen hasSave={hasSave} onStart={() => setPhase("stress")} onContinueSave={() => { setTab("home"); setPhase("hub"); }} />;
-  if (phase === "stress") return <StressScreen onResolved={() => setPhase("vacation")} />;
-  if (phase === "vacation") return <VacationScreen onKidnapped={() => setPhase("facility")} />;
-  if (phase === "facility") return <FacilityScreen onCooperate={() => setPhase("training")} />;
-  if (phase === "training") return <TrainingScreen onDone={(g) => { applyReward({ thinking: g }); setPhase("entering"); }} />;
-  if (phase === "entering") return <EnterMachineScreen onEntered={() => { setTab("home"); setPhase("hub"); }} />;
-  if (phase === "ending") return <EndScreen stats={stats} log={log} onRestart={restart} />;
+  let content;
+  let deckContent = null;
 
-  if (phase === "regionboard" && activeRegion) {
-    return (
+  if (phase === "title") content = <TitleScreen hasSave={hasSave} onStart={() => setPhase("stress")} onContinueSave={() => { setTab("home"); setPhase("hub"); }} />;
+  else if (phase === "stress") content = <StressScreen onResolved={() => setPhase("vacation")} />;
+  else if (phase === "vacation") content = <VacationScreen onKidnapped={() => setPhase("facility")} />;
+  else if (phase === "facility") content = <FacilityScreen onCooperate={() => setPhase("training")} />;
+  else if (phase === "training") content = <TrainingScreen onDone={(g) => { applyReward({ thinking: g }); setPhase("entering"); }} />;
+  else if (phase === "entering") content = <EnterMachineScreen onEntered={() => { setTab("home"); setPhase("hub"); }} />;
+  else if (phase === "ending") content = <EndScreen stats={stats} log={log} onRestart={restart} />;
+  else if (phase === "regionboard" && activeRegion) {
+    content = (
       <RegionBoardScreen
         board={REGION_BOARDS[activeRegion]}
         stats={stats}
@@ -1058,14 +1139,17 @@ export default function App() {
         onComplete={{ applyReward, appendLog, finishRegion }}
       />
     );
+  } else {
+    content = (
+      <HubScreen
+        phaseData={{ stats, completed, lastRegion }}
+        tab={tab}
+        onTab={setTab}
+        actions={{ mapMessage, pickRegion, enterRegion, goEnding: () => setPhase("ending"), restart }}
+      />
+    );
+    deckContent = <TabBar tab={tab} onTab={setTab} />;
   }
 
-  return (
-    <HubScreen
-      phaseData={{ stats, completed, lastRegion }}
-      tab={tab}
-      onTab={setTab}
-      actions={{ mapMessage, pickRegion, enterRegion, goEnding: () => setPhase("ending"), restart }}
-    />
-  );
+  return <Device deck={deckContent}>{content}</Device>;
 }

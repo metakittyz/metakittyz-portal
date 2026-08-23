@@ -57,10 +57,47 @@ h1, h2, h3 { text-wrap: balance; }
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
 }
 
+/* =====================================================================
+   DEVICE -- everything the app shows lives inside one screen/deck
+   frame: a gunmetal bezel around a black screen (all content), and,
+   only while there's real navigation, a separate glowing deck strip
+   below it that holds the tab bar and nothing else.
+===================================================================== */
+.device {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 12px calc(12px + env(safe-area-inset-bottom));
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, transparent 40%),
+    linear-gradient(155deg, #45423d 0%, #26241f 32%, #18160f 62%, #0b0a08 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+.device-screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #000;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(0, 0, 0, 0.85);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.device-deck {
+  flex-shrink: 0;
+  min-height: 78px;
+  border-radius: 16px;
+  padding: 1.5px;
+  background: linear-gradient(100deg, var(--sky), var(--dream) 55%, var(--hot));
+  box-shadow: 0 0 24px rgba(155, 92, 255, 0.35);
+}
+.device-deck > * { height: 100%; border-radius: 14.5px; background: #030204; }
+
 .screen {
   position: relative;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -207,6 +244,17 @@ h1, h2, h3 { text-wrap: balance; }
   text-align: center;
 }
 .story-card-wide, .overlay-card-wide { max-width: 580px; text-align: left; }
+
+/* -------- mascot -------- */
+.mascot-avatar { display: block; image-rendering: pixelated; }
+.mascot-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; margin: 0 auto 14px;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.35), transparent 65%), var(--ink-2);
+  box-shadow: 0 0 0 2px var(--mutagen), 0 0 16px rgba(166,255,62,0.35);
+  position: relative;
+}
+.title-wrap .mascot-badge { position: relative; z-index: 1; }
 
 .title-bg .story-card, .lab-bg .story-card, .facility-bg .story-card,
 .board-bg .story-card, .map-bg .story-card, .black-bg .story-card,
@@ -422,7 +470,7 @@ h1, h2, h3 { text-wrap: balance; }
 
 /* -------- hub shell: resource bar, tabs, and the five screens -------- */
 .map-bg { justify-content: flex-start; }
-.hub { width: 100%; max-width: 560px; display: flex; flex-direction: column; flex: 1; padding-bottom: 90px; }
+.hub { width: 100%; max-width: 560px; display: flex; flex-direction: column; flex: 1; }
 .hub-content { margin-top: 16px; }
 
 .resource-bar { display: flex; gap: 8px; flex-wrap: wrap; position: relative; }
@@ -438,17 +486,13 @@ h1, h2, h3 { text-wrap: balance; }
 .resource-of { opacity: 0.6; font-weight: 400; }
 
 .tab-bar {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 6;
-  display: flex; justify-content: center;
-  background: var(--ink);
-  border-top: 1px solid var(--mutagen-dim);
-  box-shadow: 0 -8px 24px rgba(0,0,0,0.45);
-  padding-bottom: env(safe-area-inset-bottom);
+  height: 100%;
+  display: flex; align-items: stretch; justify-content: center;
 }
 .tab-btn {
   flex: 1; max-width: 112px; background: none; border: none; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 10px 4px 8px; color: var(--dim); font-family: "Tektur", sans-serif; font-size: 9.5px; letter-spacing: 0.5px; text-transform: uppercase;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  padding: 6px 4px; color: var(--dim); font-family: "Tektur", sans-serif; font-size: 9.5px; letter-spacing: 0.5px; text-transform: uppercase;
 }
 .tab-icon { font-size: 19px; filter: grayscale(1) opacity(0.7); }
 .tab-btn-active { color: var(--mutagen); }
@@ -503,6 +547,9 @@ h1, h2, h3 { text-wrap: balance; }
 .stub-note { font-size: 12px; color: var(--dim); font-family: "Space Mono", monospace; }
 
 /* -------- profile tab -------- */
+.profile-top { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.profile-name { font-family: "Fredoka", sans-serif; font-size: 18px; margin: 0; color: var(--paper); }
+.profile-sub { font-size: 12px; color: var(--dim); margin: 2px 0 0; font-family: "Space Mono", monospace; }
 .profile-heading { font-family: "Tektur", sans-serif; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--sky); margin: 0 0 10px; }
 .profile-bars { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
 .profile-row { display: grid; grid-template-columns: 108px 1fr 26px; align-items: center; gap: 10px; font-size: 12.5px; }
@@ -564,10 +611,8 @@ h1, h2, h3 { text-wrap: balance; }
 .atom-marker { font-size: 20px; }
 
 .draw-dock {
-  position: fixed;
+  position: sticky;
   bottom: 0;
-  left: 0;
-  right: 0;
   padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
   background: linear-gradient(0deg, var(--void) 60%, transparent);
   display: flex;
@@ -588,7 +633,7 @@ h1, h2, h3 { text-wrap: balance; }
 
 /* -------- overlays -------- */
 .overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
   background: rgba(2, 1, 8, 0.86);
   backdrop-filter: blur(4px);
