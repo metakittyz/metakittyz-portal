@@ -456,6 +456,32 @@ function ScoreRing({ score }: { score: number }) {
 // ── Intro Clip · hallucinogenic groovy swirl loop ────────────────────────────
 // Beat grid: everything is a factor of 5s → 5s / 2.5s / 1.25s
 
+// Logo lockup — crisp chrome wordmark image + a plain, legible tagline
+// (no blur/glow on the tagline so it stays readable over busy artwork)
+function TitleLockup({ maxWidth = 340 }: { maxWidth?: number }) {
+  return (
+    <div style={{ textAlign: "center" }}>
+      <img
+        src={titleLogo}
+        alt="Product Imagination"
+        style={{ width: "78%", maxWidth, margin: "0 auto", display: "block", filter: "drop-shadow(0 4px 18px rgba(0,0,0,0.65))" }}
+      />
+      <div
+        style={{
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: 8,
+          color: "#FFFFFF",
+          letterSpacing: "0.08em",
+          marginTop: 8,
+          textShadow: "0 2px 0 rgba(0,0,0,0.9)",
+        }}
+      >
+        IMAGINATION IS THE LAST CURRENCY
+      </div>
+    </div>
+  )
+}
+
 function IntroClipScreen({ onEnter }: { onEnter: () => void }) {
   return (
     <div
@@ -549,6 +575,11 @@ function IntroClipScreen({ onEnter }: { onEnter: () => void }) {
         background: "radial-gradient(ellipse 50% 50% at 50% 50%, transparent 18%, rgba(0,0,0,0.92) 100%)",
         pointerEvents: "none",
       }} />
+
+      {/* ── TITLE — crisp, above the psychedelic blend layers so it stays legible ── */}
+      <div style={{ position: "absolute", top: 20, left: 0, right: 0, pointerEvents: "none" }}>
+        <TitleLockup maxWidth={300} />
+      </div>
 
       {/* ── CENTER MANDALA: 4 flattened rings spinning in unison ── */}
       <div aria-hidden style={{
@@ -654,12 +685,8 @@ function SplashScreen({ onNext }: { onNext: () => void }) {
         style={{ objectFit: "cover", objectPosition: "center top" }}
       />
       {/* Title logo, de-glared and layered on its own so it stays crisp */}
-      <div className="absolute" style={{ top: 18, left: 0, right: 0, textAlign: "center" }}>
-        <img
-          src={titleLogo}
-          alt="Product Imagination — Imagination Is The Last Currency"
-          style={{ width: "78%", maxWidth: 340, margin: "0 auto", display: "block", filter: "drop-shadow(0 4px 18px rgba(0,0,0,0.65))" }}
-        />
+      <div className="absolute" style={{ top: 18, left: 0, right: 0 }}>
+        <TitleLockup />
       </div>
       {/* Subtle vignette so the loading bar reads clearly */}
       <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.85) 100%)" }} />
