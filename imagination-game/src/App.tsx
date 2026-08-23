@@ -456,28 +456,15 @@ function ScoreRing({ score }: { score: number }) {
 // ── Intro Clip · hallucinogenic groovy swirl loop ────────────────────────────
 // Beat grid: everything is a factor of 5s → 5s / 2.5s / 1.25s
 
-// Logo lockup — crisp chrome wordmark image + a plain, legible tagline
-// (no blur/glow on the tagline so it stays readable over busy artwork)
+// Logo lockup — the chrome wordmark + tagline as a single crisp image
 function TitleLockup({ maxWidth = 340 }: { maxWidth?: number }) {
   return (
     <div style={{ textAlign: "center" }}>
       <img
         src={titleLogo}
-        alt="Product Imagination"
+        alt="Product Imagination — Imagination Is The Last Currency"
         style={{ width: "78%", maxWidth, margin: "0 auto", display: "block", filter: "drop-shadow(0 4px 18px rgba(0,0,0,0.65))" }}
       />
-      <div
-        style={{
-          fontFamily: "'Press Start 2P', monospace",
-          fontSize: 8,
-          color: "#FFFFFF",
-          letterSpacing: "0.08em",
-          marginTop: 8,
-          textShadow: "0 2px 0 rgba(0,0,0,0.9)",
-        }}
-      >
-        IMAGINATION IS THE LAST CURRENCY
-      </div>
     </div>
   )
 }
