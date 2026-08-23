@@ -87,8 +87,8 @@ h1, h2, h3 { text-wrap: balance; }
 }
 .device-screen {
   position: absolute;
-  top: 2.99%;
-  bottom: 26.2%;
+  top: 3%;
+  bottom: 17%;
   left: 4.68%;
   right: 6.48%;
   border-radius: 4px;
@@ -97,8 +97,8 @@ h1, h2, h3 { text-wrap: balance; }
 }
 .device-deck {
   position: absolute;
-  top: 80.74%;
-  bottom: 3.83%;
+  top: 89%;
+  bottom: 2.5%;
   left: 6.38%;
   right: 6.48%;
 }
@@ -158,19 +158,14 @@ h1, h2, h3 { text-wrap: balance; }
   mask-image: radial-gradient(circle at 50% 40%, black 30%, transparent 75%);
   -webkit-mask-image: radial-gradient(circle at 50% 40%, black 30%, transparent 75%);
 }
-.game-title {
+.title-logo {
   position: relative;
-  font-family: "Fredoka", sans-serif;
-  font-weight: 700;
-  font-size: clamp(30px, 9vw, 46px);
-  line-height: 1.08;
-  letter-spacing: 0.5px;
-  background: linear-gradient(120deg, var(--hot) 0%, var(--sun) 35%, var(--toxic) 65%, var(--sky) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  margin: 0 0 14px;
-  text-shadow: 0 0 40px rgba(166, 255, 62, 0.25);
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  margin: 0 auto 14px;
+  filter: drop-shadow(0 0 30px rgba(166, 255, 62, 0.3));
 }
 .subtitle {
   position: relative;

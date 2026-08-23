@@ -180,7 +180,7 @@ function TitleScreen({ onStart, hasSave, onContinueSave }) {
       <MatrixRain />
       <div className="title-wrap">
         <MascotBadge size={44} />
-        <h1 className="game-title">IMAGINATION<br />IS THE LAST<br />CURRENCY</h1>
+        <img src="/title.webp" alt="Product Imagination -- Imagination Is The Last Currency" className="title-logo" />
         <p className="subtitle">A visual adventure inside a corrupted AI.</p>
         <button className="btn btn-primary" onClick={onStart}>{hasSave ? "New Journey" : "Begin"}</button>
         {hasSave && <button className="btn btn-ghost" onClick={onContinueSave}>Continue Saved Journey</button>}
