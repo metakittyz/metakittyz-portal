@@ -4,6 +4,7 @@ import drSparkGif from "./assets/dr-spark.gif"
 import claymationMap from "./assets/claymation-map.webp"
 import tvFrame from "./assets/tv-frame.webp"
 import splashBg from "./assets/splash-bg.webp"
+import titleLogo from "./assets/title-logo.webp"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -583,13 +584,21 @@ function SplashScreen({ onNext }: { onNext: () => void }) {
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-black">
-      {/* Full-bleed splash artwork */}
+      {/* Full-bleed splash artwork (portal art only — title lives in its own layer below) */}
       <ImageWithFallback
         src={splashBg}
         alt="Product Imagination — Weirdverse portal splash"
         className="absolute inset-0 w-full h-full"
         style={{ objectFit: "cover", objectPosition: "center top" }}
       />
+      {/* Title logo, de-glared and layered on its own so it stays crisp */}
+      <div className="absolute" style={{ top: 18, left: 0, right: 0, textAlign: "center" }}>
+        <img
+          src={titleLogo}
+          alt="Product Imagination — Imagination Is The Last Currency"
+          style={{ width: "78%", maxWidth: 340, margin: "0 auto", display: "block", filter: "drop-shadow(0 4px 18px rgba(0,0,0,0.65))" }}
+        />
+      </div>
       {/* Subtle vignette so the loading bar reads clearly */}
       <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.85) 100%)" }} />
       {/* Loading bar — mirrors the design in the image */}
