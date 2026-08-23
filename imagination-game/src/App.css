@@ -417,6 +417,102 @@ h1, h2, h3 { text-wrap: balance; }
 }
 .island-status-playable { animation: soft-pulse 3s ease-in-out infinite; }
 .map-message { font-size: 13px; color: var(--sun); text-align: center; min-height: 18px; font-family: "Space Mono", monospace; }
+.world-map-compact { aspect-ratio: 4 / 2.5; margin: 0; }
+.world-map-compact .island-label { font-size: 9px; }
+
+/* -------- hub shell: resource bar, tabs, and the five screens -------- */
+.map-bg { justify-content: flex-start; }
+.hub { width: 100%; max-width: 560px; display: flex; flex-direction: column; flex: 1; padding-bottom: 90px; }
+.hub-content { margin-top: 16px; }
+
+.resource-bar { display: flex; gap: 8px; flex-wrap: wrap; position: relative; }
+.resource-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--ink); border-radius: 999px; padding: 6px 12px; font-family: "Space Mono", monospace; font-size: 13px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+.resource-idea { border: 1px solid rgba(255, 210, 60, 0.4); color: var(--sun); }
+.resource-portal { border: 1px solid rgba(155, 92, 255, 0.4); color: var(--dream); }
+.resource-flags { border: 1px solid var(--mutagen-dim); color: var(--mutagen); }
+.resource-value { font-weight: 700; }
+.resource-of { opacity: 0.6; font-weight: 400; }
+
+.tab-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 6;
+  display: flex; justify-content: center;
+  background: var(--ink);
+  border-top: 1px solid var(--mutagen-dim);
+  box-shadow: 0 -8px 24px rgba(0,0,0,0.45);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab-btn {
+  flex: 1; max-width: 112px; background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 10px 4px 8px; color: var(--dim); font-family: "Tektur", sans-serif; font-size: 9.5px; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.tab-icon { font-size: 19px; filter: grayscale(1) opacity(0.7); }
+.tab-btn-active { color: var(--mutagen); }
+.tab-btn-active .tab-icon { filter: none; text-shadow: 0 0 10px rgba(166,255,62,0.7); }
+
+/* -------- home tab -------- */
+.home-tab { display: flex; flex-direction: column; gap: 14px; }
+.home-panel {
+  border-radius: 24px;
+  padding: 4px;
+  background: linear-gradient(160deg, var(--chrome) 0%, #6f8f7f 45%, #1e3a24 100%);
+  box-shadow: 0 0 0 2px var(--mutagen-dim), 0 0 30px rgba(166,255,62,0.2);
+}
+.home-panel-bezel {
+  background: var(--void);
+  border-radius: 20px;
+  padding: 10px;
+  position: relative;
+}
+.home-guide-row {
+  display: flex; align-items: center; gap: 10px; margin-top: 10px;
+}
+.home-avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.4), transparent 60%), var(--dream);
+  box-shadow: 0 0 0 2px rgba(245,240,255,0.7);
+}
+.home-speech {
+  background: var(--ink-2); border: 1px solid rgba(245,240,255,0.25); border-radius: 14px;
+  padding: 9px 14px; font-size: 13px; flex: 1; position: relative;
+}
+.home-cta { margin-top: 2px; }
+.home-secondary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.home-secondary-btn {
+  background: var(--ink); border: 1px solid var(--mutagen-dim); border-radius: 14px; color: var(--paper);
+  padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  font-family: "Tektur", sans-serif; font-size: 10.5px; letter-spacing: 0.3px; text-transform: uppercase; cursor: pointer;
+}
+.hs-icon { font-size: 18px; }
+
+/* -------- map tab -------- */
+.map-tab { display: flex; flex-direction: column; gap: 6px; }
+
+/* -------- stub tabs (create / bank) -------- */
+.stub-panel {
+  text-align: center; padding: 48px 20px; background: var(--ink); border: 1px dashed var(--mutagen-dim); border-radius: 20px;
+}
+.stub-icon { font-size: 34px; display: block; margin-bottom: 14px; }
+.stub-panel h3 { font-family: "Fredoka", sans-serif; font-size: 19px; margin: 0 0 10px; color: var(--sun); }
+.stub-panel p { font-size: 14px; color: var(--paper); max-width: 380px; margin: 0 auto 10px; }
+.stub-note { font-size: 12px; color: var(--dim); font-family: "Space Mono", monospace; }
+
+/* -------- profile tab -------- */
+.profile-heading { font-family: "Tektur", sans-serif; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--sky); margin: 0 0 10px; }
+.profile-bars { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.profile-row { display: grid; grid-template-columns: 108px 1fr 26px; align-items: center; gap: 10px; font-size: 12.5px; }
+.profile-row-track { height: 8px; border-radius: 999px; background: var(--ink-2); overflow: hidden; }
+.profile-row-fill { height: 100%; background: linear-gradient(90deg, var(--mutagen), var(--toxic)); border-radius: 999px; }
+.profile-row-value { font-family: "Space Mono", monospace; color: var(--sun); text-align: right; }
+.profile-regions { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+.profile-region-row { display: flex; justify-content: space-between; align-items: center; background: var(--ink); border: 1px solid var(--mutagen-dim); border-radius: 12px; padding: 10px 14px; font-size: 13px; }
+.pill-done { font-family: "Space Mono", monospace; font-size: 10px; color: var(--mutagen); }
+.pill-pending { font-family: "Space Mono", monospace; font-size: 10px; color: var(--dim); }
 
 /* -------- board / region path -------- */
 .board-header { position: relative; width: 100%; max-width: 560px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 8px; }

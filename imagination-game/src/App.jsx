@@ -3,8 +3,9 @@ import {
   NODE_TYPES, CARD_DECK, REGIONS, TRAINING_CHIPS, REGION_BOARDS, resolvedBoardPath,
 } from "./gameData.js";
 
-const SAVE_KEY = "imag-currency:save:v2";
+const SAVE_KEY = "imag-currency:save:v3";
 const INITIAL_STATS = { thinking: 0, prompting: 0, awareness: 0, imagination: 0 };
+const TOTAL_PLAYABLE = REGIONS.filter((r) => r.status === "playable").length;
 
 function loadSave() {
   try {
@@ -280,7 +281,7 @@ function EnterMachineScreen({ onEntered }) {
 }
 
 /* ---------------------------------------------------------------
-   WORLD MAP
+   WORLD MAP (shared by the Home preview and the Map tab)
 --------------------------------------------------------------- */
 
 /* Non-overlapping so every island stays independently tappable. */
@@ -297,51 +298,229 @@ const MAP_LAYOUT = {
   dopaminemachine: { top: "58%", left: "21%", width: "22%", height: "20%" },
 };
 
-function WorldMap({ completed, onPick, message }) {
+function WorldMap({ completed, onPick, compact }) {
   return (
-    <div>
-      <div className="world-map">
-        {REGIONS.map((r) => (
-          <div
-            key={r.id}
-            className={`island island-${r.id} island-status-${r.status} ${completed.includes(r.id) ? "island-complete" : ""}`}
-            style={{ ...MAP_LAYOUT[r.id], background: r.bg }}
-            onClick={() => onPick(r)}
-          >
-            <span className="island-label">{r.name}</span>
-            {r.status !== "playable" && r.status !== "story" && <span className="island-badge">NOT YET CHARTED</span>}
-            {r.status === "locked" && <span className="island-badge island-badge-red">RESTRICTED</span>}
-            {completed.includes(r.id) && <span className="island-check">✓</span>}
-          </div>
-        ))}
-      </div>
-      {message && <p className="map-message">{message}</p>}
+    <div className={`world-map ${compact ? "world-map-compact" : ""}`}>
+      {REGIONS.map((r) => (
+        <div
+          key={r.id}
+          className={`island island-${r.id} island-status-${r.status} ${completed.includes(r.id) ? "island-complete" : ""}`}
+          style={{ ...MAP_LAYOUT[r.id], background: r.bg }}
+          onClick={() => onPick(r)}
+        >
+          <span className="island-label">{r.name}</span>
+          {r.status !== "playable" && r.status !== "story" && <span className="island-badge">NOT YET CHARTED</span>}
+          {r.status === "locked" && <span className="island-badge island-badge-red">RESTRICTED</span>}
+          {completed.includes(r.id) && <span className="island-check">✓</span>}
+        </div>
+      ))}
     </div>
   );
 }
 
-function WorldMapScreen({ stats, completed, onEnterRegion, onGoEnding }) {
-  const [message, setMessage] = useState("");
-  const handlePick = (r) => {
-    if (r.status === "playable") { setMessage(""); onEnterRegion(r.id); return; }
-    if (r.status === "locked") { setMessage(`"ATOM. LEAVE ${r.name.toUpperCase()}." -- a government message flashes and fades.`); return; }
-    if (r.status === "comingsoon") { setMessage(`${r.name} -- not yet charted. This region isn't built in this slice.`); return; }
-    setMessage(`${r.name}: ${r.blurb}`);
-  };
-  const bothDone = completed.includes("etherville") && completed.includes("eyelandia");
+/* ---------------------------------------------------------------
+   HUB SHELL -- resource bar, five tabs, bottom nav
+--------------------------------------------------------------- */
+
+function ResourceBar({ ideaPoints, portalTokens, flags }) {
+  return (
+    <div className="resource-bar">
+      <div className="resource-pill resource-idea" title="Idea Points -- your total score across every stat">
+        <span className="resource-emoji">💡</span>
+        <span className="resource-value">{ideaPoints.toLocaleString()}</span>
+      </div>
+      <div className="resource-pill resource-portal" title="Portal Tokens -- your Imagination currency">
+        <span className="resource-emoji">🌀</span>
+        <span className="resource-value">{portalTokens}</span>
+      </div>
+      <div className="resource-pill resource-flags" title="Flags -- regions completed">
+        <span className="resource-emoji">🚩</span>
+        <span className="resource-value">{flags}<span className="resource-of">/{TOTAL_PLAYABLE}</span></span>
+      </div>
+    </div>
+  );
+}
+
+const TABS = [
+  { key: "home", label: "Home", icon: "🏠" },
+  { key: "map", label: "Map", icon: "🗺️" },
+  { key: "create", label: "Create", icon: "✨" },
+  { key: "bank", label: "Bank", icon: "🏛️" },
+  { key: "profile", label: "Profile", icon: "🧑‍🔬" },
+];
+
+function TabBar({ tab, onTab }) {
+  return (
+    <nav className="tab-bar">
+      {TABS.map((t) => (
+        <button key={t.key} className={`tab-btn ${tab === t.key ? "tab-btn-active" : ""}`} onClick={() => onTab(t.key)}>
+          <span className="tab-icon">{t.icon}</span>
+          <span className="tab-label">{t.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+function HomeTab({ completed, mapMessage, onPickRegion, onEnterPortal, onContinue, onOpenLab, hasLastRegion }) {
+  const flags = completed.length;
+  const speech = flags === 0
+    ? "Ready to think weird?"
+    : flags < TOTAL_PLAYABLE
+      ? "One down. Brainco's getting nervous."
+      : "The Core is calling. Ready?";
+  return (
+    <div className="home-tab">
+      <div className="home-panel">
+        <div className="home-panel-bezel">
+          <WorldMap completed={completed} onPick={onPickRegion} compact />
+          <div className="home-guide-row">
+            <span className="home-avatar">🧑‍🔬</span>
+            <div className="home-speech">{speech}</div>
+          </div>
+        </div>
+      </div>
+      {mapMessage && <p className="map-message">{mapMessage}</p>}
+
+      <button className="btn btn-draw home-cta" onClick={onEnterPortal}>ENTER THE PORTAL</button>
+
+      <div className="home-secondary-row">
+        <button className="home-secondary-btn" onClick={onContinue}>
+          <span className="hs-icon">💾</span>
+          <span>{hasLastRegion ? "Continue" : "Start"}</span>
+        </button>
+        <button className="home-secondary-btn" onClick={onEnterPortal}>
+          <span className="hs-icon">🗺️</span>
+          <span>World Map</span>
+        </button>
+        <button className="home-secondary-btn" onClick={onOpenLab}>
+          <span className="hs-icon">🧪</span>
+          <span>Idea Lab</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MapTab({ completed, mapMessage, onPickRegion, bothDone, onGoEnding }) {
+  return (
+    <div className="map-tab">
+      <p className="story-line" style={{ marginBottom: 10 }}>Tap a region to enter its board.</p>
+      <WorldMap completed={completed} onPick={onPickRegion} />
+      {mapMessage && <p className="map-message">{mapMessage}</p>}
+      {bothDone && (
+        <button className="btn btn-primary" onClick={onGoEnding}>Return to Brainco Core</button>
+      )}
+    </div>
+  );
+}
+
+function StubTab({ icon, title, body, note }) {
+  return (
+    <div className="stub-panel">
+      <span className="stub-icon">{icon}</span>
+      <h3>{title}</h3>
+      <p>{body}</p>
+      {note && <p className="stub-note">{note}</p>}
+    </div>
+  );
+}
+
+function ProfileTab({ stats, completed, onRestart }) {
+  const items = [
+    { key: "thinking", label: "Thinking", emoji: "🧠" },
+    { key: "prompting", label: "Prompting", emoji: "🎯" },
+    { key: "awareness", label: "Awareness", emoji: "🛡️" },
+    { key: "imagination", label: "Imagination", emoji: "✨" },
+  ];
+  const max = Math.max(1, ...items.map((it) => stats[it.key]));
+  return (
+    <div className="profile-tab">
+      <h3 className="profile-heading">Atom's Stats</h3>
+      <div className="profile-bars">
+        {items.map((it) => (
+          <div key={it.key} className="profile-row">
+            <span className="profile-row-label">{it.emoji} {it.label}</span>
+            <div className="profile-row-track">
+              <div className="profile-row-fill" style={{ width: `${(stats[it.key] / max) * 100}%` }} />
+            </div>
+            <span className="profile-row-value">{stats[it.key]}</span>
+          </div>
+        ))}
+      </div>
+      <h3 className="profile-heading">Regions</h3>
+      <div className="profile-regions">
+        {REGIONS.filter((r) => r.status === "playable").map((r) => (
+          <div key={r.id} className="profile-region-row">
+            <span>{r.name}</span>
+            <span className={completed.includes(r.id) ? "pill-done" : "pill-pending"}>
+              {completed.includes(r.id) ? "COMPLETE" : "IN PROGRESS"}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="stub-note" style={{ marginTop: 18 }}>Thinker Profile archetypes (The Architect, The Explorer, The Skeptic...) -- coming soon.</p>
+      <button className="btn btn-ghost" onClick={onRestart}>Restart Journey</button>
+    </div>
+  );
+}
+
+function HubScreen({ phaseData, tab, onTab, actions }) {
+  const { stats, completed, lastRegion } = phaseData;
+  const ideaPoints = (stats.thinking + stats.prompting + stats.awareness + stats.imagination) * 25;
+  const portalTokens = stats.imagination;
+  const bothDone = completed.length >= TOTAL_PLAYABLE;
+
   return (
     <ScreenShell tone="map-bg">
-      <div className="board-header">
-        <StatBar stats={stats} />
+      <div className="hub">
+        <div className="board-header">
+          <ResourceBar ideaPoints={ideaPoints} portalTokens={portalTokens} flags={completed.length} />
+        </div>
+
+        <div className="hub-content">
+          {tab === "home" && (
+            <HomeTab
+              completed={completed}
+              mapMessage={actions.mapMessage}
+              onPickRegion={actions.pickRegion}
+              onEnterPortal={() => onTab("map")}
+              onContinue={() => (lastRegion ? actions.enterRegion(lastRegion) : onTab("map"))}
+              onOpenLab={() => onTab("create")}
+              hasLastRegion={!!lastRegion}
+            />
+          )}
+          {tab === "map" && (
+            <MapTab
+              completed={completed}
+              mapMessage={actions.mapMessage}
+              onPickRegion={actions.pickRegion}
+              bothDone={bothDone}
+              onGoEnding={actions.goEnding}
+            />
+          )}
+          {tab === "create" && (
+            <StubTab
+              icon="🧪"
+              title="IDEA LAB"
+              body="A free-play space to turn a messy thought into a plan, brainstorm and refine ideas, and critique the machine's first answer instead of accepting it."
+              note="Not built in this slice -- coming soon."
+            />
+          )}
+          {tab === "bank" && (
+            <StubTab
+              icon="🏛️"
+              title="THE BANK"
+              body={`You're holding ${portalTokens} 🌀 Portal Tokens, earned from original prompts and called-out manipulation.`}
+              note="Spending them on something -- cosmetics, hints, shortcuts -- isn't built in this slice yet."
+            />
+          )}
+          {tab === "profile" && (
+            <ProfileTab stats={stats} completed={completed} onRestart={actions.restart} />
+          )}
+        </div>
       </div>
-      <div className="story-card story-card-wide">
-        <h2>WELCOME TO BRAINCO.</h2>
-        <p className="story-line">Tap a region to enter its board.</p>
-        <WorldMap completed={completed} onPick={handlePick} message={message} />
-        {bothDone && (
-          <button className="btn btn-primary" onClick={onGoEnding}>Return to Brainco Core</button>
-        )}
-      </div>
+      <TabBar tab={tab} onTab={onTab} />
     </ScreenShell>
   );
 }
@@ -636,7 +815,7 @@ function LabOverlay({ node, board, onComplete }) {
   return <PredictBossOverlay node={node} onComplete={onComplete} />;
 }
 
-function RegionBoardScreen({ board, stats, onExit, onComplete, log }) {
+function RegionBoardScreen({ board, stats, onExit, onComplete }) {
   const [routeChoice, setRouteChoice] = useState(null);
   const [position, setPosition] = useState(0);
   const [drawnCard, setDrawnCard] = useState(null);
@@ -808,15 +987,18 @@ function EndScreen({ stats, log, onRestart }) {
 export default function App() {
   const saved = loadSave();
   const [phase, setPhase] = useState("title");
+  const [tab, setTab] = useState("home");
   const [stats, setStats] = useState(saved?.stats || INITIAL_STATS);
   const [completed, setCompleted] = useState(saved?.completed || []);
   const [log, setLog] = useState(saved?.log || []);
   const [activeRegion, setActiveRegion] = useState(null);
+  const [lastRegion, setLastRegion] = useState(saved?.lastRegion || null);
+  const [mapMessage, setMapMessage] = useState("");
   const [hasSave] = useState(!!saved);
 
   useEffect(() => {
-    if (phase === "worldmap" || phase === "regionboard") writeSave({ stats, completed, log });
-  }, [stats, completed, log, phase]);
+    if (phase === "hub" || phase === "regionboard") writeSave({ stats, completed, log, lastRegion });
+  }, [stats, completed, log, lastRegion, phase]);
 
   const applyReward = (reward) => {
     setStats((s) => {
@@ -826,10 +1008,25 @@ export default function App() {
     });
   };
   const appendLog = (text) => setLog((l) => (l[l.length - 1] === text ? l : [...l, text]));
+
+  const enterRegion = (id) => {
+    setActiveRegion(id);
+    setLastRegion(id);
+    setPhase("regionboard");
+  };
+
+  const pickRegion = (r) => {
+    if (r.status === "playable") { setMapMessage(""); enterRegion(r.id); return; }
+    if (r.status === "locked") { setMapMessage(`"ATOM. LEAVE ${r.name.toUpperCase()}." -- a government message flashes and fades.`); return; }
+    if (r.status === "comingsoon") { setMapMessage(`${r.name} -- not yet charted. This region isn't built in this slice.`); return; }
+    setMapMessage(`${r.name}: ${r.blurb}`);
+  };
+
   const finishRegion = (regionId) => {
     setCompleted((c) => (c.includes(regionId) ? c : [...c, regionId]));
     setActiveRegion(null);
-    setPhase("worldmap");
+    setPhase("hub");
+    setTab("map");
   };
 
   const restart = () => {
@@ -838,15 +1035,18 @@ export default function App() {
     setCompleted([]);
     setLog([]);
     setActiveRegion(null);
+    setLastRegion(null);
+    setMapMessage("");
+    setTab("home");
     setPhase("title");
   };
 
-  if (phase === "title") return <TitleScreen hasSave={hasSave} onStart={() => setPhase("stress")} onContinueSave={() => setPhase("worldmap")} />;
+  if (phase === "title") return <TitleScreen hasSave={hasSave} onStart={() => setPhase("stress")} onContinueSave={() => { setTab("home"); setPhase("hub"); }} />;
   if (phase === "stress") return <StressScreen onResolved={() => setPhase("vacation")} />;
   if (phase === "vacation") return <VacationScreen onKidnapped={() => setPhase("facility")} />;
   if (phase === "facility") return <FacilityScreen onCooperate={() => setPhase("training")} />;
   if (phase === "training") return <TrainingScreen onDone={(g) => { applyReward({ thinking: g }); setPhase("entering"); }} />;
-  if (phase === "entering") return <EnterMachineScreen onEntered={() => setPhase("worldmap")} />;
+  if (phase === "entering") return <EnterMachineScreen onEntered={() => { setTab("home"); setPhase("hub"); }} />;
   if (phase === "ending") return <EndScreen stats={stats} log={log} onRestart={restart} />;
 
   if (phase === "regionboard" && activeRegion) {
@@ -854,19 +1054,18 @@ export default function App() {
       <RegionBoardScreen
         board={REGION_BOARDS[activeRegion]}
         stats={stats}
-        log={log}
-        onExit={() => { setActiveRegion(null); setPhase("worldmap"); }}
+        onExit={() => { setActiveRegion(null); setPhase("hub"); setTab("map"); }}
         onComplete={{ applyReward, appendLog, finishRegion }}
       />
     );
   }
 
   return (
-    <WorldMapScreen
-      stats={stats}
-      completed={completed}
-      onEnterRegion={(id) => { setActiveRegion(id); setPhase("regionboard"); }}
-      onGoEnding={() => setPhase("ending")}
+    <HubScreen
+      phaseData={{ stats, completed, lastRegion }}
+      tab={tab}
+      onTab={setTab}
+      actions={{ mapMessage, pickRegion, enterRegion, goEnding: () => setPhase("ending"), restart }}
     />
   );
 }

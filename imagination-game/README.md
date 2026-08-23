@@ -7,9 +7,21 @@ are fully playable boards; the rest are on the map but not yet built (see Roadma
 
 ## Structure
 
-`WORLD MAP -> ENTER REGION -> PLAY BOARD -> LAB BOSS -> WORLD MAP`
+`HOME HUB (5 tabs) -> ENTER REGION -> PLAY BOARD -> LAB BOSS -> back to the hub`
 
-- **World Map** -- the islands from the hand-drawn reference map. Tap a playable island to enter it.
+Once Atom is inside Brainco, the app becomes a persistent hub with a resource bar and a five-tab bottom nav:
+
+- **Resource bar** -- 💡 Idea Points (a derived total score across all four stats), 🌀 Portal Tokens (your Imagination
+  stat, spendable later), 🚩 Flags (regions completed out of the total playable). All three are display-only views
+  of the same stats/completed state -- no separate currency system.
+- **🏠 Home** -- a console-framed preview of the world map (tap an island to jump straight in) with Atom's guide and
+  a status line, a big "Enter the Portal" button into the Map tab, and Continue / World Map / Idea Lab shortcuts.
+- **🗺️ Map** -- the full interactive world map. Tap a playable island to enter its board.
+- **✨ Create (Idea Lab)** -- stub for this slice: a free-play prompt space from the original design doc, not built yet.
+- **🏛️ Bank** -- stub for this slice: shows your Portal Token balance; spending them isn't built yet.
+- **🧑‍🔬 Profile** -- real stat bars for Thinking/Prompting/Awareness/Imagination, per-region completion, and a
+  restart-journey button. Thinker Profile archetypes are noted as coming soon.
+
 - **Region Board** -- each region is its own small node network, not one long path. Draw a Signal Card (`MOVE 1-4`
   or a special card like `👁️ AWARENESS` / `🔀 BRANCH`) to travel. Landing on a node triggers an encounter:
   - 💻 **Terminal** -- build a prompt from GOAL / CONTEXT / INSTRUCTIONS / CONSTRAINTS / OUTPUT chips; the world
@@ -20,8 +32,9 @@ are fully playable boards; the rest are on the map but not yet built (see Roadma
     reject the four given options).
   - 🟡 **Signal** -- a five-to-twenty-second beat: a fact, a micro-choice, a bit of flavor.
   - 🔀 **Branch** -- Fast Path (skip ahead, less reward) vs Awareness Path (more reward) vs Imagination Path (`???`).
-  - 🚪 **Lab Room** -- the region's boss. Completing it unlocks that region's stat bonus and returns you to the map.
-- Four persistent stats double as the "currency": 🧠 Thinking, 🎯 Prompting, 🛡️ Awareness, ✨ Imagination.
+  - 🚪 **Lab Room** -- the region's boss. Completing it unlocks that region's stat bonus and returns you to the hub.
+- Four persistent stats drive everything, including the home-hub resource bar: 🧠 Thinking, 🎯 Prompting,
+  🛡️ Awareness, ✨ Imagination.
 
 ## What's playable in this slice
 
