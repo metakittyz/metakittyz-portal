@@ -204,7 +204,7 @@ function TVShell({
       {/* Screen area positioned over the TV's glass opening */}
       <div
         className="absolute overflow-hidden crt-screen-on"
-        style={{ top: "11%", left: "12%", right: "11%", bottom: "19%", borderRadius: "7%/5%" }}
+        style={{ top: "7%", left: "10%", right: "8%", bottom: "19%", borderRadius: "7%/5%" }}
       >
         {/* Screen fill */}
         <div className="absolute inset-0" style={{ background: "#000608" }} />
@@ -817,7 +817,7 @@ function WelcomeScreen({ onNext }: { onNext: () => void }) {
       {/* TV with welcome message */}
       <div className="relative w-full flex-shrink-0">
         <ImageWithFallback src={tvFrame} alt="CRT TV" className="w-full block" />
-        <div className="absolute overflow-hidden" style={{ top: "11%", left: "12%", right: "11%", bottom: "19%", borderRadius: "7%/5%", background: "#000610" }}>
+        <div className="absolute overflow-hidden" style={{ top: "7%", left: "10%", right: "8%", bottom: "19%", borderRadius: "7%/5%", background: "#000610" }}>
           <div style={{ padding: "10px 10px 0 10px", height: "100%", display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ fontFamily: "'VT323', monospace", fontSize: 16, color: "#00FFEA", lineHeight: 1.5 }}>
               <span style={{ color: "#FF00FF" }}>{"DR. SPARK: "}</span>
