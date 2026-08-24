@@ -198,9 +198,12 @@ function TVShell({
   sparkInScreen?: boolean
 }) {
   return (
-    <div className="relative w-full flex-shrink-0">
+    <div
+      className="relative flex-shrink-0 mx-auto"
+      style={{ width: "auto", maxWidth: "100%", height: "auto", maxHeight: "46dvh", aspectRatio: "940 / 1549" }}
+    >
       {/* Physical TV frame */}
-      <ImageWithFallback src={tvFrame} alt="Retro CRT television" className="w-full block" style={{ borderRadius: "7%/4.5%" }} />
+      <ImageWithFallback src={tvFrame} alt="Retro CRT television" style={{ width: "100%", height: "100%", display: "block", borderRadius: "7%/4.5%" }} />
       {/* Screen area positioned over the TV's glass opening */}
       <div
         className="absolute overflow-hidden crt-screen-on"
@@ -244,8 +247,8 @@ function TVShell({
         {sparkSpeech && sparkInScreen && (
           <div className="absolute z-20 flex items-end gap-1.5" style={{ bottom: "3%", left: "3%" }}>
             <DrSpark size={sparkSize} />
-            <div style={{ marginBottom: 30 }}>
-              <SpeechBubble text={sparkSpeech} width={176} />
+            <div style={{ marginBottom: 19 }}>
+              <SpeechBubble text={sparkSpeech} width={128} />
             </div>
           </div>
         )}
@@ -815,8 +818,11 @@ function WelcomeScreen({ onNext }: { onNext: () => void }) {
         ))}
       </div>
       {/* TV with welcome message */}
-      <div className="relative w-full flex-shrink-0">
-        <ImageWithFallback src={tvFrame} alt="CRT TV" className="w-full block" />
+      <div
+        className="relative flex-shrink-0 mx-auto"
+        style={{ width: "auto", maxWidth: "100%", height: "auto", maxHeight: "46dvh", aspectRatio: "940 / 1549" }}
+      >
+        <ImageWithFallback src={tvFrame} alt="CRT TV" style={{ width: "100%", height: "100%", display: "block" }} />
         <div className="absolute overflow-hidden" style={{ top: "7%", left: "10%", right: "8%", bottom: "19%", borderRadius: "7%/5%", background: "#000610" }}>
           <div style={{ padding: "10px 10px 0 10px", height: "100%", display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ fontFamily: "'VT323', monospace", fontSize: 16, color: "#00FFEA", lineHeight: 1.5 }}>
@@ -893,7 +899,7 @@ function HomeScreen({ onNav, onEnter }: { onNav: (t: string) => void; onEnter: (
   return (
     <MainLayout
       sparkSpeech="Ready to think weird?"
-      sparkSize={104}
+      sparkSize={66}
       sparkInScreen
       ctaLabel="ENTER THE PORTAL"
       onCTA={onEnter}
@@ -1786,7 +1792,7 @@ export default function App() {
       <div
         className="relative flex-shrink-0 overflow-hidden"
         style={isCompact ? {
-          width: "100%", height: "100dvh", minHeight: "100vh",
+          width: "100%", height: "100dvh",
           background: "transparent",
         } : {
           width: 393, height: 852,
