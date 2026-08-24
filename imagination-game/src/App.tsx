@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext, createContext } from "react"
+import { useState, useEffect, useCallback, useContext, createContext, useRef } from "react"
 import { ImageWithFallback } from "./components/ImageWithFallback"
 import { startLoFiMusic, toggleLoFiMusicMuted, getLoFiMusicMuted } from "./audio/loFiMusic"
 import drSparkGif from "./assets/dr-spark.gif"
@@ -128,6 +128,64 @@ function SpeechBubble({ text, width = 200 }: { text: string; width?: number }) {
   )
 }
 
+// Falling digital-rain overlay, drawn on a canvas so it stays cheap even
+// though it redraws every frame.
+function MatrixRain() {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext("2d")
+    const chars = "アイウエオカキクケコサシスセソ01234567890XY#$%&"
+    const fontSize = 13
+    let columns = 0
+    let drops = []
+    let raf
+
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect()
+      canvas.width = Math.max(1, Math.round(rect.width))
+      canvas.height = Math.max(1, Math.round(rect.height))
+      columns = Math.ceil(canvas.width / fontSize)
+      drops = Array.from({ length: columns }, () => Math.random() * -40)
+    }
+    resize()
+
+    const ro = new ResizeObserver(resize)
+    ro.observe(canvas.parentElement)
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 8, 4, 0.16)"
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.font = `${fontSize}px monospace`
+      for (let i = 0; i < columns; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)]
+        const y = drops[i] * fontSize
+        ctx.fillStyle = Math.random() < 0.06 ? "#d4ffe4" : "rgba(60,255,140,0.8)"
+        ctx.fillText(char, i * fontSize, y)
+        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0
+        drops[i] += 1
+      }
+      raf = requestAnimationFrame(draw)
+    }
+    raf = requestAnimationFrame(draw)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      ro.disconnect()
+    }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0"
+      style={{ zIndex: 15, mixBlendMode: "screen", opacity: 0.5, pointerEvents: "none" }}
+    />
+  )
+}
+
 // ── TV Shell — the retro CRT frame around all scene content ───────────────────
 
 function TVShell({
@@ -144,23 +202,43 @@ function TVShell({
       <ImageWithFallback src={tvFrame} alt="Retro CRT television" className="w-full block" />
       {/* Screen area positioned over the TV's glass opening */}
       <div
-        className="absolute overflow-hidden"
+        className="absolute overflow-hidden crt-screen-on"
         style={{ top: "8%", left: "8%", right: "8%", bottom: "22%" }}
       >
         {/* Screen fill */}
         <div className="absolute inset-0" style={{ background: "#000608" }} />
+        {/* Scene content */}
+        <div className="relative z-10 w-full h-full overflow-hidden">
+          {children}
+        </div>
+        {/* Matrix digital-rain, screened on top of the scene content — only on big
+            decorative scenes; it fights legibility over text-heavy screens like forms */}
+        {sparkInScreen && <MatrixRain />}
         {/* Scanlines */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             zIndex: 30,
-            background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px)",
+            background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.14) 2px, rgba(0,0,0,0.14) 4px)",
           }}
         />
-        {/* Scene content */}
-        <div className="relative z-10 w-full h-full overflow-hidden">
-          {children}
-        </div>
+        {/* CRT tube vignette + green phosphor cast */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            zIndex: 31,
+            background: "radial-gradient(ellipse 70% 65% at 50% 50%, rgba(40,255,140,0.05) 0%, transparent 55%, rgba(0,0,0,0.55) 100%)",
+            boxShadow: "inset 0 0 40px 8px rgba(0,0,0,0.65)",
+          }}
+        />
+        {/* Slow scan-glow sweep */}
+        <div
+          className="absolute pointer-events-none crt-sweep"
+          style={{
+            zIndex: 32, left: 0, right: 0, height: "18%",
+            background: "linear-gradient(to bottom, transparent, rgba(140,255,190,0.06), transparent)",
+          }}
+        />
         {/* Dr. Spark + speech bubble — large in the screen's own bottom-left corner on screens with room */}
         {sparkSpeech && sparkInScreen && (
           <div className="absolute z-20 flex items-end gap-1.5" style={{ bottom: "3%", left: "3%" }}>
@@ -178,6 +256,20 @@ function TVShell({
           <SpeechBubble text={sparkSpeech} />
         </div>
       )}
+      <style>{`
+        .crt-screen-on { animation: crtFlicker 5s ease-in-out infinite; filter: saturate(0.9) contrast(1.08) brightness(1.02); }
+        @keyframes crtFlicker {
+          0%, 100% { filter: saturate(0.9) contrast(1.08) brightness(1.02); }
+          42%      { filter: saturate(0.9) contrast(1.1) brightness(0.97); }
+          43%      { filter: saturate(0.9) contrast(1.05) brightness(1.05); }
+          78%      { filter: saturate(0.9) contrast(1.08) brightness(0.99); }
+        }
+        .crt-sweep { animation: crtSweep 7s linear infinite; }
+        @keyframes crtSweep {
+          0%   { top: -20%; }
+          100% { top: 100%; }
+        }
+      `}</style>
     </div>
   )
 }
@@ -1592,7 +1684,25 @@ function LeaveOverlay({ onKeep, onLeave }: { onKeep: () => void; onLeave: () => 
 
 // ── Root ──────────────────────────────────────────────────────────────────────
 
+// On an actual phone the "device mockup" frame below is wider/taller than the
+// real viewport, so its rounded corners, fake status bar, and everything
+// outside it end up entirely off-screen — the decorative chrome and ambient
+// background are only meaningful on a wide (desktop/tablet) viewport.
+function useIsCompactViewport() {
+  const [isCompact, setIsCompact] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth <= 480 : false
+  )
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 480px)")
+    const handler = (e) => setIsCompact(e.matches)
+    mq.addEventListener("change", handler)
+    return () => mq.removeEventListener("change", handler)
+  }, [])
+  return isCompact
+}
+
 export default function App() {
+  const isCompact = useIsCompactViewport()
   const [screen, setScreen] = useState<Screen>("intro")
   const [overlay, setOverlay] = useState<Overlay>(null)
   const [goal, setGoal] = useState("")
@@ -1648,34 +1758,45 @@ export default function App() {
   return (
     <MusicContext.Provider value={{ muted: musicMuted, toggle: toggleMusic }}>
     <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: "radial-gradient(ellipse at 50% 40%,#0a0018 0%,#000 80%)" }}
+      className={isCompact ? "" : "min-h-screen flex items-center justify-center p-4"}
+      style={{ background: isCompact ? "#000" : "radial-gradient(ellipse at 50% 40%,#0a0018 0%,#000 80%)" }}
     >
-      {/* Retro-console screen artwork, dimmed behind the phone */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden>
-        <img
-          src={tvFrame}
-          alt=""
-          style={{
-            width: "100%", height: "100%", objectFit: "cover", objectPosition: "center",
-            opacity: 0.4, filter: "blur(2px) saturate(1.1)",
-            transform: "scale(1.06)",
-          }}
-        />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(10,0,24,0.5) 0%, rgba(0,0,0,0.85) 75%, #000 100%)" }} />
-      </div>
+      {/* Decorative "device in a box" chrome — only makes sense on a wide viewport.
+          On an actual phone this fixed-size mockup is bigger than the real screen,
+          so all of this (and the ambient background behind it) would render
+          entirely off-screen; skip it and go edge-to-edge instead. */}
+      {!isCompact && (
+        <>
+          {/* Retro-console screen artwork, dimmed behind the phone */}
+          <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden>
+            <img
+              src={tvFrame}
+              alt=""
+              style={{
+                width: "100%", height: "100%", objectFit: "cover", objectPosition: "center",
+                opacity: 0.4, filter: "blur(2px) saturate(1.1)",
+                transform: "scale(1.06)",
+              }}
+            />
+            <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(10,0,24,0.5) 0%, rgba(0,0,0,0.85) 75%, #000 100%)" }} />
+          </div>
 
-      {/* Ambient stars behind phone */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden>
-        {STARS.slice(0, 35).map((s, i) => (
-          <div key={i} className="absolute rounded-full bg-white" style={{ width: 1, height: 1, left: `${s.x}%`, top: `${s.y}%`, opacity: 0.18 }} />
-        ))}
-      </div>
+          {/* Ambient stars behind phone */}
+          <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden>
+            {STARS.slice(0, 35).map((s, i) => (
+              <div key={i} className="absolute rounded-full bg-white" style={{ width: 1, height: 1, left: `${s.x}%`, top: `${s.y}%`, opacity: 0.18 }} />
+            ))}
+          </div>
+        </>
+      )}
 
-      {/* iPhone 15 Pro frame */}
+      {/* iPhone 15 Pro frame (desktop) / edge-to-edge app shell (mobile) */}
       <div
         className="relative flex-shrink-0 overflow-hidden"
-        style={{
+        style={isCompact ? {
+          width: "100%", height: "100dvh", minHeight: "100vh",
+          background: "#000",
+        } : {
           width: 393, height: 852,
           background: "#000",
           borderRadius: 50,
@@ -1683,26 +1804,33 @@ export default function App() {
           boxShadow: "0 0 0 1px #1a1a2a,0 0 80px rgba(0,200,255,0.07),0 60px 140px rgba(0,0,0,0.9)",
         }}
       >
-        {/* Dynamic island */}
-        <div className="absolute z-50" style={{ top: 12, left: "50%", transform: "translateX(-50%)", width: 120, height: 34, background: "#000", borderRadius: 20, border: "1px solid #222" }} />
+        {!isCompact && (
+          <>
+            {/* Dynamic island */}
+            <div className="absolute z-50" style={{ top: 12, left: "50%", transform: "translateX(-50%)", width: 120, height: 34, background: "#000", borderRadius: 20, border: "1px solid #222" }} />
 
-        {/* Status bar */}
-        <div className="absolute top-0 left-0 right-0 h-14 flex items-end justify-between px-6 pb-1.5 z-40">
-          <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#FFD700" }}>9:41</span>
-          <div className="flex items-center gap-2">
-            <div className="flex items-end gap-0.5">
-              {[3, 4, 6, 8].map((h, i) => <div key={i} style={{ width: 3, height: h, background: "#FFD700", borderRadius: 1, opacity: i === 3 ? 0.35 : 1 }} />)}
+            {/* Status bar */}
+            <div className="absolute top-0 left-0 right-0 h-14 flex items-end justify-between px-6 pb-1.5 z-40">
+              <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#FFD700" }}>9:41</span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-end gap-0.5">
+                  {[3, 4, 6, 8].map((h, i) => <div key={i} style={{ width: 3, height: h, background: "#FFD700", borderRadius: 1, opacity: i === 3 ? 0.35 : 1 }} />)}
+                </div>
+                <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#FFD700" }}>WiFi</span>
+                <div className="flex items-center gap-0.5" style={{ border: "1px solid rgba(255,215,0,0.6)", borderRadius: 3, padding: "1px 2px" }}>
+                  <div style={{ width: 14, height: 8, background: "#FFD700", borderRadius: 1 }} />
+                  <div style={{ width: 3, height: 5, borderRadius: 1, border: "1px solid rgba(255,215,0,0.4)" }} />
+                </div>
+              </div>
             </div>
-            <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#FFD700" }}>WiFi</span>
-            <div className="flex items-center gap-0.5" style={{ border: "1px solid rgba(255,215,0,0.6)", borderRadius: 3, padding: "1px 2px" }}>
-              <div style={{ width: 14, height: 8, background: "#FFD700", borderRadius: 1 }} />
-              <div style={{ width: 3, height: 5, borderRadius: 1, border: "1px solid rgba(255,215,0,0.4)" }} />
-            </div>
-          </div>
-        </div>
+          </>
+        )}
 
         {/* Content */}
-        <div className="absolute inset-0 flex flex-col" style={{ paddingTop: 56, background: "#000" }}>
+        <div
+          className="absolute inset-0 flex flex-col"
+          style={{ paddingTop: isCompact ? "env(safe-area-inset-top)" : 56, background: "#000" }}
+        >
           <div className="relative flex-1 flex flex-col overflow-hidden">
             {renderScreen()}
             {overlay === "hint" && <HintOverlay onClose={() => setOverlay(null)} />}
@@ -1712,15 +1840,19 @@ export default function App() {
         </div>
 
         {/* Corner mask */}
-        <div className="absolute inset-0 pointer-events-none" style={{ borderRadius: 50, boxShadow: "inset 0 0 0 2px #000" }} />
+        {!isCompact && (
+          <div className="absolute inset-0 pointer-events-none" style={{ borderRadius: 50, boxShadow: "inset 0 0 0 2px #000" }} />
+        )}
       </div>
 
-      {/* Hint below phone */}
-      <div className="absolute" style={{ bottom: 20, left: "50%", transform: "translateX(-50%)", whiteSpace: "nowrap" }}>
-        <span style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "rgba(255,215,0,0.3)" }}>
-          TAP TILES & BUTTONS TO NAVIGATE THE PROTOTYPE
-        </span>
-      </div>
+      {/* Hint below phone (desktop only) */}
+      {!isCompact && (
+        <div className="absolute" style={{ bottom: 20, left: "50%", transform: "translateX(-50%)", whiteSpace: "nowrap" }}>
+          <span style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "rgba(255,215,0,0.3)" }}>
+            TAP TILES & BUTTONS TO NAVIGATE THE PROTOTYPE
+          </span>
+        </div>
+      )}
 
       {/* Keyframes */}
       <style>{`
