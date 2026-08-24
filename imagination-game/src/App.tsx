@@ -1091,7 +1091,47 @@ function GeneratingScreen({ onDone }: { onDone: () => void }) {
 
 // ── Screen 11 · Prompt Result ─────────────────────────────────────────────────
 
-function PromptResultScreen({ onBack, onTest }: { onBack: () => void; onTest: () => void }) {
+const GENERATED_PROMPT_TEXT =
+  "Create a 60-sec viral product launch video for Gen Z creators on TikTok — weird, funny tone ending with a catchphrase."
+
+function copyToClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text)
+  }
+  // Fallback for contexts without the async Clipboard API
+  const ta = document.createElement("textarea")
+  ta.value = text
+  ta.style.position = "fixed"
+  ta.style.opacity = "0"
+  document.body.appendChild(ta)
+  ta.select()
+  try {
+    document.execCommand("copy")
+  } finally {
+    document.body.removeChild(ta)
+  }
+  return Promise.resolve()
+}
+
+function PromptResultScreen({
+  onBack, onTest, onSave,
+}: { onBack: () => void; onTest: () => void; onSave: (p: { title: string; score: number; tag: string; color: string; text: string }) => void }) {
+  const [copyState, setCopyState] = useState<"idle" | "copied">("idle")
+  const [saveState, setSaveState] = useState<"idle" | "saved">("idle")
+
+  const handleCopy = () => {
+    copyToClipboard(GENERATED_PROMPT_TEXT).then(() => {
+      setCopyState("copied")
+      setTimeout(() => setCopyState("idle"), 1600)
+    })
+  }
+
+  const handleSave = () => {
+    onSave({ title: "Viral Product Launch", score: 87, tag: "VIDEO", color: "#00FFEA", text: GENERATED_PROMPT_TEXT })
+    setSaveState("saved")
+    setTimeout(() => setSaveState("idle"), 1600)
+  }
+
   return (
     <MainLayout
       sparkSpeech="Your prompt is ready!"
@@ -1099,9 +1139,13 @@ function PromptResultScreen({ onBack, onTest }: { onBack: () => void; onTest: ()
       onCTA={onTest}
       ctaColor="cyan"
       tiles={[
-        { icon: "✏️", label: "EDIT", onClick: () => {}, color: "#FFE500" },
-        { icon: "📋", label: "COPY", onClick: () => {}, color: "#00FFEA" },
-        { icon: "💾", label: "SAVE", onClick: () => {}, color: "#FF00FF" },
+        { icon: "✏️", label: "EDIT", onClick: onBack, color: "#FFE500" },
+        copyState === "copied"
+          ? { icon: "✅", label: "COPIED!", onClick: handleCopy, color: "#00FFEA" }
+          : { icon: "📋", label: "COPY", onClick: handleCopy, color: "#00FFEA" },
+        saveState === "saved"
+          ? { icon: "✅", label: "SAVED!", onClick: handleSave, color: "#FF00FF" }
+          : { icon: "💾", label: "SAVE", onClick: handleSave, color: "#FF00FF" },
       ]}
     >
       <div className="absolute inset-0 p-2 flex flex-col gap-2">
@@ -1129,7 +1173,7 @@ function PromptResultScreen({ onBack, onTest }: { onBack: () => void; onTest: ()
         {/* Prompt text */}
         <div className="flex-1 p-2" style={{ border: "1px solid rgba(0,255,234,0.3)", background: "rgba(0,0,0,0.5)", overflow: "auto", scrollbarWidth: "none" }}>
           <TvLabel text="GENERATED PROMPT:" color="rgba(0,255,234,0.5)" />
-          <TvBody text={'"Create a 60-sec viral product launch video for Gen Z creators on TikTok — weird, funny tone ending with a catchphrase."'} />
+          <TvBody text={`"${GENERATED_PROMPT_TEXT}"`} />
         </div>
       </div>
     </MainLayout>
@@ -1138,7 +1182,55 @@ function PromptResultScreen({ onBack, onTest }: { onBack: () => void; onTest: ()
 
 // ── Screen 12 · Prompt Test ───────────────────────────────────────────────────
 
+const TEST_OUTPUT_ORIGINAL = {
+  title: '"The Product That Slaps Different 🌀"',
+  hook: "A rubber duck in a suit slides in: 'You've been doing it wrong.'",
+  build: "Fast cuts, product as chaotic mini-games. Breaks 4th wall ×3.",
+  catchphrase: '"It\'s not weird. You\'re just not ready."',
+}
+const TEST_OUTPUT_WEIRDER = [
+  {
+    title: '"Your Product But It\'s Sentient Now 🐙"',
+    hook: "The product grows tiny legs and just... walks away mid-pitch.",
+    build: "Increasingly unhinged cutaways. A backup dancer duck squad appears.",
+    catchphrase: '"Normal is a subscription you never signed up for."',
+  },
+  {
+    title: '"We Replaced The Narrator With A Toaster 🍞"',
+    hook: "Toast pops out yelling the product name in Comic Sans on-screen.",
+    build: "Product floats in zero-g while jazz plays backwards.",
+    catchphrase: '"Weird sells. Normal doesn\'t."',
+  },
+]
+const TEST_OUTPUT_IMPROVED = [
+  {
+    title: '"Meet The Product Gen Z Actually Wants"',
+    hook: "Quick cut: real user reaction, genuine surprise, no acting.",
+    build: "Clean product shots, on-screen stat callouts, confident pacing.",
+    catchphrase: '"Made for how you actually create."',
+  },
+  {
+    title: '"The 3-Second Rule: Why This Hooks Instantly"',
+    hook: "Bold on-screen text states the core benefit in the first frame.",
+    build: "Before/after comparison, tight editing, trending audio cue.",
+    catchphrase: '"See it. Get it. Want it."',
+  },
+]
+
 function PromptTestScreen({ onBack, onContinue }: { onBack: () => void; onContinue: () => void }) {
+  const [output, setOutput] = useState(TEST_OUTPUT_ORIGINAL)
+  const [weirderStep, setWeirderStep] = useState(0)
+  const [improveStep, setImproveStep] = useState(0)
+
+  const goWeirder = () => {
+    setOutput(TEST_OUTPUT_WEIRDER[weirderStep % TEST_OUTPUT_WEIRDER.length])
+    setWeirderStep((s) => s + 1)
+  }
+  const goImprove = () => {
+    setOutput(TEST_OUTPUT_IMPROVED[improveStep % TEST_OUTPUT_IMPROVED.length])
+    setImproveStep((s) => s + 1)
+  }
+
   return (
     <MainLayout
       sparkSpeech="Let's see what happens!"
@@ -1146,18 +1238,18 @@ function PromptTestScreen({ onBack, onContinue }: { onBack: () => void; onContin
       onCTA={onContinue}
       ctaColor="green"
       tiles={[
-        { icon: "🌀", label: "WEIRDER", onClick: () => {}, color: "#FF00FF" },
-        { icon: "⚙️", label: "IMPROVE", onClick: () => {}, color: "#FFE500" },
+        { icon: "🌀", label: "WEIRDER", onClick: goWeirder, color: "#FF00FF" },
+        { icon: "⚙️", label: "IMPROVE", onClick: goImprove, color: "#FFE500" },
         { icon: "◀", label: "BACK", onClick: onBack, color: "#666" },
       ]}
     >
       <div className="absolute inset-0 p-2 flex flex-col gap-2 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
         <TvLabel text="SIMULATED OUTPUT:" color="#FFE500" />
         {[
-          { label: "TITLE", value: '"The Product That Slaps Different 🌀"' },
-          { label: "HOOK (0-3s)", value: "A rubber duck in a suit slides in: 'You've been doing it wrong.'" },
-          { label: "BUILD (3-50s)", value: "Fast cuts, product as chaotic mini-games. Breaks 4th wall ×3." },
-          { label: "CATCHPHRASE", value: '"It\'s not weird. You\'re just not ready."' },
+          { label: "TITLE", value: output.title },
+          { label: "HOOK (0-3s)", value: output.hook },
+          { label: "BUILD (3-50s)", value: output.build },
+          { label: "CATCHPHRASE", value: output.catchphrase },
         ].map(({ label, value }) => (
           <div key={label} className="p-1.5" style={{ borderLeft: "2px solid rgba(0,255,234,0.4)", paddingLeft: 6 }}>
             <TvLabel text={label} color="rgba(0,255,234,0.6)" />
@@ -1265,13 +1357,19 @@ function WorldMapScreen({ onNav }: { onNav: (t: string) => void }) {
 
 // ── Screen 15 · Prompt Bank ───────────────────────────────────────────────────
 
-function PromptBankScreen({ onNav }: { onNav: (t: string) => void }) {
+function PromptBankScreen({ onNav, savedPrompts = [] }: { onNav: (t: string) => void; savedPrompts?: Array<{ id: string; title: string; score: number; tag: string; color: string; text: string }> }) {
   const [tab, setTab] = useState<"completed" | "drafts" | "favorites">("completed")
-  const prompts = [
-    { title: "Viral Product Launch", score: 87, tag: "VIDEO", color: "#00FFEA" },
-    { title: "Creator Hook Formula", score: 92, tag: "POST", color: "#FFE500" },
-    { title: "App Onboarding Flow", score: 74, tag: "APP", color: "#FF00FF" },
+  const [query, setQuery] = useState("")
+  const mockPrompts = [
+    { id: "mock-1", title: "Creator Hook Formula", score: 92, tag: "POST", color: "#FFE500" },
+    { id: "mock-2", title: "App Onboarding Flow", score: 74, tag: "APP", color: "#FF00FF" },
   ]
+  const allPrompts = tab === "completed" ? [...savedPrompts, ...mockPrompts] : mockPrompts
+  const q = query.trim().toLowerCase()
+  const visiblePrompts = q
+    ? allPrompts.filter((p) => p.title.toLowerCase().includes(q) || p.tag.toLowerCase().includes(q))
+    : allPrompts
+
   return (
     <MainLayout
       sparkSpeech="Your saved gems!"
@@ -1285,7 +1383,13 @@ function PromptBankScreen({ onNav }: { onNav: (t: string) => void }) {
         {/* Search */}
         <div className="flex items-center gap-1.5 px-2 py-1" style={{ border: "1px solid rgba(0,255,234,0.3)" }}>
           <span style={{ color: "rgba(0,255,234,0.5)", fontSize: 12 }}>⌕</span>
-          <input placeholder="SEARCH..." className="flex-1 bg-transparent outline-none" style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "#00FFEA" }} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="SEARCH..."
+            className="flex-1 bg-transparent outline-none"
+            style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "#00FFEA" }}
+          />
         </div>
         {/* Tabs */}
         <div className="flex gap-1">
@@ -1303,8 +1407,13 @@ function PromptBankScreen({ onNav }: { onNav: (t: string) => void }) {
         </div>
         {/* Prompt cards */}
         <div className="flex-1 overflow-y-auto space-y-1.5" style={{ scrollbarWidth: "none" }}>
-          {prompts.map((p) => (
-            <div key={p.title} className="flex items-center justify-between p-2" style={{ border: `1px solid ${p.color}35`, background: `${p.color}08` }}>
+          {visiblePrompts.length === 0 && (
+            <div className="text-center py-4">
+              <TvBody text="No prompts match yet." color="#555" />
+            </div>
+          )}
+          {visiblePrompts.map((p) => (
+            <div key={p.id} className="flex items-center justify-between p-2" style={{ border: `1px solid ${p.color}35`, background: `${p.color}08` }}>
               <div>
                 <TvLabel text={p.title} color={p.color} />
                 <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 5, color: "#555" }}>{p.tag}</span>
@@ -1489,6 +1598,7 @@ export default function App() {
   const [goal, setGoal] = useState("")
   const [audience, setAudience] = useState("")
   const [tone, setTone] = useState("")
+  const [savedPrompts, setSavedPrompts] = useState([])
   const [musicMuted, setMusicMutedState] = useState(() => getLoFiMusicMuted())
   const toggleMusic = useCallback(() => setMusicMutedState(toggleLoFiMusicMuted()), [])
 
@@ -1519,11 +1629,17 @@ export default function App() {
       case "tone": return <ToneScreen onBack={() => go("audience")} onSelect={(t) => { setTone(t); go("assembly") }} />
       case "assembly": return <PromptAssemblyScreen goal={goal} audience={audience} tone={tone} onBack={() => go("tone")} onBuild={() => go("generating")} />
       case "generating": return <GeneratingScreen onDone={() => go("result")} />
-      case "result": return <PromptResultScreen onBack={() => go("assembly")} onTest={() => go("test")} />
+      case "result": return (
+        <PromptResultScreen
+          onBack={() => go("assembly")}
+          onTest={() => go("test")}
+          onSave={(p) => setSavedPrompts((prev) => [{ ...p, id: `${Date.now()}-${prev.length}` }, ...prev])}
+        />
+      )
       case "test": return <PromptTestScreen onBack={() => go("result")} onContinue={() => go("complete")} />
       case "complete": return <MissionCompleteScreen onContinue={() => go("home")} />
       case "map": return <WorldMapScreen onNav={navTab} />
-      case "bank": return <PromptBankScreen onNav={navTab} />
+      case "bank": return <PromptBankScreen onNav={navTab} savedPrompts={savedPrompts} />
       case "lab": return <IdeaLabScreen onNav={navTab} />
       case "profile": return <ProfileScreen onNav={navTab} />
     }
