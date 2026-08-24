@@ -200,7 +200,7 @@ function TVShell({
   return (
     <div className="relative w-full flex-shrink-0">
       {/* Physical TV frame */}
-      <ImageWithFallback src={tvFrame} alt="Retro CRT television" className="w-full block" />
+      <ImageWithFallback src={tvFrame} alt="Retro CRT television" className="w-full block" style={{ borderRadius: "7%/4.5%" }} />
       {/* Screen area positioned over the TV's glass opening */}
       <div
         className="absolute overflow-hidden crt-screen-on"
