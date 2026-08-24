@@ -200,7 +200,7 @@ function TVShell({
   return (
     <div
       className="relative flex-shrink-0 mx-auto"
-      style={{ width: "auto", maxWidth: "100%", height: "auto", maxHeight: "46dvh", aspectRatio: "940 / 1549" }}
+      style={{ width: "auto", maxWidth: "100%", height: "auto", maxHeight: "58dvh", aspectRatio: "940 / 1549" }}
     >
       {/* Physical TV frame */}
       <ImageWithFallback src={tvFrame} alt="Retro CRT television" style={{ width: "100%", height: "100%", display: "block", borderRadius: "7%/4.5%" }} />
@@ -247,8 +247,8 @@ function TVShell({
         {sparkSpeech && sparkInScreen && (
           <div className="absolute z-20 flex items-end gap-1.5" style={{ bottom: "3%", left: "3%" }}>
             <DrSpark size={sparkSize} />
-            <div style={{ marginBottom: 19 }}>
-              <SpeechBubble text={sparkSpeech} width={128} />
+            <div style={{ marginBottom: 24 }}>
+              <SpeechBubble text={sparkSpeech} width={161} />
             </div>
           </div>
         )}
@@ -820,7 +820,7 @@ function WelcomeScreen({ onNext }: { onNext: () => void }) {
       {/* TV with welcome message */}
       <div
         className="relative flex-shrink-0 mx-auto"
-        style={{ width: "auto", maxWidth: "100%", height: "auto", maxHeight: "46dvh", aspectRatio: "940 / 1549" }}
+        style={{ width: "auto", maxWidth: "100%", height: "auto", maxHeight: "58dvh", aspectRatio: "940 / 1549" }}
       >
         <ImageWithFallback src={tvFrame} alt="CRT TV" style={{ width: "100%", height: "100%", display: "block" }} />
         <div className="absolute overflow-hidden" style={{ top: "7%", left: "10%", right: "8%", bottom: "19%", borderRadius: "7%/5%", background: "#000610" }}>
@@ -899,7 +899,7 @@ function HomeScreen({ onNav, onEnter }: { onNav: (t: string) => void; onEnter: (
   return (
     <MainLayout
       sparkSpeech="Ready to think weird?"
-      sparkSize={66}
+      sparkSize={83}
       sparkInScreen
       ctaLabel="ENTER THE PORTAL"
       onCTA={onEnter}
