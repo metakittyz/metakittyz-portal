@@ -888,9 +888,9 @@ function RoughIdeaScreen({
           value={idea}
           onChange={(e) => setIdea(e.target.value)}
           placeholder="MAKE ME A VIRAL VIDEO."
-          rows={2}
-          className="w-full bg-transparent outline-none resize-none"
-          style={{ fontFamily: "'VT323', monospace", fontSize: 15, color: "#00FFEA", border: "1px solid rgba(0,255,234,0.3)", padding: "5px 7px" }}
+          rows={5}
+          className="w-full bg-transparent outline-none resize-none flex-shrink-0"
+          style={{ fontFamily: "'VT323', monospace", fontSize: 17, color: "#00FFEA", border: "1px solid rgba(0,255,234,0.3)", padding: "8px 10px", lineHeight: 1.4, minHeight: 120 }}
         />
         <TvLabel text="PROMPT INGREDIENTS:" color="#FFE500" />
         {[
