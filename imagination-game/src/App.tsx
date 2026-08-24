@@ -6,6 +6,7 @@ import claymationMap from "./assets/claymation-map.webp"
 import tvFrame from "./assets/tv-frame.webp"
 import splashBg from "./assets/splash-bg.webp"
 import titleLogo from "./assets/title-logo.webp"
+import appBgMap from "./assets/app-bg-map.webp"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -818,7 +819,7 @@ function HomeScreen({ onNav, onEnter }: { onNav: (t: string) => void; onEnter: (
         src={claymationMap}
         alt="Weirdverse world map"
         className="absolute inset-0 w-full h-full"
-        style={{ objectFit: "cover", objectPosition: "center 15%", transform: "scale(1.46)", transformOrigin: "50% 8%" }}
+        style={{ objectFit: "cover", objectPosition: "center 32%" }}
       />
       <div className="absolute inset-0" style={{ background: "rgba(0,4,0,0.22)" }} />
       <MapEnergyTrails />
@@ -839,7 +840,7 @@ function DestinationScreen({ onBack, onStart }: { onBack: () => void; onStart: (
       ctaColor="yellow"
     >
       {/* Map as backdrop */}
-      <ImageWithFallback src={claymationMap} alt="Etherville map" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: "38% 50%" }} />
+      <ImageWithFallback src={claymationMap} alt="Etherville map" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: "center 20%" }} />
       <div className="absolute inset-0" style={{ background: "rgba(0,4,0,0.55)" }} />
       {/* Back button */}
       <button onClick={onBack} className="absolute top-1.5 left-1.5 z-10 px-2 py-1" style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#FFD700", border: "1px solid #FFD70060" }}>◀ BACK</button>
@@ -1651,6 +1652,20 @@ export default function App() {
       className="min-h-screen flex items-center justify-center p-4"
       style={{ background: "radial-gradient(ellipse at 50% 40%,#0a0018 0%,#000 80%)" }}
     >
+      {/* Claymation world-map artwork, dimmed and blurred behind the phone */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden>
+        <img
+          src={appBgMap}
+          alt=""
+          style={{
+            width: "100%", height: "100%", objectFit: "cover", objectPosition: "center",
+            opacity: 0.32, filter: "blur(3px) saturate(1.15)",
+            transform: "scale(1.06)",
+          }}
+        />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(10,0,24,0.55) 0%, rgba(0,0,0,0.88) 75%, #000 100%)" }} />
+      </div>
+
       {/* Ambient stars behind phone */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden>
         {STARS.slice(0, 35).map((s, i) => (
