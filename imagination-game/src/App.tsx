@@ -1846,14 +1846,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Console frame laid over the entire app UI, on top of everything */}
-      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }} aria-hidden>
-        <img
-          src={tvFrame}
-          alt=""
-          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
-        />
-      </div>
 
       {/* Keyframes */}
       <style>{`
