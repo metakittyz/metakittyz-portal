@@ -7,6 +7,8 @@ import tvFrame from "./assets/tv-frame.webp"
 import splashBg from "./assets/splash-bg.webp"
 import titleLogo from "./assets/title-logo.webp"
 import appBackground from "./assets/app-background.webp"
+import screenSceneMp4 from "./assets/screensceneee.mp4"
+import screenSceneWebm from "./assets/screensceneee.webm"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -912,13 +914,18 @@ function HomeScreen({ onNav, onEnter }: { onNav: (t: string) => void; onEnter: (
       activeTab="home"
       onTab={onNav}
     >
-      {/* Claymation map fills the TV screen, zoomed in on the island cluster */}
-      <ImageWithFallback
-        src={claymationMap}
-        alt="Weirdverse world map"
+      {/* Looping scene video fills the TV screen */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
         className="absolute inset-0 w-full h-full"
-        style={{ objectFit: "cover", objectPosition: "center 32%" }}
-      />
+        style={{ objectFit: "cover", objectPosition: "center" }}
+      >
+        <source src={screenSceneMp4} type="video/mp4" />
+        <source src={screenSceneWebm} type="video/webm" />
+      </video>
       <div className="absolute inset-0" style={{ background: "rgba(0,4,0,0.22)" }} />
       <MapEnergyTrails />
       {/* Mission pulse on Etherville */}
