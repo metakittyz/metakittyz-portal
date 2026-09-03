@@ -571,85 +571,88 @@ function IntroClipScreen({ onEnter }: { onEnter: () => void }) {
   return (
     <div
       onClick={onEnter}
-      style={{ position: "relative", width: "100%", height: "100%", background: "#000", overflow: "hidden", cursor: "pointer" }}
+      style={{ position: "relative", width: "100%", height: "100%", background: "#000", overflow: "hidden", cursor: "pointer", perspective: "1000px" }}
     >
 
-      {/* ── SWIRL A: wide slow CCW rainbow vortex — full backdrop ── */}
+      {/* ── SWIRL A: wide slow CCW rainbow vortex — soft ambient backdrop ── */}
       <div aria-hidden style={{
         position: "absolute", top: "50%", left: "50%",
         width: "520%", height: "520%",
         background: "conic-gradient(from 0deg,#FF0080 0%,#FF6000 14%,#FFE500 28%,#00FF88 42%,#0088FF 57%,#9900FF 71%,#FF0080 100%)",
-        animation: "swirlCCW 5s linear infinite",
-        opacity: 0.13,
+        animation: "swirlCCW 11s linear infinite",
+        opacity: 0.06,
         mixBlendMode: "screen",
       }} />
 
-      {/* ── SWIRL B: tight magenta pinwheel CW 2.5s ── */}
+      {/* ── SWIRL B: magenta pinwheel, slow ── */}
       <div aria-hidden style={{
         position: "absolute", top: "50%", left: "50%",
         width: "380%", height: "380%",
-        background: "repeating-conic-gradient(from 0deg, rgba(255,0,180,0.32) 0deg 8deg, transparent 8deg 22deg)",
-        animation: "swirlCW 2.5s linear infinite",
+        background: "repeating-conic-gradient(from 0deg, rgba(255,0,180,0.16) 0deg 8deg, transparent 8deg 22deg)",
+        animation: "swirlCW 7s linear infinite",
         mixBlendMode: "screen",
       }} />
 
-      {/* ── SWIRL C: tight cyan pinwheel CCW 2.5s ── */}
+      {/* ── SWIRL C: cyan pinwheel, slow ── */}
       <div aria-hidden style={{
         position: "absolute", top: "50%", left: "50%",
         width: "300%", height: "300%",
-        background: "repeating-conic-gradient(from 0deg, rgba(0,240,255,0.28) 0deg 6deg, transparent 6deg 20deg)",
-        animation: "swirlCCW 2.5s linear infinite",
+        background: "repeating-conic-gradient(from 0deg, rgba(0,240,255,0.14) 0deg 6deg, transparent 6deg 20deg)",
+        animation: "swirlCCW 7.5s linear infinite",
         mixBlendMode: "screen",
       }} />
 
-      {/* ── SWIRL D: small fast yellow CW 1.25s ── */}
+      {/* ── SWIRL D: small yellow accent, gentle ── */}
       <div aria-hidden style={{
         position: "absolute", top: "50%", left: "50%",
         width: "210%", height: "210%",
-        background: "repeating-conic-gradient(from 0deg, rgba(255,220,0,0.38) 0deg 4deg, transparent 4deg 13deg)",
-        animation: "swirlCW 1.25s linear infinite",
+        background: "repeating-conic-gradient(from 0deg, rgba(255,220,0,0.16) 0deg 4deg, transparent 4deg 13deg)",
+        animation: "swirlCW 4.5s linear infinite",
         mixBlendMode: "screen",
       }} />
 
-      {/* ── IMAGE A: main portal — breathes + full hue cycle over 5s ── */}
+      {/* ── IMAGE A: main portal — foreground layer, drifts toward/away from camera ── */}
       <div aria-hidden style={{
         position: "absolute", inset: "-8%",
-        animation: "imgA 5s ease-in-out infinite",
+        animation: "imgA 8s ease-in-out infinite",
         transformOrigin: "50% 50%",
+        transformStyle: "preserve-3d",
       }}>
         <ImageWithFallback src={splashBg} alt=""
           style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%" }} />
       </div>
 
-      {/* ── IMAGE B: mirrored portal — exclusion blend, offset phase ──
-          Creates psychedelic moiré as it drifts out of sync with A     */}
+      {/* ── IMAGE B: mirrored portal — pushed back in depth, exclusion blend ──
+          Sits behind IMAGE A via translateZ, giving a real parallax layer     */}
       <div aria-hidden style={{
         position: "absolute", inset: "-8%",
-        animation: "imgB 5s ease-in-out infinite",
+        animation: "imgB 8s ease-in-out infinite",
         transformOrigin: "50% 50%",
+        transformStyle: "preserve-3d",
         mixBlendMode: "exclusion",
-        opacity: 0.55,
+        opacity: 0.32,
       }}>
         <ImageWithFallback src={splashBg} alt=""
           style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transform: "scaleX(-1)" }} />
       </div>
 
-      {/* ── MAP: floats over top, overlay blend, slow rock ── */}
+      {/* ── MAP: mid-depth layer, overlay blend, gentle rock ── */}
       <div aria-hidden style={{
         position: "absolute", inset: "-12%",
-        animation: "mapRock 5s ease-in-out infinite",
+        animation: "mapRock 8s ease-in-out infinite",
         transformOrigin: "50% 50%",
+        transformStyle: "preserve-3d",
         mixBlendMode: "overlay",
       }}>
         <ImageWithFallback src={claymationMap} alt=""
           style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </div>
 
-      {/* ── BEAT PULSE: radial flash every 1.25s (4× per loop) ── */}
+      {/* ── BEAT PULSE: soft radial breathing glow, 2s ── */}
       <div aria-hidden style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.22) 0%, transparent 62%)",
-        animation: "beatPulse 1.25s ease-out infinite",
+        background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.16) 0%, transparent 62%)",
+        animation: "beatPulse 2s ease-out infinite",
         mixBlendMode: "screen",
         pointerEvents: "none",
       }} />
@@ -711,31 +714,31 @@ function IntroClipScreen({ onEnter }: { onEnter: () => void }) {
         @keyframes swirlCCW { from{transform:translate(-50%,-50%) rotate(0deg);}   to{transform:translate(-50%,-50%) rotate(-360deg);} }
 
         @keyframes imgA {
-          0%   { transform:scale(1.06) rotate(0deg);     filter:hue-rotate(0deg)   saturate(3.5) brightness(1.05); }
-          25%  { transform:scale(1.00) rotate(0.9deg);   filter:hue-rotate(90deg)  saturate(5)   brightness(1.4); }
-          50%  { transform:scale(1.09) rotate(0deg);     filter:hue-rotate(180deg) saturate(3.5) brightness(1.05); }
-          75%  { transform:scale(1.00) rotate(-0.9deg);  filter:hue-rotate(270deg) saturate(5)   brightness(1.4); }
-          100% { transform:scale(1.06) rotate(0deg);     filter:hue-rotate(360deg) saturate(3.5) brightness(1.05); }
+          0%   { transform:translateZ(0px)   scale(1.04) rotate(0deg);     filter:hue-rotate(0deg)   saturate(1.2)  brightness(1.0); }
+          25%  { transform:translateZ(45px)  scale(1.01) rotate(0.5deg);   filter:hue-rotate(12deg)  saturate(1.35) brightness(1.08); }
+          50%  { transform:translateZ(0px)   scale(1.06) rotate(0deg);     filter:hue-rotate(0deg)   saturate(1.2)  brightness(1.0); }
+          75%  { transform:translateZ(-30px) scale(1.03) rotate(-0.5deg);  filter:hue-rotate(-12deg) saturate(1.3)  brightness(0.96); }
+          100% { transform:translateZ(0px)   scale(1.04) rotate(0deg);     filter:hue-rotate(0deg)   saturate(1.2)  brightness(1.0); }
         }
         @keyframes imgB {
-          0%   { transform:scale(1.00) rotate(0deg);     filter:hue-rotate(180deg) saturate(2.5) brightness(0.85); }
-          25%  { transform:scale(1.09) rotate(-0.7deg);  filter:hue-rotate(270deg) saturate(4)   brightness(1.2); }
-          50%  { transform:scale(1.00) rotate(0deg);     filter:hue-rotate(360deg) saturate(2.5) brightness(0.85); }
-          75%  { transform:scale(1.09) rotate(0.7deg);   filter:hue-rotate(90deg)  saturate(4)   brightness(1.2); }
-          100% { transform:scale(1.00) rotate(0deg);     filter:hue-rotate(180deg) saturate(2.5) brightness(0.85); }
+          0%   { transform:translateZ(-60px) scale(1.1)  rotate(0deg);     filter:hue-rotate(180deg) saturate(1.15) brightness(0.9); }
+          25%  { transform:translateZ(-25px) scale(1.06) rotate(-0.4deg);  filter:hue-rotate(168deg) saturate(1.25) brightness(0.96); }
+          50%  { transform:translateZ(-60px) scale(1.1)  rotate(0deg);     filter:hue-rotate(180deg) saturate(1.15) brightness(0.9); }
+          75%  { transform:translateZ(-25px) scale(1.06) rotate(0.4deg);   filter:hue-rotate(192deg) saturate(1.25) brightness(0.96); }
+          100% { transform:translateZ(-60px) scale(1.1)  rotate(0deg);     filter:hue-rotate(180deg) saturate(1.15) brightness(0.9); }
         }
         @keyframes mapRock {
-          0%   { transform:scale(1.12) rotate(0deg);    filter:hue-rotate(0deg)   saturate(2) brightness(0.65); opacity:0.28; }
-          25%  { transform:scale(1.03) rotate(2deg);    filter:hue-rotate(90deg)  saturate(4) brightness(1.1);  opacity:0.5; }
-          50%  { transform:scale(1.12) rotate(0deg);    filter:hue-rotate(180deg) saturate(2) brightness(0.65); opacity:0.28; }
-          75%  { transform:scale(1.03) rotate(-2deg);   filter:hue-rotate(270deg) saturate(4) brightness(1.1);  opacity:0.5; }
-          100% { transform:scale(1.12) rotate(0deg);    filter:hue-rotate(360deg) saturate(2) brightness(0.65); opacity:0.28; }
+          0%   { transform:translateZ(-20px) scale(1.1)  rotate(0deg);    filter:hue-rotate(0deg)   saturate(1.1)  brightness(0.85); opacity:0.3; }
+          25%  { transform:translateZ(15px)  scale(1.05) rotate(1deg);    filter:hue-rotate(10deg)  saturate(1.25) brightness(0.95); opacity:0.4; }
+          50%  { transform:translateZ(-20px) scale(1.1)  rotate(0deg);    filter:hue-rotate(0deg)   saturate(1.1)  brightness(0.85); opacity:0.3; }
+          75%  { transform:translateZ(15px)  scale(1.05) rotate(-1deg);   filter:hue-rotate(-10deg) saturate(1.25) brightness(0.95); opacity:0.4; }
+          100% { transform:translateZ(-20px) scale(1.1)  rotate(0deg);    filter:hue-rotate(0deg)   saturate(1.1)  brightness(0.85); opacity:0.3; }
         }
         @keyframes beatPulse {
-          0%   { opacity:0.9; transform:scale(1); }
-          35%  { opacity:0.1; transform:scale(0.88); }
-          65%  { opacity:0.55; transform:scale(1.06); }
-          100% { opacity:0.9; transform:scale(1); }
+          0%   { opacity:0.32; transform:scale(1); }
+          35%  { opacity:0.12; transform:scale(0.96); }
+          65%  { opacity:0.24; transform:scale(1.03); }
+          100% { opacity:0.32; transform:scale(1); }
         }
         @keyframes mandalaSpin {
           from { transform:rotate(0deg); }
